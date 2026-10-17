@@ -8,8 +8,14 @@ Calculadora de dados para celular. Arquivo único (`index.html`), funciona offli
 |---|---|
 | `2d12` | rola 2 dados de 12 faces e soma |
 | `1d20+5` | soma/subtrai dados e constantes |
-| `3×(3d6)` | rola `3d6` **três vezes, de forma independente** (9 dados) e soma |
-| `2×(1d8+2×(1d4))` | parênteses podem ser aninhados |
+| `3×(3d6)` | **parênteses = repetir**: rola `3d6` três vezes, de forma independente (9 dados), e soma |
+| `3×[3d6]` | **colchetes = multiplicar**: rola `3d6` uma vez (3 dados) e multiplica o resultado por 3 |
+| `2×(1d8+2×[1d4])` | parênteses e colchetes podem ser aninhados |
+| `2d20kh1` / `2d20kl1` | mantém o maior / menor dado (vantagem / desvantagem). `4d6kh3` = descarta o menor |
+
+Botões especiais: **Vant/Desv** trocam o último `1d20` por `2d20kh1`/`2d20kl1` (tocar de novo desfaz);
+**dX** põe só o `d` para dados de outro tamanho (`3`, `dX`, `7` → `3d7`).
+Embaixo do visor aparece o mínimo, a média e o máximo possíveis. ROLAR com o visor vazio repete a última rolagem.
 
 No teclado do celular, `x` e `*` também valem como `×`.
 

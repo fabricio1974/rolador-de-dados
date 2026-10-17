@@ -3,21 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#121418">
+<meta name="theme-color" content="#5b44b0">
 <title>Rolador de Dados</title>
 <style>
-  /* ---------- Cores e base (tema escuro) ---------- */
+  /* ---------- Cores (inspiradas em dados coloridos de mesa) ---------- */
   :root {
-    --fundo: #121418;
-    --painel: #1c1f26;
-    --tecla: #262a33;
-    --tecla-dado: #2d2840;
-    --tecla-op: #20303a;
-    --texto: #e8eaed;
-    --fraco: #9aa0aa;
-    --destaque: #7c5cff;
-    --max: #4ade80;
-    --min: #f87171;
+    --fundo: #5b44b0;        /* roxo */
+    --cartao: #3a9cbc;       /* azul-piscina, como o ícone */
+    --tecla: rgba(255,255,255,.16);
+    --tecla-op: rgba(0,0,0,.22);
+    --texto: #ffffff;
+    --fraco: rgba(255,255,255,.75);
+    --vermelho: #ef5a4c;
+    --azul: #2f97b8;
+    --verde: #3fa65a;
+    --laranja: #e08a1e;
+    --rosa: #d9579a;
+    --amarelo: #f5c84b;
+    --anil: #4c6fe0;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
@@ -27,9 +30,10 @@
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
-  button { font: inherit; color: inherit; border: 0; cursor: pointer; touch-action: manipulation; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; cursor: pointer; touch-action: manipulation; }
 
-  /* A tela inteira é uma coluna: topo, resultado (estica), visor, teclado, ROLAR */
+  /* A tela é uma coluna: topo, resultado (estica), visor, teclado, ROLAR */
   .app {
     display: flex; flex-direction: column;
     height: 100dvh; max-width: 520px; margin: 0 auto;
@@ -39,120 +43,171 @@
 
   /* ---------- Topo ---------- */
   header { display: flex; align-items: center; gap: 8px; }
-  header h1 { font-size: 1.1rem; margin: 0; flex: 1; }
-  .botao-topo { background: var(--painel); padding: 8px 12px; border-radius: 10px; font-size: .9rem; }
+  header h1 { font-size: 1.15rem; margin: 0; flex: 1; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .botao-topo { background: var(--tecla-op); padding: 8px 12px; border-radius: 12px; font-size: .9rem; font-weight: 600; }
 
   /* ---------- Resultado ---------- */
   .resultado {
     flex: 1; min-height: 0; overflow-y: auto;
-    background: var(--painel); border-radius: 14px; padding: 12px 14px;
+    background: var(--cartao); border-radius: 20px; padding: 12px 14px;
+    box-shadow: 0 4px 0 rgba(0,0,0,.18);
   }
-  .total { font-size: 3.2rem; font-weight: 800; line-height: 1; text-align: center; margin: 4px 0 2px; }
-  .expr-rolada { text-align: center; color: var(--fraco); margin-bottom: 10px; word-break: break-all; }
-  .linha { padding: 6px 0; border-top: 1px solid #2c303a; font-variant-numeric: tabular-nums; }
-  .linha .rotulo { font-weight: 700; }
-  .grupo { display: inline-block; margin: 2px 6px 2px 0; color: var(--fraco); }
-  .dado { color: var(--texto); }
-  .dado.max { color: var(--max); font-weight: 800; }
-  .dado.min { color: var(--min); font-weight: 800; }
-  .subtotal { font-weight: 700; }
-  .erro { color: var(--min); text-align: center; padding: 16px 4px; }
-  .dica { color: var(--fraco); text-align: center; padding: 16px 4px; }
+  .total { font-size: 3.4rem; font-weight: 900; line-height: 1; text-align: center; margin: 4px 0 2px; }
+  .expr-rolada { text-align: center; font-weight: 600; word-break: break-all; }
+  .stats { text-align: center; color: var(--fraco); font-size: .85rem; margin: 2px 0 10px; }
+  .linha { padding: 8px 0; border-top: 1px solid rgba(255,255,255,.25); }
+  .linha .rotulo { font-weight: 800; margin-right: 4px; }
+  .grupo { display: inline-flex; flex-wrap: wrap; gap: 4px; margin: 3px 8px 3px 0; vertical-align: middle; }
+  /* cada dado vira uma "fichinha" branca */
+  .dado {
+    min-width: 30px; height: 30px; padding: 0 6px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #fff; color: #23314a; font-weight: 800; font-variant-numeric: tabular-nums;
+  }
+  .dado.max { background: var(--verde); color: #fff; }
+  .dado.min { background: var(--vermelho); color: #fff; }
+  .dado.fora { opacity: .45; text-decoration: line-through; }
+  .subtotal { font-weight: 800; white-space: nowrap; }
+  .erro { text-align: center; padding: 16px 4px; font-weight: 700; }
+  .dica { text-align: center; padding: 10px 4px; line-height: 1.5; }
+  .dica code { background: rgba(0,0,0,.18); padding: 1px 5px; border-radius: 6px; }
 
   /* ---------- Visor ---------- */
   .visor { display: flex; gap: 8px; }
   .visor input {
     flex: 1; min-width: 0;
-    background: #0b0c0f; color: var(--texto);
-    border: 2px solid #2c303a; border-radius: 12px;
-    font-size: 1.6rem; padding: 10px 12px; text-align: right;
-    font-variant-numeric: tabular-nums;
+    background: rgba(0,0,0,.28); border: 2px solid transparent; border-radius: 14px;
+    font-size: 1.6rem; font-weight: 700; padding: 8px 12px; text-align: right;
   }
-  .visor input:focus { outline: none; border-color: var(--destaque); }
-  .visor button { background: var(--painel); border-radius: 12px; padding: 0 14px; font-size: 1.4rem; }
+  .visor input::placeholder { color: rgba(255,255,255,.4); }
+  .visor input:focus { outline: none; border-color: var(--amarelo); }
+  .visor button { background: var(--tecla-op); border-radius: 14px; padding: 0 14px; font-size: 1.4rem; }
+  .previa { min-height: 1.1em; margin-top: -4px; text-align: right; font-size: .85rem; color: var(--fraco); padding-right: 64px; }
 
-  /* ---------- Teclado (grade de 4 colunas) ---------- */
-  .teclado { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  /* ---------- Teclado (grade de 5 colunas) ---------- */
+  .teclado { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
   .teclado button {
     background: var(--tecla); border-radius: 12px;
-    height: 52px; font-size: 1.3rem; font-weight: 600;
+    height: 48px; font-size: 1.25rem; font-weight: 800;
+    box-shadow: 0 3px 0 rgba(0,0,0,.18);
   }
-  .teclado button:active, .botao-topo:active, .rolar:active { filter: brightness(1.4); }
-  .teclado .d { background: var(--tecla-dado); }
+  .teclado button:active, .rolar:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
   .teclado .op { background: var(--tecla-op); }
+  .teclado .dois { grid-column: span 2; }
+  .teclado .pequeno { font-size: .95rem; }
+  .teclado [data-dado="4"]   { background: var(--vermelho); }
+  .teclado [data-dado="6"]   { background: var(--azul); }
+  .teclado [data-dado="8"]   { background: var(--verde); }
+  .teclado [data-dado="10"]  { background: var(--laranja); }
+  .teclado [data-dado="12"]  { background: var(--rosa); }
+  .teclado [data-dado="20"]  { background: var(--amarelo); color: #4a3500; }
+  .teclado [data-dado="100"] { background: var(--anil); }
+  .teclado [data-acao="vantagem"]    { background: var(--verde); }
+  .teclado [data-acao="desvantagem"] { background: var(--vermelho); }
   .rolar {
-    background: var(--destaque); border-radius: 14px;
-    height: 64px; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px;
+    background: var(--amarelo); color: #4a3500; border-radius: 18px;
+    height: 62px; font-size: 1.5rem; font-weight: 900; letter-spacing: 3px;
+    box-shadow: 0 4px 0 rgba(0,0,0,.25);
   }
 
   /* ---------- Painel de Histórico / Favoritos ---------- */
   .painel {
-    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
     display: flex; align-items: flex-end; justify-content: center;
   }
   .painel[hidden] { display: none; }
   .folha {
-    background: var(--painel); width: 100%; max-width: 520px; max-height: 80dvh;
-    border-radius: 18px 18px 0 0; padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
+    background: var(--fundo); width: 100%; max-width: 520px; max-height: 85dvh;
+    border-radius: 22px 22px 0 0; padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
     display: flex; flex-direction: column;
   }
   .folha header { margin-bottom: 8px; }
+  .form-favorito { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin-bottom: 10px; }
+  .form-favorito[hidden] { display: none; }
+  .form-favorito input {
+    min-width: 0; background: rgba(0,0,0,.28); border: 2px solid transparent;
+    border-radius: 12px; padding: 10px; font-size: 1rem;
+  }
+  .form-favorito input:focus { outline: none; border-color: var(--amarelo); }
+  .form-favorito button { background: var(--amarelo); color: #4a3500; border-radius: 12px; padding: 0 14px; font-weight: 800; }
+  .aviso { color: var(--amarelo); font-size: .85rem; margin: -4px 0 8px; min-height: 1em; }
   .lista { overflow-y: auto; }
-  .item { display: flex; align-items: center; gap: 8px; border-top: 1px solid #2c303a; }
-  .item .abrir { flex: 1; text-align: left; background: none; padding: 12px 4px; }
-  .item .abrir small { display: block; color: var(--fraco); word-break: break-all; }
-  .item .remover { background: none; color: var(--fraco); padding: 12px; font-size: 1.1rem; }
+  .item { display: flex; align-items: center; gap: 8px; background: var(--cartao); border-radius: 14px; margin-bottom: 6px; }
+  .item .abrir { flex: 1; min-width: 0; text-align: left; background: none; padding: 10px 12px; font-weight: 700; }
+  .item .abrir small { display: block; font-weight: 400; color: var(--fraco); white-space: pre-wrap; word-break: break-word; }
+  .item .total-hist { font-size: 1.3rem; font-weight: 900; float: right; margin-left: 8px; }
+  .item .remover { background: none; padding: 12px; font-size: 1.1rem; }
   .vazio { color: var(--fraco); text-align: center; padding: 20px; }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <h1>🎲 Rolador</h1>
+    <h1>
+      <!-- ícone: um dado azul com 3 pintas -->
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+        <rect width="28" height="28" rx="7" fill="#3a9cbc"/>
+        <circle cx="20" cy="8" r="3" fill="#fff"/><circle cx="14" cy="14" r="3" fill="#fff"/><circle cx="8" cy="20" r="3" fill="#fff"/>
+      </svg>
+      Rolador
+    </h1>
     <button class="botao-topo" id="abrir-historico">Histórico</button>
     <button class="botao-topo" id="abrir-favoritos">★ Favoritos</button>
   </header>
 
   <section class="resultado" id="resultado" aria-live="polite">
-    <p class="dica">Monte uma expressão (ex.: 2d12+3×(3d6)) e toque em ROLAR.</p>
+    <div class="dica">
+      Monte a expressão e toque em <b>ROLAR</b>.<br>
+      <code>3×(3d6)</code> rola 3d6 três vezes<br>
+      <code>3×[3d6]</code> rola 3d6 uma vez e multiplica por 3<br>
+      <b>Vant/Desv</b>: 2d20, fica com o maior/menor
+    </div>
   </section>
 
-  <div class="visor">
-    <input id="expr" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
-           autocorrect="off" spellcheck="false" placeholder="1d20+5" aria-label="Expressão">
-    <button id="salvar-favorito" aria-label="Salvar como favorito">☆</button>
+  <div>
+    <div class="visor">
+      <input id="expr" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
+             autocorrect="off" spellcheck="false" placeholder="1d20+5" aria-label="Expressão">
+      <button id="salvar-favorito" aria-label="Salvar como favorito">☆</button>
+    </div>
+    <div class="previa" id="previa"></div>
   </div>
 
   <div class="teclado">
-    <button class="d" data-dado="4">d4</button>
-    <button class="d" data-dado="6">d6</button>
-    <button class="d" data-dado="8">d8</button>
-    <button class="d" data-dado="10">d10</button>
+    <button data-dado="4">d4</button>
+    <button data-dado="6">d6</button>
+    <button data-dado="8">d8</button>
+    <button data-dado="10">d10</button>
+    <button data-dado="12">d12</button>
 
-    <button class="d" data-dado="12">d12</button>
-    <button class="d" data-dado="20">d20</button>
-    <button class="d" data-dado="100">d100</button>
-    <button class="op" data-acao="apagar" aria-label="Apagar">⌫</button>
+    <button data-dado="20">d20</button>
+    <button data-dado="100">d100</button>
+    <button class="op" data-acao="d" aria-label="Dado de outro tamanho">dX</button>
+    <button class="pequeno" data-acao="vantagem">Vant</button>
+    <button class="pequeno" data-acao="desvantagem">Desv</button>
 
     <button data-tecla="7">7</button>
     <button data-tecla="8">8</button>
     <button data-tecla="9">9</button>
-    <button class="op" data-acao="limpar">C</button>
+    <button class="op" data-abre="(">(</button>
+    <button class="op" data-fecha=")">)</button>
 
     <button data-tecla="4">4</button>
     <button data-tecla="5">5</button>
     <button data-tecla="6">6</button>
-    <button class="op" data-op="×">×</button>
+    <button class="op" data-abre="[">[</button>
+    <button class="op" data-fecha="]">]</button>
 
     <button data-tecla="1">1</button>
     <button data-tecla="2">2</button>
     <button data-tecla="3">3</button>
-    <button class="op" data-op="−">−</button>
+    <button class="op" data-op="×">×</button>
+    <button class="op" data-acao="apagar" aria-label="Apagar">⌫</button>
 
-    <button class="op" data-acao="abre">(</button>
-    <button data-tecla="0">0</button>
-    <button class="op" data-acao="fecha">)</button>
+    <button class="dois" data-tecla="0">0</button>
+    <button class="op" data-op="−">−</button>
     <button class="op" data-op="+">+</button>
+    <button class="op" data-acao="limpar">C</button>
   </div>
 
   <button class="rolar" id="rolar">ROLAR</button>
@@ -164,6 +219,13 @@
       <h1 id="painel-titulo">Histórico</h1>
       <button class="botao-topo" id="fechar-painel">Fechar</button>
     </header>
+    <form class="form-favorito" id="form-favorito" hidden>
+      <input id="fav-nome" placeholder="Nome (ex.: Ataque espada)" aria-label="Nome do favorito">
+      <input id="fav-expr" placeholder="1d20+5" aria-label="Expressão do favorito"
+             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button type="submit">Salvar</button>
+    </form>
+    <div class="aviso" id="fav-aviso"></div>
     <div class="lista" id="painel-lista"></div>
   </div>
 </div>
@@ -192,11 +254,14 @@ function tokenizar(texto) {
       while (j < s.length && s[j] >= '0' && s[j] <= '9') j++;
       tokens.push({ tipo: 'num', valor: Number(s.slice(i, j)) });
       i = j;
-    } else if ('d+-×()'.includes(c)) {
+    } else if ('d+-×()[]'.includes(c)) {
       tokens.push({ tipo: c });
       i++;
+    } else if (c === 'k' && (s[i + 1] === 'h' || s[i + 1] === 'l')) {
+      tokens.push({ tipo: 'k', alto: s[i + 1] === 'h' }); // kh = manter maiores, kl = menores
+      i += 2;
     } else {
-      throw new Error(`Caractere inválido: "${c}". Use números, d, +, −, × e parênteses.`);
+      throw new Error(`Caractere inválido: "${c}". Use números, d, +, −, ×, ( ) e [ ].`);
     }
   }
   return tokens;
@@ -204,6 +269,7 @@ function tokenizar(texto) {
 
 function simbolo(token) {
   if (token.tipo === 'num') return String(token.valor);
+  if (token.tipo === 'k') return token.alto ? 'kh' : 'kl';
   return token.tipo === '-' ? '−' : token.tipo;
 }
 
@@ -212,7 +278,8 @@ function simbolo(token) {
 //      soma     = produto (("+" | "−") produto)*
 //      produto  = unario ("×" unario)*
 //      unario   = "−" unario | primario
-//      primario = número | [número] "d" número | "(" soma ")"
+//      primario = número | [número] "d" número [("kh"|"kl") [número]]
+//               | "(" soma ")" | "[" soma "]"
 function analisar(texto) {
   const tokens = tokenizar(texto);
   if (tokens.length === 0) throw new Error('A expressão está vazia.');
@@ -233,7 +300,7 @@ function analisar(texto) {
     let no = unario();
     while (ver() && ver().tipo === '×') {
       pegar();
-      no = repeticao(no, unario());
+      no = multiplicacao(no, unario());
     }
     return no;
   }
@@ -246,13 +313,14 @@ function analisar(texto) {
 
   function primario() {
     const t = ver();
-    if (!t) throw new Error('A expressão terminou no meio: falta um número, um dado ou ")".');
-    if (t.tipo === '(') {
+    if (!t) throw new Error('A expressão terminou no meio: falta um número, um dado ou fechar ")" / "]".');
+    if (t.tipo === '(' || t.tipo === '[') {
       pegar();
+      const fecha = t.tipo === '(' ? ')' : ']';
       const dentro = soma();
-      if (!ver() || ver().tipo !== ')') throw new Error('Falta fechar um parêntese: ")".');
+      if (!ver() || ver().tipo !== fecha) throw new Error(`Falta fechar com "${fecha}".`);
       pegar();
-      return { tipo: 'grupo', dentro };
+      return { tipo: t.tipo === '(' ? 'grupo' : 'colchete', dentro };
     }
     if (t.tipo === 'num' || t.tipo === 'd') {
       let qtd = 1;
@@ -267,16 +335,23 @@ function analisar(texto) {
       pegar();
       if (qtd < 1) throw new Error('A quantidade de dados precisa ser pelo menos 1.');
       if (faces.valor < 2) throw new Error('Um dado precisa ter pelo menos 2 faces.');
-      return { tipo: 'dado', qtd, faces: faces.valor };
+      const no = { tipo: 'dado', qtd, faces: faces.valor };
+      if (ver() && ver().tipo === 'k') {
+        const alto = pegar().alto;
+        const n = ver() && ver().tipo === 'num' ? pegar().valor : 1;
+        if (n < 1 || n > qtd) throw new Error(`Em ${qtd}d${faces.valor}, só dá para manter de 1 a ${qtd} dados.`);
+        no.manter = { alto, n };
+      }
+      return no;
     }
-    if (t.tipo === ')') throw new Error('Há um ")" sem conteúdo ou sem "(" antes dele.');
-    throw new Error(`Esperava um número, dado ou "(", mas encontrei "${simbolo(t)}".`);
+    if (t.tipo === ')' || t.tipo === ']') throw new Error(`Há um "${t.tipo}" sem conteúdo ou sem abertura antes dele.`);
+    throw new Error(`Esperava um número, dado, "(" ou "[", mas encontrei "${simbolo(t)}".`);
   }
 
   const arvore = soma();
   if (i < tokens.length) {
     const t = tokens[i];
-    if (t.tipo === ')') throw new Error('Há um ")" sem "(" correspondente.');
+    if (t.tipo === ')' || t.tipo === ']') throw new Error(`Há um "${t.tipo}" sem abertura correspondente.`);
     throw new Error(`Falta um operador (+, −, ×) antes de "${simbolo(t)}".`);
   }
   if (contarDados(arvore) > LIMITE_DADOS) {
@@ -285,19 +360,20 @@ function analisar(texto) {
   return arvore;
 }
 
-// "×" é REPETIÇÃO: um lado precisa ser um número fixo (N), o outro é rolado N vezes.
-//   3×(3d6) -> rola (3d6) três vezes, de forma independente, e soma.
-function repeticao(esq, dir) {
+// O "×" tem dois sentidos, e quem decide é o tipo de agrupamento:
+//   3×(3d6) -> REPETIÇÃO: rola (3d6) três vezes, de forma independente, e soma.
+//   3×[3d6] -> MULTIPLICAÇÃO: rola 3d6 uma vez e multiplica o resultado por 3.
+// Um dos lados precisa ser um número fixo.
+function multiplicacao(esq, dir) {
   const esqTemDados = temDados(esq);
   const dirTemDados = temDados(dir);
   if (esqTemDados && dirTemDados) {
-    throw new Error('Não dá para multiplicar dado por dado. Use N×(expressão), com N sendo um número.');
+    throw new Error('Não dá para multiplicar dado por dado. Use N×(...) para repetir ou N×[...] para multiplicar.');
   }
-  const no = esqTemDados
-    ? { tipo: 'rep', vezes: dir, alvo: esq, invertido: true } // (1d6)×3
-    : { tipo: 'rep', vezes: esq, alvo: dir };                 // 3×(1d6)
-  if (valorConstante(no.vezes) < 0) throw new Error('O número de repetições não pode ser negativo.');
-  return no;
+  const [fator, alvo, invertido] = esqTemDados ? [dir, esq, true] : [esq, dir, false];
+  if (alvo.tipo === 'colchete' || !temDados(alvo)) return { tipo: 'mult', fator, alvo, invertido };
+  if (valorConstante(fator) < 0) throw new Error('O número de repetições não pode ser negativo. Para multiplicar, use [ ].');
+  return { tipo: 'rep', vezes: fator, alvo, invertido };
 }
 
 function temDados(no) {
@@ -305,8 +381,8 @@ function temDados(no) {
     case 'dado': return true;
     case 'num': return false;
     case 'neg': return temDados(no.alvo);
-    case 'grupo': return temDados(no.dentro);
-    case 'rep': return temDados(no.alvo);
+    case 'grupo': case 'colchete': return temDados(no.dentro);
+    case 'rep': case 'mult': return temDados(no.alvo);
     default: return temDados(no.esq) || temDados(no.dir); // mais / menos
   }
 }
@@ -316,8 +392,9 @@ function valorConstante(no) {
   switch (no.tipo) {
     case 'num': return no.valor;
     case 'neg': return -valorConstante(no.alvo);
-    case 'grupo': return valorConstante(no.dentro);
+    case 'grupo': case 'colchete': return valorConstante(no.dentro);
     case 'rep': return valorConstante(no.vezes) * valorConstante(no.alvo);
+    case 'mult': return valorConstante(no.fator) * valorConstante(no.alvo);
     case 'mais': return valorConstante(no.esq) + valorConstante(no.dir);
     case 'menos': return valorConstante(no.esq) - valorConstante(no.dir);
     default: throw new Error('Esperava um número fixo.');
@@ -330,8 +407,9 @@ function contarDados(no) {
     case 'dado': return no.qtd;
     case 'num': return 0;
     case 'neg': return contarDados(no.alvo);
-    case 'grupo': return contarDados(no.dentro);
+    case 'grupo': case 'colchete': return contarDados(no.dentro);
     case 'rep': return valorConstante(no.vezes) * contarDados(no.alvo);
+    case 'mult': return contarDados(no.alvo);
     default: return contarDados(no.esq) + contarDados(no.dir);
   }
 }
@@ -340,12 +418,17 @@ function contarDados(no) {
 function formatar(no) {
   switch (no.tipo) {
     case 'num': return String(no.valor);
-    case 'dado': return `${no.qtd}d${no.faces}`;
+    case 'dado': {
+      const k = no.manter ? `k${no.manter.alto ? 'h' : 'l'}${no.manter.n}` : '';
+      return `${no.qtd}d${no.faces}${k}`;
+    }
     case 'neg': return `−${formatar(no.alvo)}`;
     case 'grupo': return `(${formatar(no.dentro)})`;
-    case 'rep': return no.invertido
-      ? `${formatar(no.alvo)}×${formatar(no.vezes)}`
-      : `${formatar(no.vezes)}×${formatar(no.alvo)}`;
+    case 'colchete': return `[${formatar(no.dentro)}]`;
+    case 'rep': case 'mult': {
+      const n = formatar(no.tipo === 'rep' ? no.vezes : no.fator);
+      return no.invertido ? `${formatar(no.alvo)}×${n}` : `${n}×${formatar(no.alvo)}`;
+    }
     case 'mais': return `${formatar(no.esq)}+${formatar(no.dir)}`;
     case 'menos': return `${formatar(no.esq)}−${formatar(no.dir)}`;
   }
@@ -360,17 +443,24 @@ function avaliar(no, rolarDado, grupos) {
     case 'dado': {
       const dados = [];
       for (let k = 0; k < no.qtd; k++) dados.push({ valor: rolarDado(no.faces), faces: no.faces });
+      if (no.manter) {
+        // ordena as posições do melhor para o pior e marca o resto como descartado
+        const ordem = dados.map((_, k) => k)
+          .sort((a, b) => no.manter.alto ? dados[b].valor - dados[a].valor : dados[a].valor - dados[b].valor);
+        ordem.slice(no.manter.n).forEach(k => { dados[k].descartado = true; });
+      }
       grupos.push(dados);
-      return dados.reduce((s, d) => s + d.valor, 0);
+      return dados.reduce((s, d) => s + (d.descartado ? 0 : d.valor), 0);
     }
     case 'neg': return -avaliar(no.alvo, rolarDado, grupos);
-    case 'grupo': return avaliar(no.dentro, rolarDado, grupos);
+    case 'grupo': case 'colchete': return avaliar(no.dentro, rolarDado, grupos);
     case 'rep': {
       const n = valorConstante(no.vezes);
       let soma = 0;
       for (let k = 0; k < n; k++) soma += avaliar(no.alvo, rolarDado, grupos); // rola DE NOVO a cada vez
       return soma;
     }
+    case 'mult': return valorConstante(no.fator) * avaliar(no.alvo, rolarDado, grupos); // rola UMA vez
     case 'mais': return avaliar(no.esq, rolarDado, grupos) + avaliar(no.dir, rolarDado, grupos);
     case 'menos': return avaliar(no.esq, rolarDado, grupos) - avaliar(no.dir, rolarDado, grupos);
   }
@@ -393,18 +483,70 @@ function rolar(texto, rolarDado) {
     return { texto: (sinal < 0 ? '−' : '') + formatar(no), grupos, subtotal };
   });
   const total = linhas.reduce((s, l) => s + l.subtotal, 0);
-  return { expressao: formatar(arvore), linhas, total };
+  return { expressao: formatar(arvore), linhas, total, stats: estatisticas(arvore) };
 }
 
-// Resultado em texto puro, no formato "2d12: [7, 11] = 18".
+// Resultado em texto puro, no formato "2d12: [7, 11] = 18". Dado descartado: ~3~.
 function descrever(resultado) {
   const linhas = resultado.linhas.map(l => {
     if (l.grupos.length === 0) return `${l.texto}`;
-    const grupos = l.grupos.map(g => `[${g.map(d => d.valor).join(', ')}]`).join(' ');
+    const grupos = l.grupos
+      .map(g => `[${g.map(d => d.descartado ? `~${d.valor}~` : d.valor).join(', ')}]`).join(' ');
     return `${l.texto}: ${grupos} = ${l.subtotal}`;
   });
   linhas.push(`Total: ${resultado.total}`);
   return linhas.join('\n');
+}
+
+// 4) ESTATÍSTICAS: menor, maior e média possíveis, sem rolar nada.
+//    A média de uma soma é a soma das médias, então dá para calcular parte por parte.
+function estatisticas(no) {
+  const inverter = (e) => ({ min: -e.max, max: -e.min, media: e.media === null ? null : -e.media });
+  const escalar = (e, c) => c >= 0
+    ? { min: e.min * c, max: e.max * c, media: e.media === null ? null : e.media * c }
+    : inverter(escalar(e, -c));
+  const somar = (a, b) => ({
+    min: a.min + b.min, max: a.max + b.max,
+    media: a.media === null || b.media === null ? null : a.media + b.media,
+  });
+  switch (no.tipo) {
+    case 'num': return { min: no.valor, max: no.valor, media: no.valor };
+    case 'dado': {
+      if (!no.manter) return { min: no.qtd, max: no.qtd * no.faces, media: no.qtd * (no.faces + 1) / 2 };
+      const n = no.manter.n;
+      return { min: n, max: n * no.faces, media: mediaMantendo(no.qtd, no.faces, n, no.manter.alto) };
+    }
+    case 'neg': return inverter(estatisticas(no.alvo));
+    case 'grupo': case 'colchete': return estatisticas(no.dentro);
+    case 'rep': return escalar(estatisticas(no.alvo), valorConstante(no.vezes));
+    case 'mult': return escalar(estatisticas(no.alvo), valorConstante(no.fator));
+    case 'mais': return somar(estatisticas(no.esq), estatisticas(no.dir));
+    case 'menos': return somar(estatisticas(no.esq), inverter(estatisticas(no.dir)));
+  }
+}
+
+// Média ao rolar "qtd" dados de "faces" e manter os "n" maiores (alto) ou menores.
+// Usa a distribuição binomial: P(pelo menos m dados tirarem >= v).
+// Para muitos dados a conta fica pesada, então devolve null (sem média).
+function mediaMantendo(qtd, faces, n, alto) {
+  if (qtd > 60 || faces > 1000) return null;
+  let media = 0;
+  for (let v = 1; v <= faces; v++) {
+    const p = (faces - v + 1) / faces;      // chance de um dado tirar >= v
+    const pmf = [];                          // pmf[i] = P(exatamente i dados >= v)
+    let c = 1;                               // coeficiente binomial C(qtd, i)
+    for (let i = 0; i <= qtd; i++) {
+      pmf.push(c * p ** i * (1 - p) ** (qtd - i));
+      c = c * (qtd - i) / (i + 1);
+    }
+    const peloMenos = [];                    // peloMenos[m] = P(pelo menos m dados >= v)
+    let acum = 0;
+    for (let i = qtd; i >= 0; i--) { acum += pmf[i]; peloMenos[i] = acum; }
+    // o j-ésimo maior é >= v quando pelo menos j dados são >= v
+    // o j-ésimo menor é >= v quando pelo menos (qtd-j+1) dados são >= v
+    for (let j = 1; j <= n; j++) media += peloMenos[alto ? j : qtd - j + 1];
+  }
+  return media;
 }
 
 // Dado de verdade: crypto.getRandomValues. Descarta números do "resto" para que
@@ -416,8 +558,20 @@ function rolarDadoCripto(faces) {
   return (buf[0] % faces) + 1;
 }
 
-// 4) TECLADO: o que cada botão faz com o texto do visor.
-const OPERADORES = '+−×-*x';
+// 5) TECLADO: o que cada botão faz com o texto do visor.
+const termina = {
+  emOperador: (e) => /[+\-−×*x]$/.test(e),
+  emAbertura: (e) => /[([]$/.test(e),
+  emDado: (e) => /d\d+(k[hl]\d*)?$/.test(e),
+  emFechamento: (e) => /[)\]]$/.test(e),
+  emNumero: (e) => /\d$/.test(e),
+};
+
+// Junta um termo novo ao fim da expressão, pondo "+" se precisar.
+function juntarTermo(expr, termo) {
+  if (termina.emNumero(expr) || termina.emFechamento(expr)) return expr + '+' + termo;
+  return expr + termo;
+}
 
 function apertarDado(expr, faces) {
   const m = expr.match(/(\d*)d(\d+)$/);
@@ -425,28 +579,59 @@ function apertarDado(expr, faces) {
     const qtd = (m[1] === '' ? 1 : Number(m[1])) + 1;
     return expr.slice(0, expr.length - m[0].length) + qtd + 'd' + faces;
   }
-  if (m || expr.endsWith(')')) return expr + '+1d' + faces; // outro dado: soma
-  if (/\d$/.test(expr)) return expr + 'd' + faces;         // "2" + d6 -> "2d6"
+  if (termina.emDado(expr) || termina.emFechamento(expr)) return expr + '+1d' + faces; // outro dado: soma
+  if (termina.emNumero(expr)) return expr + 'd' + faces;  // "2" + d6 -> "2d6"
+  if (expr.endsWith('d')) return expr + faces;            // "3d" + d6 -> "3d6"
   return expr + '1d' + faces;
 }
 
+// Botão "dX": põe só o "d" para você digitar as faces (ex.: 3, dX, 7 -> 3d7).
+function apertarD(expr) {
+  if (expr.endsWith('d')) return expr;
+  if (termina.emDado(expr) || termina.emFechamento(expr)) return expr + '+d';
+  return expr + 'd';
+}
+
 function apertarOperador(expr, op) {
-  if (expr === '' && op !== '−') return expr;
-  if (expr.endsWith('(') && op !== '−') return expr;
-  if (OPERADORES.includes(expr.slice(-1))) return expr.slice(0, -1) + op; // troca o operador
+  if ((expr === '' || termina.emAbertura(expr)) && op !== '−') return expr;
+  if (termina.emOperador(expr)) return expr.slice(0, -1) + op; // troca o operador
   return expr + op;
 }
 
-function apertarAbre(expr) {
-  if (/d\d+$/.test(expr) || expr.endsWith(')')) return expr + '+(';
-  if (/\d$/.test(expr)) return expr + '×(';   // "3" + ( -> "3×(" (repetição)
-  return expr + '(';
+// "(" ou "[": depois de um número vira "×(" (o número é quem repete/multiplica).
+function apertarAbre(expr, abre) {
+  if (termina.emDado(expr) || termina.emFechamento(expr)) return expr + '+' + abre;
+  if (termina.emNumero(expr)) return expr + '×' + abre;
+  return expr + abre;
 }
 
-function apertarFecha(expr) {
-  const abertos = (expr.match(/\(/g) || []).length - (expr.match(/\)/g) || []).length;
-  if (abertos <= 0 || expr.endsWith('(') || OPERADORES.includes(expr.slice(-1))) return expr;
-  return expr + ')';
+// ")" ou "]": só fecha se o último aberto for do mesmo tipo e já houver conteúdo.
+function apertarFecha(expr, fecha) {
+  const pilha = [];
+  for (const c of expr) {
+    if (c === '(' || c === '[') pilha.push(c);
+    else if (c === ')' || c === ']') pilha.pop();
+  }
+  const abre = fecha === ')' ? '(' : '[';
+  if (pilha[pilha.length - 1] !== abre) return expr;
+  if (termina.emAbertura(expr) || termina.emOperador(expr)) return expr;
+  return expr + fecha;
+}
+
+// Vantagem / Desvantagem: troca o último 1d20 por 2d20kh1 (ou kl1).
+// Tocar de novo no mesmo botão volta para 1d20; tocar no outro troca.
+function alternarVantagem(expr, alto) {
+  const novo = `2d20k${alto ? 'h' : 'l'}1`;
+  const ja = expr.match(/2d20k([hl])1?(?!\d)/);
+  if (ja) return expr.replace(ja[0], ja[1] === (alto ? 'h' : 'l') ? '1d20' : novo);
+  const re = /(^|[^\d])(1?d20)(?![\dk])/g;
+  let ultimo = null, m;
+  while ((m = re.exec(expr))) ultimo = m;
+  if (ultimo) {
+    const ini = ultimo.index + ultimo[1].length;
+    return expr.slice(0, ini) + novo + expr.slice(ini + ultimo[2].length);
+  }
+  return juntarTermo(expr, novo);
 }
 // ===== FIM DA LÓGICA =====
 </script>
@@ -474,63 +659,88 @@ function el(tag, classe, texto) {
   return e;
 }
 
+const num = (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+function textoStats(s) {
+  const media = s.media === null ? '' : ` · média ${num(s.media)}`;
+  return s.min === s.max ? '' : `mín ${num(s.min)}${media} · máx ${num(s.max)}`;
+}
+
 function mostrarResultado(res) {
-  areaResultado.replaceChildren();
-  areaResultado.append(el('div', 'total', String(res.total)), el('div', 'expr-rolada', res.expressao));
+  areaResultado.replaceChildren(
+    el('div', 'total', String(res.total)),
+    el('div', 'expr-rolada', res.expressao),
+    el('div', 'stats', textoStats(res.stats)),
+  );
   for (const linha of res.linhas) {
     const div = el('div', 'linha');
-    div.append(el('span', 'rotulo', linha.texto + (linha.grupos.length ? ': ' : '')));
+    div.append(el('span', 'rotulo', linha.texto + (linha.grupos.length ? ':' : '')));
     for (const grupo of linha.grupos) {
-      const g = el('span', 'grupo', '[');
-      grupo.forEach((d, k) => {
+      const g = el('span', 'grupo');
+      for (const d of grupo) {
         let classe = 'dado';
         if (d.valor === d.faces) classe += ' max';
         else if (d.valor === 1) classe += ' min';
+        if (d.descartado) classe += ' fora';
         g.append(el('span', classe, String(d.valor)));
-        if (k < grupo.length - 1) g.append(', ');
-      });
-      g.append(']');
+      }
       div.append(g);
     }
     if (linha.grupos.length) div.append(el('span', 'subtotal', '= ' + linha.subtotal));
     areaResultado.append(div);
   }
+  areaResultado.scrollTop = 0;
 }
 
 function mostrarErro(msg) {
   areaResultado.replaceChildren(el('p', 'erro', '⚠ ' + msg));
 }
 
+// Prévia embaixo do visor: faixa de resultados possíveis enquanto você digita.
+function atualizarPrevia() {
+  let texto = '';
+  try { texto = textoStats(estatisticas(analisar(visor.value))); } catch { /* incompleta: sem prévia */ }
+  $('previa').textContent = texto;
+}
+
 function executarRolagem() {
+  // Visor vazio: repete a última rolagem do histórico.
+  if (!visor.value.trim() && historico.length) visor.value = historico[0].expr;
   const texto = visor.value.trim();
   try {
     const res = rolar(texto, rolarDadoCripto);
     mostrarResultado(res);
-    historico.unshift({ expr: texto, total: res.total });
+    historico.unshift({ expr: texto, total: res.total, detalhe: descrever(res).split('\n').slice(0, -1).join('\n') });
     historico = historico.slice(0, 30);
     gravar('rolador.historico', historico);
     if (navigator.vibrate) navigator.vibrate(15);
   } catch (e) {
     mostrarErro(e.message);
   }
+  atualizarPrevia();
 }
 
 // Teclado: um único "ouvinte" descobre qual botão foi tocado pelos data-*.
 document.querySelector('.teclado').addEventListener('click', (ev) => {
   const b = ev.target.closest('button');
   if (!b) return;
+  const d = b.dataset;
   let v = visor.value;
-  if (b.dataset.dado) v = apertarDado(v, Number(b.dataset.dado));
-  else if (b.dataset.tecla) v = v + b.dataset.tecla;
-  else if (b.dataset.op) v = apertarOperador(v, b.dataset.op);
-  else if (b.dataset.acao === 'apagar') v = v.slice(0, -1);
-  else if (b.dataset.acao === 'limpar') v = '';
-  else if (b.dataset.acao === 'abre') v = apertarAbre(v);
-  else if (b.dataset.acao === 'fecha') v = apertarFecha(v);
+  if (d.dado) v = apertarDado(v, Number(d.dado));
+  else if (d.tecla) v = v + d.tecla;
+  else if (d.op) v = apertarOperador(v, d.op);
+  else if (d.abre) v = apertarAbre(v, d.abre);
+  else if (d.fecha) v = apertarFecha(v, d.fecha);
+  else if (d.acao === 'd') v = apertarD(v);
+  else if (d.acao === 'vantagem') v = alternarVantagem(v, true);
+  else if (d.acao === 'desvantagem') v = alternarVantagem(v, false);
+  else if (d.acao === 'apagar') v = v.slice(0, -1);
+  else if (d.acao === 'limpar') v = '';
   visor.value = v;
+  atualizarPrevia();
 });
 
 $('rolar').addEventListener('click', executarRolagem);
+visor.addEventListener('input', atualizarPrevia);
 visor.addEventListener('keydown', (ev) => {
   if (ev.key === 'Enter') { ev.preventDefault(); visor.blur(); executarRolagem(); }
 });
@@ -540,7 +750,11 @@ let painelAtual = null;
 
 function abrirPainel(tipo) {
   painelAtual = tipo;
-  $('painel-titulo').textContent = tipo === 'historico' ? 'Histórico' : '★ Favoritos';
+  const fav = tipo === 'favoritos';
+  $('painel-titulo').textContent = fav ? '★ Favoritos' : 'Histórico';
+  $('form-favorito').hidden = !fav;
+  $('fav-aviso').textContent = '';
+  if (fav) { $('fav-expr').value = visor.value.trim(); $('fav-nome').value = ''; }
   desenharLista();
   $('painel').hidden = false;
 }
@@ -559,14 +773,14 @@ function desenharLista() {
   if (itens.length === 0) {
     lista.append(el('p', 'vazio', painelAtual === 'historico'
       ? 'Nenhuma rolagem ainda.'
-      : 'Nenhum favorito. Monte uma expressão e toque em ☆ ao lado do visor.'));
+      : 'Nenhum favorito ainda. Dê um nome, confira a expressão e toque em Salvar.'));
     return;
   }
   itens.forEach((item, idx) => {
     const linha = el('div', 'item');
     const abrir = el('button', 'abrir');
     if (painelAtual === 'historico') {
-      abrir.append(item.expr, el('small', '', 'Total: ' + item.total));
+      abrir.append(el('span', 'total-hist', String(item.total)), item.expr, el('small', '', item.detalhe || ''));
     } else {
       abrir.append(item.nome, el('small', '', item.expr));
     }
@@ -585,17 +799,21 @@ function desenharLista() {
 
 $('abrir-historico').addEventListener('click', () => abrirPainel('historico'));
 $('abrir-favoritos').addEventListener('click', () => abrirPainel('favoritos'));
+$('salvar-favorito').addEventListener('click', () => { abrirPainel('favoritos'); $('fav-nome').focus(); });
 $('fechar-painel').addEventListener('click', fecharPainel);
 $('painel').addEventListener('click', (ev) => { if (ev.target.id === 'painel') fecharPainel(); });
 
-$('salvar-favorito').addEventListener('click', () => {
-  const expr = visor.value.trim();
-  try { analisar(expr); } catch (e) { mostrarErro('Não salvei: ' + e.message); return; }
-  const nome = prompt('Nome do favorito (ex.: Ataque espada):', '');
-  if (!nome || !nome.trim()) return;
-  favoritos.push({ nome: nome.trim(), expr });
+$('form-favorito').addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const nome = $('fav-nome').value.trim();
+  const expr = $('fav-expr').value.trim();
+  if (!nome) { $('fav-aviso').textContent = 'Dê um nome ao favorito.'; return; }
+  try { analisar(expr); } catch (e) { $('fav-aviso').textContent = e.message; return; }
+  favoritos.push({ nome, expr });
   gravar('rolador.favoritos', favoritos);
-  abrirPainel('favoritos');
+  $('fav-aviso').textContent = `"${nome}" salvo!`;
+  $('fav-nome').value = '';
+  desenharLista();
 });
 </script>
 </body>

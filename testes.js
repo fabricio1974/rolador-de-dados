@@ -8,7 +8,7 @@ const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
 const bloco = html.match(/\/\/ ===== INÍCIO DA LÓGICA =====([\s\S]*?)\/\/ ===== FIM DA LÓGICA =====/)[1];
 const L = vm.runInNewContext(
-  bloco + '\n({ analisar, rolar, descrever, contarDados, rolarDadoCripto, apertarDado, apertarOperador, apertarAbre, apertarFecha })',
+  bloco + '\n({ analisar, rolar, descrever, contarDados, rolarDadoCripto, apertarDado, apertarD, apertarOperador, apertarAbre, apertarFecha, alternarVantagem, estatisticas })',
   { crypto: globalThis.crypto }
 );
 
@@ -105,17 +105,54 @@ teste('dado de verdade (crypto) fica entre 1 e faces e sai todas as faces', () =
   assert.strictEqual(vistos.size, 6);
 });
 
+teste('colchetes MULTIPLICAM: 3×[3d6] rola só 3 dados e multiplica por 3', () => {
+  const d = dadoFalso([4, 2, 6]);
+  const r = L.rolar('3×[3d6]', d);
+  assert.strictEqual(d.chamadas.length, 3);
+  assert.strictEqual(r.total, 36);
+  assert.strictEqual(L.descrever(r), '3×[3d6]: [4, 2, 6] = 36\nTotal: 36');
+});
+
+teste('colchete dos dois lados e combinado com repetição', () => {
+  assert.strictEqual(L.rolar('[1d6+1]×2', dadoFalso([3])).total, 8);
+  const d = dadoFalso([1, 2]);
+  assert.strictEqual(L.rolar('2×(2×[1d6])', d).total, 6); // (1×2) + (2×2)
+  assert.strictEqual(d.chamadas.length, 2);
+  assert.strictEqual(L.rolar('[1d6]', dadoFalso([5])).total, 5);
+});
+
+teste('kh/kl: 2d20kh1 fica com o maior, 4d6kh3 descarta o menor', () => {
+  let r = L.rolar('2d20kh1+5', dadoFalso([7, 15]));
+  assert.strictEqual(r.total, 20);
+  assert.strictEqual(L.descrever(r), '2d20kh1: [~7~, 15] = 15\n5\nTotal: 20');
+  assert.strictEqual(L.rolar('2d20kl1', dadoFalso([7, 15])).total, 7);
+  assert.strictEqual(L.rolar('4d6kh3', dadoFalso([3, 1, 6, 4])).total, 13);
+  assert.strictEqual(L.rolar('2d20kh', dadoFalso([2, 9])).total, 9); // sem número = 1
+});
+
+teste('estatísticas: mín, máx e média', () => {
+  const e = (x) => L.estatisticas(L.analisar(x));
+  assert.deepStrictEqual({ ...e('2d6+3') }, { min: 5, max: 15, media: 10 });
+  assert.deepStrictEqual({ ...e('3×(3d6)') }, { min: 9, max: 54, media: 31.5 });
+  assert.deepStrictEqual({ ...e('3×[3d6]') }, { min: 9, max: 54, media: 31.5 });
+  assert.deepStrictEqual({ ...e('1d20−1d4') }, { min: -3, max: 19, media: 8 });
+  assert.ok(Math.abs(e('2d20kh1').media - 13.825) < 1e-9);
+  assert.ok(Math.abs(e('2d20kl1').media - 7.175) < 1e-9);
+  assert.ok(Math.abs(e('4d6kh3').media - 12.2446) < 1e-4);
+});
+
 console.log('Erros');
 
 teste('expressões inválidas dão erro com mensagem', () => {
   for (const e of ['', '2d', '(1d6', '1d6)', '()', '1d6+', '1d6×1d4', 'abc', '0d6', '1d1',
-                   '3×(3d6', '(1d6)(1d4)', '1000×(1000d6)', '-2×(1d6)']) {
+                   '3×(3d6', '(1d6)(1d4)', '1000×(1000d6)', '-2×(1d6)',
+                   '[1d6)', '(1d6]', '2×[1d6', '1d6]', '2d20kh3', '1d6kh0', '5kh1', '1d6×[1d4]']) {
     deveFalhar(e);
   }
 });
 
 teste('mensagem de erro é legível', () => {
-  assert.throws(() => L.analisar('(1d6'), /Falta fechar um parêntese/);
+  assert.throws(() => L.analisar('(1d6'), /Falta fechar com "\)"/);
   assert.throws(() => L.analisar('1d6×1d4'), /dado por dado/);
 });
 
@@ -138,9 +175,28 @@ teste('outro dado soma; número antes vira quantidade', () => {
 teste('operadores e parênteses', () => {
   assert.strictEqual(L.apertarOperador('1d6+', '−'), '1d6−');
   assert.strictEqual(L.apertarOperador('', '+'), '');
-  assert.strictEqual(L.apertarAbre('3'), '3×(');
-  assert.strictEqual(L.apertarFecha('3×(1d6'), '3×(1d6)');
-  assert.strictEqual(L.apertarFecha('1d6'), '1d6');
+  assert.strictEqual(L.apertarAbre('3', '('), '3×(');
+  assert.strictEqual(L.apertarAbre('3', '['), '3×[');
+  assert.strictEqual(L.apertarAbre('1d6', '('), '1d6+(');
+  assert.strictEqual(L.apertarFecha('3×(1d6', ')'), '3×(1d6)');
+  assert.strictEqual(L.apertarFecha('3×[1d6', ')'), '3×[1d6', 'não fecha [ com )');
+  assert.strictEqual(L.apertarFecha('3×[1d6', ']'), '3×[1d6]');
+  assert.strictEqual(L.apertarFecha('1d6', ')'), '1d6');
+});
+
+teste('botão dX: 3, dX, 7 -> 3d7', () => {
+  assert.strictEqual(L.apertarD('3') + '7', '3d7');
+  assert.strictEqual(L.apertarD('1d6'), '1d6+d');
+});
+
+teste('Vant/Desv trocam o último 1d20 e alternam', () => {
+  assert.strictEqual(L.alternarVantagem('1d20+5', true), '2d20kh1+5');
+  assert.strictEqual(L.alternarVantagem('2d20kh1+5', false), '2d20kl1+5');
+  assert.strictEqual(L.alternarVantagem('2d20kl1+5', false), '1d20+5');
+  assert.strictEqual(L.alternarVantagem('', true), '2d20kh1');
+  assert.strictEqual(L.alternarVantagem('1d8+3', true), '1d8+3+2d20kh1');
+  assert.strictEqual(L.alternarVantagem('3d20', true), '3d20+2d20kh1');
+  assert.strictEqual(L.apertarDado('2d20kh1', 6), '2d20kh1+1d6');
 });
 
 console.log(`\n${ok} passaram, ${falhou} falharam.`);
