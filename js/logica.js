@@ -648,11 +648,17 @@ function cdConcentracao(dano) {
 
 // Exaustão (2024): −2 por nível em todo teste de d20. Põe o redutor em cada parte
 // que tem d20 (ataque, teste, salvaguarda, iniciativa); o dano não muda.
+// Com repetição ("3×(1d20+2)" = três testes), o redutor vai logo depois de CADA d20,
+// dentro dos parênteses, para valer em cada teste e não só uma vez no total.
 function aplicarExaustao(texto, nivel) {
   const n = Math.max(0, Math.min(MAX_EXAUSTAO, Math.trunc(nivel) || 0));
   if (!n) return texto;
-  return String(texto).split(';').map(parte =>
-    /d20(?!\d)/.test(parte) ? parte.replace(/\s+$/, '') + '−' + (2 * n) : parte).join(';');
+  const redutor = '−' + (2 * n);
+  return String(texto).split(';').map(parte => {
+    if (!/d20(?!\d)/.test(parte)) return parte;
+    if (/(?:[×*]|\dx)\s*\(/.test(parte)) return parte.replace(/(\d*d20(?:k[hl]\d*)?)(?!\d)/g, '$1' + redutor);
+    return parte.replace(/\s+$/, '') + redutor;
+  }).join(';');
 }
 
 
@@ -684,6 +690,10 @@ function limparFicha(f) {
       ? f.rolagens.filter(r => r && typeof r.nome === 'string' && typeof r.expr === 'string')
           .map(r => ({ nome: r.nome.slice(0, 60), expr: r.expr.slice(0, 300) }))
       : [],
+    // Campos da versão 7: recursos (usos), quantos foram gastos e as salvaguardas contra a morte.
+    recursos: limparRecursos(f.recursos),
+    gastos: limparGastos(f.gastos),
+    morte: limparMorte(f.morte),
   };
 }
 
@@ -846,10 +856,207 @@ function limparCombate(dados) {
       pvTemp: Math.max(0, numero(c.pvTemp) || 0),
       exaustao: Math.max(0, Math.min(MAX_EXAUSTAO, numero(c.exaustao) || 0)),
       condicoes: Array.isArray(c.condicoes) ? CONDICOES.map(x => x.id).filter(id => c.condicoes.includes(id)) : [],
+      gastos: limparGastos(c.gastos),  // versão 7: usos gastos desta cópia (Sopro, Resistência Lendária...)
     });
   }
   const vez = participantes.some(c => c.id === dados.vez) ? dados.vez : null;
   return { participantes, vez, rodada: vez ? Math.max(1, numero(dados.rodada) || 1) : 0 };
+}
+
+// 13) RECURSOS: usos que acabam e voltam (espaços de magia, Fúria, Sopro "Recarga 5–6"...).
+//     A ficha guarda a LISTA { id, nome, max, recarga }; quem gasta guarda só quantos
+//     usou, em "gastos" = { idDoRecurso: quantos } (assim cada goblin tem os seus).
+//     recarga: 'longo' (Descanso Longo), 'curto' (Curto ou Longo), 'turno' (volta tudo no
+//     início do turno, ex.: Ações Lendárias) ou '4'/'5'/'6' (Recarga X–6 de monstro).
+const RECARGAS = [
+  { id: 'longo', nome: 'Descanso Longo' },
+  { id: 'curto', nome: 'Descanso Curto ou Longo' },
+  { id: 'turno', nome: 'Início do turno' },
+  { id: '6', nome: 'Recarga 6' },
+  { id: '5', nome: 'Recarga 5–6' },
+  { id: '4', nome: 'Recarga 4–6' },
+];
+const MAX_USOS = 99;
+
+function limparRecursos(lista) {
+  if (!Array.isArray(lista)) return [];
+  const ids = new Set();
+  const limpos = [];
+  for (const r of lista) {
+    if (!r || typeof r.nome !== 'string' || !r.nome.trim()) continue;
+    let id = typeof r.id === 'string' && r.id ? r.id.slice(0, 40) : '';
+    if (!id || ids.has(id)) id = 'r-' + Math.random().toString(36).slice(2, 9);
+    ids.add(id);
+    const max = Math.trunc(Number(r.max));
+    limpos.push({
+      id,
+      nome: r.nome.trim().slice(0, 60),
+      max: Math.max(1, Math.min(MAX_USOS, Number.isFinite(max) ? max : 1)),
+      recarga: RECARGAS.some(x => x.id === r.recarga) ? r.recarga : 'longo',
+    });
+  }
+  return limpos.slice(0, 30);
+}
+
+// Gastos: só números inteiros de 0 a 99 (o resto é jogado fora).
+function limparGastos(gastos) {
+  const limpos = {};
+  if (!gastos || typeof gastos !== 'object' || Array.isArray(gastos)) return limpos;
+  for (const [id, v] of Object.entries(gastos)) {
+    const n = Math.trunc(Number(v));
+    if (Number.isFinite(n) && n > 0) limpos[id.slice(0, 40)] = Math.min(MAX_USOS, n);
+  }
+  return limpos;
+}
+
+// Quantos usos sobram (nunca menos de 0 nem mais que o máximo).
+function usosRestantes(recurso, gastos) {
+  const gasto = (gastos && gastos[recurso.id]) || 0;
+  return Math.max(0, Math.min(recurso.max, recurso.max - gasto));
+}
+
+// Muda quantos sobram (ex.: tocar no 2º quadradinho deixa 2). Devolve gastos NOVOS.
+function definirRestantes(recurso, gastos, restantes) {
+  const novos = { ...(gastos || {}) };
+  const sobra = Math.max(0, Math.min(recurso.max, Math.trunc(restantes) || 0));
+  if (sobra === recurso.max) delete novos[recurso.id]; else novos[recurso.id] = recurso.max - sobra;
+  return novos;
+}
+
+// "Recarga 5–6": o d6 recarrega se tirar 5 ou mais.
+function recarregou(recurso, d6) {
+  const minimo = Number(recurso.recarga);
+  return Number.isFinite(minimo) && d6 >= minimo;
+}
+
+// Início do turno (regras 2024): as Recargas X–6 gastas rolam 1d6; os recursos de
+// "Início do turno" voltam inteiros. Devolve { gastos, recados } sem mudar nada.
+function inicioDoTurno(recursos, gastos, rolarD6) {
+  let novos = { ...(gastos || {}) };
+  const recados = [];
+  for (const r of recursos || []) {
+    if (!novos[r.id]) continue;
+    if (r.recarga === 'turno') {
+      delete novos[r.id];
+      recados.push(`${r.nome}: de volta (${r.max}).`);
+    } else if (Number(r.recarga)) {
+      const d6 = rolarD6(6);
+      if (recarregou(r, d6)) { novos = definirRestantes(r, novos, r.max); recados.push(`${r.nome}: recarregou (d6 = ${d6}).`); }
+      else recados.push(`${r.nome}: não recarregou (d6 = ${d6}).`);
+    }
+  }
+  return { gastos: novos, recados };
+}
+
+// Descansos (regras 2024, SRD 5.2.1). "estado" tem pv, pvMax, pvTemp, exaustao, gastos.
+// Curto: voltam os recursos de Descanso Curto e as Recargas X–6 (monstros).
+// Longo: precisa de pelo menos 1 PV; PV ao máximo, PV temporários acabam, Exaustão −1
+// e voltam todos os recursos. Devolve { mudancas, recados } ou { erro }.
+function descansar(estado, recursos, tipo) {
+  const longo = tipo === 'longo';
+  if (estado.pvMax && estado.pv === 0) {
+    return { erro: `Com 0 PV não dá para começar um Descanso ${longo ? 'Longo' : 'Curto'} (precisa de pelo menos 1 PV).` };
+  }
+  const gastos = { ...(estado.gastos || {}) };
+  const voltaram = [];
+  for (const r of recursos || []) {
+    if (!gastos[r.id]) continue;
+    if (longo || r.recarga !== 'longo') { delete gastos[r.id]; voltaram.push(r.nome); }
+  }
+  const mudancas = { gastos };
+  const recados = [];
+  if (longo) {
+    if (estado.pvMax && estado.pv < estado.pvMax) recados.push(`PV ${estado.pv} → ${estado.pvMax}.`);
+    if (estado.pvMax) mudancas.pv = estado.pvMax;
+    if (estado.pvTemp) recados.push('PV temporários acabaram.');
+    mudancas.pvTemp = 0;
+    if (estado.exaustao) recados.push(`Exaustão ${estado.exaustao} → ${estado.exaustao - 1}.`);
+    mudancas.exaustao = Math.max(0, (estado.exaustao || 0) - 1);
+    mudancas.morte = { sucessos: 0, falhas: 0, estavel: false };
+  }
+  if (voltaram.length) recados.push(`Recuperou: ${voltaram.join(', ')}.`);
+  if (!longo) recados.push('Para gastar Dados de Vida, role-os e use + Cura.');
+  if (!recados.length) recados.push('Nada para recuperar.');
+  return { mudancas, recados };
+}
+
+// 14) SALVAGUARDAS CONTRA A MORTE (regras 2024). morte = { sucessos, falhas, estavel }.
+function limparMorte(m) {
+  const n = (v) => Math.max(0, Math.min(3, Math.trunc(Number(v)) || 0));
+  if (!m || typeof m !== 'object') return { sucessos: 0, falhas: 0, estavel: false };
+  return { sucessos: n(m.sucessos), falhas: n(m.falhas), estavel: m.estavel === true };
+}
+
+// Uma salvaguarda: 10 ou mais é sucesso; 1 natural = duas falhas; 20 natural = volta
+// com 1 PV. Três sucessos: Estável (as contas zeram). Três falhas: morre.
+// "total" já tem os redutores (Exaustão). Devolve { morte, resultado, texto }, com
+// resultado 'recupera' | 'estavel' | 'morto' | 'sucesso' | 'falha'.
+function salvaguardaMorte(morte, natural, total = natural) {
+  const m = limparMorte(morte);
+  if (natural === 20) return { morte: { sucessos: 0, falhas: 0, estavel: false }, resultado: 'recupera', texto: '20 natural: recupera 1 PV e acorda!' };
+  if (natural === 1) m.falhas = Math.min(3, m.falhas + 2);
+  else if (total >= 10) m.sucessos = Math.min(3, m.sucessos + 1);
+  else m.falhas = Math.min(3, m.falhas + 1);
+  if (m.falhas >= 3) return { morte: m, resultado: 'morto', texto: 'Terceira falha: o personagem morre.' };
+  if (m.sucessos >= 3) return { morte: { sucessos: 0, falhas: 0, estavel: true }, resultado: 'estavel', texto: 'Terceiro sucesso: fica Estável (ainda Inconsciente, com 0 PV).' };
+  if (natural === 1) return { morte: m, resultado: 'falha', texto: '1 natural: duas falhas.' };
+  return total >= 10
+    ? { morte: m, resultado: 'sucesso', texto: `tirou ${total}, sucesso (${m.sucessos} de 3).` }
+    : { morte: m, resultado: 'falha', texto: `tirou ${total}, falha (${m.falhas} de 3).` };
+}
+
+// Dano com 0 PV: uma falha (duas se for crítico); quem estava Estável volta a rolar.
+function falhaPorDano(morte, critico = false) {
+  const m = limparMorte(morte);
+  return { sucessos: m.sucessos, falhas: Math.min(3, m.falhas + (critico ? 2 : 1)), estavel: false };
+}
+
+// 15) HISTÓRICO: agrupa as rolagens por dia ("Hoje", "Ontem", "12/10"). Rolagens de
+//     versões antigas não têm a hora ("quando"): ficam em "Antes".
+//     Devolve [{ titulo, itens: [{ item, indice }] }], na ordem da lista.
+function tituloDoDia(quando, agora = Date.now()) {
+  if (!Number.isFinite(quando)) return 'Antes';
+  const dia = (t) => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+  const diferenca = Math.round((dia(agora) - dia(quando)) / 86400000);
+  if (diferenca === 0) return 'Hoje';
+  if (diferenca === 1) return 'Ontem';
+  const d = new Date(quando);
+  return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function agruparHistorico(historico, agora = Date.now()) {
+  const grupos = [];
+  (historico || []).forEach((item, indice) => {
+    const titulo = tituloDoDia(item && item.quando, agora);
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && ultimo.titulo === titulo) ultimo.itens.push({ item, indice });
+    else grupos.push({ titulo, itens: [{ item, indice }] });
+  });
+  return grupos;
+}
+
+// "14:05" (hora:minuto), ou '' para rolagens antigas sem hora.
+function horaCurta(quando) {
+  if (!Number.isFinite(quando)) return '';
+  const d = new Date(quando);
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+// 16) BACKUP: confere um arquivo de backup e devolve só o que é válido.
+//     Versão 1 (até o app 6) não tinha o combate: entra um combate vazio.
+//     Lança erro se não for um backup do Rolador.
+function lerBackup(dados) {
+  if (!dados || typeof dados !== 'object' || dados.app !== 'rolador-de-dados' || !Array.isArray(dados.fichas)) {
+    throw new Error('Esse arquivo não é um backup válido do Rolador.');
+  }
+  const texto = (v) => typeof v === 'string';
+  return {
+    fichas: dados.fichas.map(limparFicha).filter(Boolean),
+    favoritos: (Array.isArray(dados.favoritos) ? dados.favoritos : []).filter(f => f && texto(f.nome) && texto(f.expr)),
+    historico: (Array.isArray(dados.historico) ? dados.historico : []).filter(h => h && texto(h.expr)).slice(0, 50),
+    config: dados.config && typeof dados.config === 'object' && !Array.isArray(dados.config) ? dados.config : {},
+    combate: limparCombate(dados.combate),
+  };
 }
 
 // No Node (testes) exporta as funções; no navegador elas já ficam globais.
@@ -861,5 +1068,7 @@ if (typeof module !== 'undefined') {
     resumoCompacto, nomeCurto, CONDICOES, MAX_EXAUSTAO, aplicarDano, aplicarCura, ganharPVTemp, cdConcentracao, aplicarExaustao,
     compararComAlvo, sugerirModo, ordenarIniciativa, subirNoEmpate, avancarTurno, voltarTurno,
     nomeDeCopia, exprIniciativa, limparCombate,
+    RECARGAS, limparRecursos, limparGastos, usosRestantes, definirRestantes, recarregou, inicioDoTurno, descansar,
+    limparMorte, salvaguardaMorte, falhaPorDano, tituloDoDia, agruparHistorico, horaCurta, lerBackup,
   };
 }

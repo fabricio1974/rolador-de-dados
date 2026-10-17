@@ -494,3 +494,92 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .chip-resumo.apagado b { text-decoration: line-through; }
 /* Título do resultado da ficha numa linha só (nomes longos terminam em "…") */
 #ficha-resultado-conteudo .titulo-rolagem { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 30px; }
+
+/* ---------- Versão 7: painéis mais organizados, usos, descansos e morte ---------- */
+/* Configurações: título de seção com ícone, opções agrupadas num cartão só */
+.secao h2 { display: flex; align-items: center; gap: 8px; }
+.secao h2 .ic { width: 1.3em; height: 1.3em; color: var(--acento); }
+.secao h2::after { content: ''; flex: 1; height: 1px; background: var(--borda); }
+.secao .subtitulo { font-size: .78rem; font-weight: 700; color: var(--fraco); margin: 10px 0 6px; }
+.secao .subtitulo:first-of-type { margin-top: 0; }
+.grupo-opcoes { background: var(--superficie); }
+.grupo-opcoes .opcao { margin: 0; background: none; }
+.grupo-opcoes .opcao + .opcao { border-top: 1px solid var(--borda); }
+.resumo-dados { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
+.resumo-dados div { background: var(--superficie); padding: 8px 4px; text-align: center; }
+.resumo-dados b { display: block; font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.resumo-dados small { color: var(--fraco); font-size: .72rem; font-weight: 700; }
+.secao .ajuda { margin-bottom: 8px; }
+.acoes-dados .botao.destaque { grid-column: 1 / -1; padding: 13px; }
+.rodape { color: var(--fraco); font-size: .78rem; text-align: center; margin: 4px 0 6px; }
+
+/* Histórico: barra com o total e "Limpar"; grupos por dia; hora à direita */
+.barra-painel { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; color: var(--fraco); font-size: .82rem; }
+.barra-painel .botao { padding: 7px 12px; font-size: .85rem; }
+.item .principal { display: flex; align-items: baseline; gap: 8px; }
+.item .hora { margin-left: auto; font-size: .75rem; font-weight: 700; color: var(--fraco); font-variant-numeric: tabular-nums; }
+.item .abrir small { max-height: 4.2em; overflow: hidden; }
+
+/* "Pronto" do painel Adicionar sempre à vista, grudado embaixo */
+.folha-corpo .botao.pronto { position: sticky; bottom: 0; box-shadow: 0 -10px 0 var(--fundo); }
+
+/* Quadradinhos marcáveis (usos, sucessos, falhas) */
+.quadradinhos { display: flex; flex-wrap: wrap; gap: 4px; }
+.quadradinho { width: 30px; height: 30px; flex: none; background: var(--tecla-op); border: 2px solid var(--borda); }
+.quadradinho.uso.cheio { background: var(--acento); border-color: var(--acento); }
+.quadradinho.sucessos.cheio { background: var(--max); border-color: var(--max); }
+.quadradinho.falhas.cheio { background: var(--min); border-color: var(--min); }
+.quadradinho:active { transform: scale(.9); }
+
+/* Usos e recargas */
+.recursos { display: flex; flex-direction: column; gap: 4px; }
+.recurso { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; background: var(--superficie); padding: 8px 10px; border-left: 4px solid var(--acento); }
+.recurso.esgotado { border-left-color: var(--borda); }
+.recurso-nome { flex: 1 1 140px; min-width: 0; }
+.recurso-nome b { display: block; line-height: 1.2; }
+.recurso-nome small { color: var(--fraco); font-size: .75rem; }
+.recurso .contador { display: flex; align-items: center; gap: 4px; }
+.recurso .contador button { width: 36px; height: 34px; background: var(--tecla); font-weight: 900; font-size: 1.2rem; }
+.recurso .contador button:disabled { opacity: .35; }
+.recurso .contador b { min-width: 2.2em; text-align: center; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.rolar-recarga { padding: 6px 10px; font-size: .85rem; border-bottom: 3px solid var(--d6); }
+.descansos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
+.descansos .botao { background: var(--superficie); padding: 11px 6px; }
+.ficha-corpo > .ajuda { margin-top: 6px; }
+.combatente-detalhes .recurso { background: var(--tecla-op); padding: 6px 8px; }
+
+/* Salvaguardas contra a morte */
+.morte { margin-top: 6px; background: var(--superficie); border-left: 4px solid var(--min); padding: 8px 10px; }
+.morte.estavel { border-left-color: var(--max); }
+.morte.morto { opacity: .7; }
+.morte-cabeca b { display: flex; align-items: center; gap: 6px; }
+.morte-cabeca .ic { color: var(--min); }
+.morte.estavel .morte-cabeca .ic { color: var(--max); }
+.morte-cabeca small { display: block; color: var(--fraco); font-size: .78rem; margin-top: 2px; }
+.morte-linhas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin-top: 8px; align-items: center; }
+.morte-linha span { display: block; font-size: .7rem; font-weight: 800; color: var(--fraco); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+.morte-linhas .botao { grid-column: 1 / -1; padding: 11px; }
+.combatente-detalhes .morte { margin: 0; background: var(--tecla-op); }
+
+/* Editor: linhas de uso (nome / quantos + quando volta) */
+.linha-recurso {
+  display: grid; grid-template-columns: 70px 1fr 44px; gap: 3px; background: var(--superficie);
+  padding: 6px; border-left: 4px solid var(--d6);
+}
+.linha-recurso .rec-nome { grid-column: 1 / 3; font-weight: 700; }
+.linha-recurso .remover { grid-column: 3; grid-row: 1 / span 2; background: var(--tecla); color: var(--fraco); display: flex; align-items: center; justify-content: center; }
+.linha-recurso .rec-max { grid-column: 1; text-align: center; font-weight: 800; }
+.linha-recurso .rec-recarga { grid-column: 2; }
+#ed-recursos { display: flex; flex-direction: column; gap: 6px; }
+#ed-recursos:empty { display: none; }
+.item .nome-item { flex: 1; min-width: 0; }
+.item .hora { flex: none; }
+/* Temas mais baixos: a lista inteira cabe com menos rolagem */
+.secao .tema { padding: 6px 8px; }
+.secao .tema b { margin-bottom: 4px; font-size: .92rem; }
+.secao .amostras { height: 12px; }
+.secao .fundo-opcao { padding: 11px 4px; }
+.acoes-dados .botao { font-size: .92rem; padding: 11px 8px; }
+.item .abrir .principal { display: flex; align-items: baseline; gap: 8px; }
+.linha-recurso { grid-template-columns: 58px 1fr 44px; }
+.linha-recurso .rec-recarga { font-size: .9rem; padding: 10px 6px; }

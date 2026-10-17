@@ -501,5 +501,140 @@ teste('limparCombate: dados ausentes ou corrompidos viram um combate vazio e vá
   assert.deepStrictEqual(L.limparCombate(c), c, 'limpar de novo não muda nada');
 });
 
+console.log('Recursos, descansos, morte, histórico e backup (versão 7)');
+
+teste('aplicarExaustao desconta em cada repetição (3×(1d20+2) são três testes)', () => {
+  assert.strictEqual(L.aplicarExaustao('3×(1d20+2)', 1), '3×(1d20−2+2)');
+  assert.strictEqual(L.aplicarExaustao('Ataques: 2×(2d20kh1+5); Dano: 2×(1d8)', 2), 'Ataques: 2×(2d20kh1−4+5); Dano: 2×(1d8)');
+  assert.strictEqual(L.aplicarExaustao('1d20+5', 1), '1d20+5−2', 'sem repetição continua igual');
+  const r = L.rolarPartes(L.aplicarExaustao('3×(1d20+2)', 1), dadoFalso([10, 10, 10]));
+  assert.strictEqual(r.partes[0].res.total, 30, '3 × (10 − 2 + 2)');
+});
+
+teste('limparRecursos e limparGastos aceitam só o que é válido', () => {
+  const r = L.limparRecursos([{ nome: ' Fúria ', max: '3', recarga: 'longo' }, { nome: '' }, null,
+    { id: 'a', nome: 'Sopro', max: 0, recarga: '5' }, { id: 'a', nome: 'Outro', max: 500, recarga: 'xyz' }]);
+  assert.strictEqual(r.length, 3);
+  assert.strictEqual(r[0].nome, 'Fúria'); assert.strictEqual(r[0].max, 3);
+  assert.strictEqual(r[1].max, 1, 'mínimo de 1 uso');
+  assert.notStrictEqual(r[2].id, 'a', 'id repetido ganha outro');
+  assert.strictEqual(r[2].max, 99); assert.strictEqual(r[2].recarga, 'longo');
+  assert.deepStrictEqual(L.limparRecursos('lixo'), []);
+  assert.deepStrictEqual(L.limparGastos({ a: 2, b: -1, c: 'x', d: 1000 }), { a: 2, d: 99 });
+  assert.deepStrictEqual(L.limparGastos([1, 2]), {});
+});
+
+teste('usosRestantes e definirRestantes', () => {
+  const r = { id: 'f', nome: 'Fúria', max: 3, recarga: 'longo' };
+  assert.strictEqual(L.usosRestantes(r, {}), 3);
+  let g = L.definirRestantes(r, {}, 1);
+  assert.deepStrictEqual(g, { f: 2 });
+  assert.strictEqual(L.usosRestantes(r, g), 1);
+  g = L.definirRestantes(r, g, 3);
+  assert.deepStrictEqual(g, {}, 'cheio não guarda nada');
+  assert.strictEqual(L.usosRestantes(r, { f: 9 }), 0, 'nunca negativo');
+});
+
+teste('inicioDoTurno: Recarga 5–6 rola 1d6; "Início do turno" volta inteiro', () => {
+  const recursos = [
+    { id: 's', nome: 'Sopro', max: 1, recarga: '5' },
+    { id: 'l', nome: 'Ações Lendárias', max: 3, recarga: 'turno' },
+    { id: 'm', nome: 'Magia', max: 2, recarga: 'longo' },
+    { id: 'x', nome: 'Não gasto', max: 1, recarga: '6' },
+  ];
+  let t = L.inicioDoTurno(recursos, { s: 1, l: 2, m: 1 }, dadoFalso([5]));
+  assert.deepStrictEqual(t.gastos, { m: 1 });
+  assert.strictEqual(t.recados.length, 2);
+  t = L.inicioDoTurno(recursos, { s: 1 }, dadoFalso([4]));
+  assert.deepStrictEqual(t.gastos, { s: 1 }, 'tirou 4: não recarregou');
+  assert.ok(/não recarregou/.test(t.recados[0]));
+  const d = dadoFalso([6]);
+  L.inicioDoTurno(recursos, {}, d);
+  assert.strictEqual(d.chamadas.length, 0, 'nada gasto: não rola');
+});
+
+teste('descansar: Longo enche PV, zera temp, −1 Exaustão e devolve tudo; Curto só os curtos', () => {
+  const recursos = [
+    { id: 'm', nome: 'Espaços 1º', max: 4, recarga: 'longo' },
+    { id: 'a', nome: 'Surto de Ação', max: 1, recarga: 'curto' },
+    { id: 's', nome: 'Sopro', max: 1, recarga: '5' },
+  ];
+  const estado = { pv: 5, pvMax: 30, pvTemp: 4, exaustao: 2, gastos: { m: 3, a: 1, s: 1 } };
+  const curto = L.descansar(estado, recursos, 'curto');
+  assert.deepStrictEqual(curto.mudancas.gastos, { m: 3 });
+  assert.strictEqual(curto.mudancas.pv, undefined, 'curto não mexe nos PV');
+  const longo = L.descansar(estado, recursos, 'longo');
+  assert.deepStrictEqual(longo.mudancas.gastos, {});
+  assert.strictEqual(longo.mudancas.pv, 30);
+  assert.strictEqual(longo.mudancas.pvTemp, 0);
+  assert.strictEqual(longo.mudancas.exaustao, 1);
+  assert.ok(L.descansar({ pv: 0, pvMax: 10, gastos: {} }, recursos, 'longo').erro, 'precisa de 1 PV');
+  assert.strictEqual(L.descansar({ pv: null, pvMax: null, gastos: {} }, [], 'longo').mudancas.exaustao, 0);
+});
+
+teste('salvaguardaMorte segue a regra 2024 (10+, 1 = duas falhas, 20 = 1 PV)', () => {
+  const zero = { sucessos: 0, falhas: 0, estavel: false };
+  assert.strictEqual(L.salvaguardaMorte(zero, 12).resultado, 'sucesso');
+  assert.strictEqual(L.salvaguardaMorte(zero, 9).resultado, 'falha');
+  assert.strictEqual(L.salvaguardaMorte(zero, 10).morte.sucessos, 1, '10 já é sucesso');
+  assert.strictEqual(L.salvaguardaMorte(zero, 1).morte.falhas, 2);
+  assert.strictEqual(L.salvaguardaMorte({ sucessos: 2, falhas: 2 }, 20).resultado, 'recupera');
+  assert.strictEqual(L.salvaguardaMorte({ sucessos: 2, falhas: 0 }, 15).resultado, 'estavel');
+  assert.deepStrictEqual(L.salvaguardaMorte({ sucessos: 2, falhas: 0 }, 15).morte, { sucessos: 0, falhas: 0, estavel: true });
+  assert.strictEqual(L.salvaguardaMorte({ sucessos: 0, falhas: 2 }, 1).resultado, 'morto');
+  assert.strictEqual(L.salvaguardaMorte(zero, 11, 7).resultado, 'falha', 'Exaustão conta no total');
+  assert.deepStrictEqual(L.falhaPorDano({ sucessos: 1, falhas: 0, estavel: true }), { sucessos: 1, falhas: 1, estavel: false });
+  assert.strictEqual(L.falhaPorDano({ falhas: 2 }, true).falhas, 3);
+  assert.deepStrictEqual(L.limparMorte('x'), zero);
+});
+
+teste('limparFicha e limparCombate de versões antigas ganham os campos da versão 7', () => {
+  const f = L.limparFicha({ nome: 'Ana', pvMax: 10 });
+  assert.deepStrictEqual(f.recursos, []);
+  assert.deepStrictEqual(f.gastos, {});
+  assert.deepStrictEqual(f.morte, { sucessos: 0, falhas: 0, estavel: false });
+  assert.deepStrictEqual(L.limparFicha(f), f, 'limpar de novo não muda nada');
+  const c = L.limparCombate({ participantes: [{ id: 'a', nome: 'Dragão 1', gastos: { s: 1 } }, { id: 'b', nome: 'Goblin 1' }] });
+  assert.deepStrictEqual(c.participantes[0].gastos, { s: 1 });
+  assert.deepStrictEqual(c.participantes[1].gastos, {});
+  for (const m of MONSTROS_PADRAO) {
+    const limpa = L.limparFicha(m);
+    assert.strictEqual(limpa.recursos.length, (m.recursos || []).length, m.nome);
+  }
+});
+
+teste('agruparHistorico separa por dia; rolagens antigas sem hora ficam em "Antes"', () => {
+  const agora = new Date(2026, 9, 17, 20, 0).getTime();
+  const hist = [
+    { expr: '1d20', quando: new Date(2026, 9, 17, 19, 5).getTime() },
+    { expr: '2d6', quando: new Date(2026, 9, 17, 0, 1).getTime() },
+    { expr: '1d8', quando: new Date(2026, 9, 16, 23, 59).getTime() },
+    { expr: '1d4', quando: new Date(2026, 9, 3, 12, 0).getTime() },
+    { expr: '1d12' },
+  ];
+  const g = L.agruparHistorico(hist, agora);
+  assert.deepStrictEqual(g.map(x => x.titulo), ['Hoje', 'Ontem', '03/10', 'Antes']);
+  assert.deepStrictEqual(g[0].itens.map(x => x.indice), [0, 1]);
+  assert.strictEqual(L.horaCurta(hist[0].quando), '19:05');
+  assert.strictEqual(L.horaCurta(undefined), '');
+  assert.deepStrictEqual(L.agruparHistorico([], agora), []);
+});
+
+teste('lerBackup: versão 1 (sem combate) e versão 2 (com combate)', () => {
+  assert.throws(() => L.lerBackup({ app: 'outro', fichas: [] }));
+  assert.throws(() => L.lerBackup(null));
+  const v1 = L.lerBackup({ app: 'rolador-de-dados', versao: 1, fichas: [{ nome: 'Ana' }, { nome: '' }],
+    favoritos: [{ nome: 'a', expr: '1d6' }, { nome: 1 }], config: { tema: 'neon' }, historico: [{ expr: '1d20' }, 5] });
+  assert.strictEqual(v1.fichas.length, 1);
+  assert.strictEqual(v1.favoritos.length, 1);
+  assert.strictEqual(v1.historico.length, 1);
+  assert.deepStrictEqual(v1.combate, { participantes: [], vez: null, rodada: 0 });
+  const v2 = L.lerBackup({ app: 'rolador-de-dados', versao: 2, fichas: [], config: [1],
+    combate: { participantes: [{ id: 'c1', nome: 'Goblin 1', pvMax: 7, iniciativa: 12 }], vez: 'c1', rodada: 3 } });
+  assert.strictEqual(v2.combate.rodada, 3);
+  assert.strictEqual(v2.combate.participantes[0].pv, 7);
+  assert.deepStrictEqual(v2.config, {}, 'config estragada vira vazia');
+});
+
 console.log(`\n${ok} passaram, ${falhou} falharam.`);
 process.exit(falhou ? 1 : 0);

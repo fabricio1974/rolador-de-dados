@@ -45,6 +45,16 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
     resultado mostra **ACERTOU/ERROU** ou **PASSOU/FALHOU**. Em ataques, 20 natural sempre acerta
     e 1 natural sempre erra; em testes e salvaguardas vale só o total (regras 2024). O dano de
     um ataque que errou fica riscado no resumo.
+  - **Salvaguardas contra a morte** (personagem com 0 PV): quadradinhos de 3 sucessos e 3 falhas
+    e o botão **Rolar 1d20** (regras 2024: 10+ é sucesso, 1 natural = duas falhas, 20 natural =
+    volta com 1 PV; três sucessos = Estável, três falhas = morte). Dano com 0 PV já marca uma falha;
+    qualquer cura zera as contas.
+  - **Usos e descanso** (embaixo das rolagens): espaços de magia, Fúria, Dados de Vida, Resistência
+    Lendária, "Recarga 5–6"... viram quadradinhos (toque num cheio para gastar, num vazio para
+    recuperar). Cadastre no lápis, em **Usos e recargas** (nome, quantos e quando voltam).
+    Recarga X–6 tem um botão que rola 1d6. **Descanso curto** devolve os usos de descanso curto e
+    as recargas; **Descanso longo** também enche os PV, acaba com os PV temporários e tira 1 de
+    Exaustão (precisa ter pelo menos 1 PV).
   - Condições que mudam os ataques (Envenenado, Caído, Cego, Contido, Invisível...) marcam com
     tracejado o modo sugerido (Vantagem/Desvantagem) e explicam o porquê; você decide se usa.
   - O resultado aparece embaixo, com o resumo no topo; a setinha recolhe os detalhes para
@@ -60,9 +70,14 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
     volta um turno. Monstro com 0 PV perde a vez; personagem com 0 PV não.
   - Toque num combatente para abrir: Dano/Cura/Temp, iniciativa (digitar ou rolar), **Antes**
     para desempatar com o de cima, **Ficha e rolagens** (rolar ataques daquele combatente) e Tirar.
+  - **Início do turno**: quando chega a vez de um monstro, as Recargas X–6 gastas rolam 1d6
+    sozinhas e as Ações Lendárias voltam; um personagem com 0 PV é lembrado de rolar contra a morte.
+    O cartão aberto mostra os usos e, a 0 PV, as salvaguardas contra a morte.
   - O combate fica salvo: dá para fechar o app e continuar depois. A aba mostra a rodada (R3).
-- **Histórico**, **Favoritos** e **Configurações** (tema, fundo, opções, backup): os ícones
-  no alto da tela.
+- **Histórico** (relógio): as últimas 50 rolagens, separadas por dia (Hoje, Ontem...) e com a
+  hora; um toque rola de novo, o ✕ tira uma, **Limpar** apaga tudo.
+- **Favoritos** (estrela) e **Configurações** (engrenagem): aparência (tema e fundo), opções de
+  rolagem e do celular, e **Seus dados** (quanto está guardado e o backup).
 ## Organização do código
 
 ```
@@ -82,4 +97,5 @@ testá-los no Node. O GitHub roda os testes a cada push (aba **Actions**).
 
 Tudo fica no `localStorage` do navegador, só no aparelho (`rolador.config`, `.historico`,
 `.favoritos`, `.fichas` e, desde a versão 6, `.combate`). Em **Configurações → Seus dados** dá para
-exportar e importar um backup (`.json`).
+exportar e importar um backup (`.json`). Desde a versão 7 o backup leva também o combate em
+andamento e o histórico; backups antigos continuam abrindo (entram com o combate vazio).

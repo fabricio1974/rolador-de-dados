@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=6">
+<link rel="stylesheet" href="css/estilo.css?v=7">
 </head>
 <body>
 <div class="app">
@@ -18,7 +18,7 @@
     </nav>
     <button class="icone" id="abrir-historico" aria-label="Histórico"><i data-icone="relogio"></i></button>
     <button class="icone" id="abrir-favoritos" aria-label="Favoritos"><i data-icone="estrela"></i></button>
-    <button class="icone" id="abrir-config" aria-label="Configurações"><i data-icone="ajustes"></i></button>
+    <button class="icone" id="abrir-config" aria-label="Configurações"><i data-icone="engrenagem"></i></button>
   </header>
 
   <!-- ===== ABA DADOS: a calculadora ===== -->
@@ -177,6 +177,15 @@
     <div id="ed-rolagens"></div>
     <button type="button" class="botao" id="ed-adicionar">+ Adicionar rolagem</button>
 
+    <h2>Usos e recargas</h2>
+    <p class="ajuda">
+      O que acaba e volta: espaços de magia (um por nível), Fúria, Dados de Vida, Resistência
+      Lendária, o Sopro do dragão (<b>Recarga 5–6</b>)... Na ficha cada uso vira um quadradinho;
+      os descansos e o início do turno devolvem sozinhos.
+    </p>
+    <div id="ed-recursos"></div>
+    <button type="button" class="botao" id="ed-adicionar-recurso">+ Adicionar uso</button>
+
     <p class="aviso" id="ed-aviso"></p>
     <div class="editor-acoes">
       <button type="button" class="botao" id="ed-duplicar">Duplicar</button>
@@ -199,9 +208,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=6"></script>
-<script src="js/monstros.js?v=6"></script>
-<script src="js/logica.js?v=6"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/temas.js?v=7"></script>
+<script src="js/monstros.js?v=7"></script>
+<script src="js/logica.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 </body>
 </html>

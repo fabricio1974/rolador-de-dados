@@ -2,6 +2,7 @@
 // Valores conferidos no SRD 5.2.1 (regras de 2024). Cada rolagem pode ter várias
 // partes separadas por ";", cada uma com um nome antes de ":".
 // Se o "Acerto" tirar 20 natural, o app dobra os dados do "Dano" sozinho.
+// "recursos" (versão 7): usos que acabam e voltam (Recarga 5–6, X/dia, Ações Lendárias).
 const MONSTROS_PADRAO = [
   {
     id: 'm-goblin', tipo: 'monstro', emoji: '👺',
@@ -83,10 +84,10 @@ const MONSTROS_PADRAO = [
       { nome: 'Iniciativa', expr: '1d20+4' },
       { nome: 'Dilacerar', expr: 'Acerto: 1d20+10; Cortante: 2d6+6; Fogo: 1d6' },
       { nome: 'Sopro de Fogo', expr: 'Fogo (CD 17 Des): 16d6' },
-      { nome: 'Recarga do Sopro (5–6)', expr: '1d6' },
       { nome: 'Percepção', expr: '1d20+8' },
       { nome: 'PV aleatórios', expr: '17d10+85' },
     ],
+    recursos: [{ id: 'sopro', nome: 'Sopro de Fogo', max: 1, recarga: '5' }],
   },
   {
     id: 'm-vampiro', tipo: 'monstro', emoji: '🧛',
@@ -96,9 +97,13 @@ const MONSTROS_PADRAO = [
       { nome: 'Iniciativa', expr: '1d20+14' },
       { nome: 'Golpe Sepulcral', expr: 'Acerto: 1d20+9; Concussão: 1d8+4; Necrótico: 2d6' },
       { nome: 'Mordida (CD 17 Con)', expr: 'Perfurante: 1d4+4; Necrótico: 3d8' },
-      { nome: 'Recarga do Encanto (5–6)', expr: '1d6' },
       { nome: 'Furtividade', expr: '1d20+9' },
       { nome: 'PV aleatórios', expr: '23d8+92' },
+    ],
+    recursos: [
+      { id: 'encanto', nome: 'Encanto', max: 1, recarga: '5' },
+      { id: 'res-lendaria', nome: 'Resistência Lendária', max: 3, recarga: 'longo' },
+      { id: 'acoes-lendarias', nome: 'Ações Lendárias', max: 3, recarga: 'turno' },
     ],
   },
   {
@@ -109,10 +114,15 @@ const MONSTROS_PADRAO = [
       { nome: 'Iniciativa', expr: '1d20+12' },
       { nome: 'Dilacerar', expr: 'Acerto: 1d20+14; Cortante: 1d10+8; Fogo: 2d4' },
       { nome: 'Sopro de Fogo', expr: 'Fogo (CD 21 Des): 17d6' },
-      { nome: 'Recarga do Sopro (5–6)', expr: '1d6' },
       { nome: 'Bola de Fogo (CD 20 Des)', expr: 'Fogo: 8d6' },
       { nome: 'Percepção', expr: '1d20+13' },
       { nome: 'PV aleatórios', expr: '19d12+133' },
+    ],
+    recursos: [
+      { id: 'sopro', nome: 'Sopro de Fogo', max: 1, recarga: '5' },
+      { id: 'bola-de-fogo', nome: 'Bola de Fogo (1/dia)', max: 1, recarga: 'longo' },
+      { id: 'res-lendaria', nome: 'Resistência Lendária', max: 3, recarga: 'longo' },
+      { id: 'acoes-lendarias', nome: 'Ações Lendárias', max: 3, recarga: 'turno' },
     ],
   },
   {
@@ -128,6 +138,11 @@ const MONSTROS_PADRAO = [
       { nome: 'Dedo da Morte (CD 20 Con)', expr: 'Necrótico: 7d8+30' },
       { nome: 'Arcanismo', expr: '1d20+19' },
       { nome: 'PV aleatórios', expr: '42d8+126' },
+    ],
+    recursos: [
+      { id: 'dedo-da-morte', nome: 'Dedo da Morte (1/dia)', max: 1, recarga: 'longo' },
+      { id: 'res-lendaria', nome: 'Resistência Lendária', max: 4, recarga: 'longo' },
+      { id: 'acoes-lendarias', nome: 'Ações Lendárias', max: 3, recarga: 'turno' },
     ],
   },
 ];
