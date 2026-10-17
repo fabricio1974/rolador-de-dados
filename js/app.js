@@ -2,6 +2,9 @@
 // Liga os botões às funções de js/logica.js, desenha na tela e guarda tudo no
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
+// Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
+const VERSAO = '3';
+
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
 
@@ -411,6 +414,7 @@ function desenharConfig(corpo) {
   }, 'perigo');
   const s = secao(corpo, 'Seus dados');
   s.append(el('p', 'ajuda', 'Tudo fica salvo só neste aparelho. Faça backup de vez em quando, principalmente das fichas com imagens.'), acoes, aviso);
+  corpo.append(el('p', 'ajuda', `Rolador de Dados · versão ${VERSAO}`));
 }
 
 $('abrir-historico').addEventListener('click', () => abrirPainel('historico'));
