@@ -50,30 +50,86 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .botao.destaque { background: var(--acento); color: var(--acento-txt); }
 .botao.perigo { background: var(--min); color: #fff; }
 .botao:active, .icone:active, .abas button:active { filter: brightness(1.25); }
+/* Toque: o botão "afunda" um pouquinho, para o dedo sentir que apertou. */
+.teclado button, .rolar, .atalho, .botao-rolagem, .modo button, .pv-controles button {
+  transition: transform .07s ease-out, filter .07s;
+}
+.teclado button:active, .rolar:active, .atalho:active, .botao-rolagem:active,
+.modo button:active, .pv-controles button:active { transform: scale(.95); }
 
 /* ---------- Resultado ---------- */
 .resultado {
   flex: 1; min-height: 0; overflow-y: auto;
   background: var(--superficie); border-left: 4px solid var(--acento); padding: 10px 12px;
+  transition: border-color .25s;
 }
+/* 20 natural pinta a borda de verde; 1 natural, de vermelho. */
+.resultado.tem-critico, .ficha-resultado.tem-critico { border-color: var(--max); }
+.resultado.tem-falha, .ficha-resultado.tem-falha { border-color: var(--min); }
 .titulo-rolagem { text-align: center; font-weight: 800; color: var(--acento); margin-bottom: 2px; }
-.total { font-size: 3.4rem; font-weight: 900; line-height: 1; text-align: center; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+.total { font-size: 3.8rem; font-weight: 900; line-height: 1; text-align: center; margin: 6px 0 4px; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+.total.critico, .parte-cabeca .valor.critico { color: var(--max); text-shadow: 0 0 18px color-mix(in srgb, var(--max) 55%, transparent); }
+.total.falha, .parte-cabeca .valor.falha { color: var(--min); }
 .expr-rolada { text-align: center; color: var(--fraco); font-weight: 600; word-break: break-all; }
 .stats { text-align: center; color: var(--fraco); font-size: .82rem; margin: 2px 0 8px; }
 .linha { padding: 6px 0; border-top: 1px solid var(--borda); }
 .linha .rotulo { font-weight: 800; margin-right: 4px; }
 .grupo { display: inline-flex; flex-wrap: wrap; gap: 3px; margin: 3px 8px 3px 0; vertical-align: middle; }
 .dado {
-  min-width: 30px; height: 30px; padding: 0 6px;
+  --cor: var(--fraco);  /* cor do tipo de dado; muda logo abaixo conforme as faces */
+  min-width: 32px; height: 32px; padding: 0 6px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: var(--texto); color: #161616; font-weight: 800; font-variant-numeric: tabular-nums;
+  background: var(--tecla); /* reserva para navegadores sem color-mix */
+  background: color-mix(in srgb, var(--cor) 22%, var(--tecla));
+  border: 2px solid var(--cor); color: var(--texto);
+  font-weight: 800; font-variant-numeric: tabular-nums;
 }
+.dado[data-f="4"]   { --cor: var(--d4); }
+.dado[data-f="6"]   { --cor: var(--d6); }
+.dado[data-f="8"]   { --cor: var(--d8); }
+.dado[data-f="10"]  { --cor: var(--d10); }
+.dado[data-f="12"]  { --cor: var(--d12); }
+.dado[data-f="20"]  { --cor: var(--d20); }
+.dado[data-f="100"] { --cor: var(--d100); }
+/* Valor máximo e 1 ficam cheios de verde / vermelho; a borda continua mostrando o tipo. */
 .dado.max { background: var(--max); color: #fff; }
 .dado.min { background: var(--min); color: #fff; }
-.dado.fora { opacity: .35; text-decoration: line-through; }
+.dado.fora { opacity: .35; text-decoration: line-through; background: transparent; }
 .subtotal { font-weight: 800; white-space: nowrap; }
+.constante { font-weight: 800; white-space: nowrap; margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--borda); }
 .erro { text-align: center; padding: 16px 4px; font-weight: 700; color: var(--min); }
-.dica { text-align: center; padding: 8px 4px; line-height: 1.7; color: var(--fraco); }
+.dica { padding: 6px 2px; color: var(--fraco); font-size: .92rem; }
+.dica p { margin: 0 0 10px; text-align: center; }
+.dica dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: baseline; }
+.dica dt { text-align: left; }
+.dica dd { margin: 0; }
+.dica dt:last-of-type { grid-column: 1 / -1; text-align: left; }  /* exemplo comprido: linha inteira */
+.dica dd:last-of-type { grid-column: 1 / -1; margin-top: -6px; }
+
+/* Repetições (6×(4d6kh3)): uma linha por vez, com o valor no fim */
+.repeticoes { margin-top: 4px; }
+.repeticao { display: flex; align-items: center; gap: 8px; padding: 3px 0; border-top: 1px dashed var(--borda); }
+.repeticao:first-child { border-top: 0; }
+.repeticao .ordem { width: 26px; flex: none; color: var(--fraco); font-size: .8rem; font-weight: 700; }
+.repeticao .dados-rep { flex: 1; min-width: 0; }
+.repeticao .grupo { margin: 1px 4px 1px 0; }
+.repeticao .valor-rep { font-size: 1.3rem; font-weight: 900; min-width: 2ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Soma das partes de dano (Dano + Fogo) */
+.soma-dano { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; padding: 8px 10px; background: var(--tecla); border-left: 4px solid var(--acento); }
+.soma-dano .nome { font-weight: 900; text-transform: uppercase; letter-spacing: 1px; font-size: .85rem; }
+.soma-dano small { flex: 1; color: var(--fraco); }
+.soma-dano .valor { font-size: 1.7rem; font-weight: 900; color: var(--acento); font-variant-numeric: tabular-nums; }
+
+/* Entrada suave do resultado (sem "dado rolando"): sobe e aparece; os dados vêm em sequência. */
+@keyframes surgir { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes pulo { from { opacity: 0; transform: scale(.7); } 60% { transform: scale(1.06); } to { opacity: 1; transform: none; } }
+.anima > * { animation: surgir .22s ease-out both; }
+.anima .total, .anima .parte-cabeca .valor, .anima .soma-dano .valor { animation: pulo .32s ease-out both; }
+.anima .dado { animation: surgir .18s ease-out both; animation-delay: calc(var(--i, 0) * 14ms); }
+@media (prefers-reduced-motion: reduce) {
+  .anima > *, .anima .total, .anima .parte-cabeca .valor, .anima .soma-dano .valor, .anima .dado { animation: none; }
+}
 
 /* Rolagem em partes (Acerto / Dano) */
 .parte { border-top: 1px solid var(--borda); padding: 8px 0 4px; }
@@ -89,9 +145,24 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 
 /* ---------- Visor ---------- */
 .visor { display: flex; gap: 6px; }
-.visor input { flex: 1; font-size: 1.55rem; font-weight: 700; padding: 8px 12px; text-align: right; }
+.visor input { flex: 1; font-size: 1.55rem; font-weight: 700; padding: 8px 12px; text-align: right; height: 52px; }
+.visor input.medio { font-size: 1.2rem; }
+.visor input.longo { font-size: .98rem; }
 .visor button { background: var(--superficie); padding: 0 14px; font-size: 1.4rem; }
 .previa { min-height: 1.1em; text-align: right; font-size: .82rem; color: var(--fraco); padding: 2px 62px 0 0; }
+
+/* ---------- Atalhos (favoritos e recentes) ---------- */
+.atalhos {
+  display: flex; gap: 5px; overflow-x: auto; flex: none;
+  scrollbar-width: none; margin: 0 -10px; padding: 0 10px;  /* rola de ponta a ponta */
+}
+.atalhos::-webkit-scrollbar { display: none; }
+.atalho {
+  flex: none; max-width: 70%; padding: 7px 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: var(--superficie); border: 1px solid var(--borda); font-size: .85rem; font-weight: 700;
+}
+.atalho.favorito { border-color: var(--acento); color: var(--acento); }
+.atalho.recente { color: var(--fraco); }
 
 /* ---------- Teclado (5 colunas) ---------- */
 .teclado { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }

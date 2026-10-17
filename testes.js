@@ -134,6 +134,23 @@ teste('estatísticas: mín, máx e média', () => {
   assert.ok(Math.abs(e('4d6kh3').media - 12.2446) < 1e-4);
 });
 
+teste('repetição guarda cada vez separada, com o seu valor (6 atributos)', () => {
+  const r = L.rolar('2×(4d6kh3)+1', dadoFalso([3, 1, 6, 4, 2, 2, 5, 5]));
+  const reps = r.linhas[0].repeticoes;
+  assert.strictEqual(reps.length, 2);
+  assert.deepStrictEqual(reps.map(x => x.valor), [13, 12]);
+  assert.strictEqual(reps[0].grupos[0].filter(d => d.descartado).length, 1);
+  assert.strictEqual(r.linhas[0].grupos.length, 2, 'grupos continua com todos os dados');
+  assert.strictEqual(r.total, 26);
+  assert.strictEqual(r.linhas[1].repeticoes, undefined, 'só repetição tem repeticoes');
+  // colchetes NÃO são repetição: uma rolagem só
+  assert.strictEqual(L.rolar('3×[1d6]', dadoFalso([2])).linhas[0].repeticoes, undefined);
+  // repetição negativa com sinal de menos na frente
+  const neg = L.rolar('10−2×(1d4)', dadoFalso([1, 3]));
+  assert.strictEqual(neg.total, 6);
+  assert.deepStrictEqual(neg.linhas[1].repeticoes.map(x => x.valor), [1, 3]);
+});
+
 console.log('Partes, crítico e modos');
 
 teste('"Acerto: ...; Dano: ..." rola as duas partes com nome', () => {
@@ -167,6 +184,16 @@ teste('com vantagem, o d20 descartado não conta como natural', () => {
   assert.strictEqual(r2.partes[1].critico, undefined);
 });
 
+teste('somasDeDano soma as partes de dano seguidas, separadas por ataque', () => {
+  const r = L.rolarPartes('Acerto: 1d20+5; Dano: 1d8+3; Fogo: 1d6', dadoFalso([12, 5, 4]));
+  assert.strictEqual(r.partes[0].ataque, true);
+  assert.deepStrictEqual(L.somasDeDano(r), [{ fim: 2, total: 12, rotulos: ['Dano', 'Fogo'] }]);
+  // ataque múltiplo: cada ataque tem a sua soma; bloco de uma parte só não soma
+  const m = L.rolarPartes('A1: 1d20; D1: 1d6; F1: 1d4; A2: 1d20; D2: 1d6', dadoFalso([10, 6, 4, 10, 1]));
+  assert.deepStrictEqual(L.somasDeDano(m).map(s => [s.fim, s.total]), [[2, 10]]);
+  assert.deepStrictEqual(L.somasDeDano(L.rolarPartes('1d20+5', dadoFalso([3]))), []);
+});
+
 teste('erro numa parte diz qual parte é', () => {
   assert.throws(() => L.validar('Acerto: 1d20+4; Dano: 1d6+'), /^Error: Dano:/);
 });
@@ -177,6 +204,21 @@ teste('aplicarModo força vantagem/desvantagem só nos d20', () => {
   assert.strictEqual(L.aplicarModo('Acerto: 2d20kh1+4', 'vant'), 'Acerto: 2d20kh1+4');
   assert.strictEqual(L.aplicarModo('1d20+4', 'normal'), '1d20+4');
   assert.strictEqual(L.aplicarModo('A1: 1d20+7; A2: 1d20+7', 'vant'), 'A1: 2d20kh1+7; A2: 2d20kh1+7');
+});
+
+teste('montarAtalhos: favoritos primeiro, recentes sem repetir', () => {
+  const fav = [{ nome: 'Espada', expr: '1d20+5; 1d8+3' }];
+  const hist = [
+    { titulo: '', expr: '2d6' }, { titulo: 'Espada', expr: '1d20+5; 1d8+3' },
+    { titulo: '', expr: '2d6' }, { titulo: 'Goblin', expr: '1d20+4' }, { expr: '' }, null,
+  ];
+  assert.deepStrictEqual(L.montarAtalhos(fav, hist), [
+    { nome: 'Espada', expr: '1d20+5; 1d8+3', tipo: 'favorito' },
+    { nome: '2d6', expr: '2d6', tipo: 'recente' },
+    { nome: 'Goblin', expr: '1d20+4', tipo: 'recente' },
+  ]);
+  assert.strictEqual(L.montarAtalhos([], hist, 1).length, 1);
+  assert.deepStrictEqual(L.montarAtalhos(undefined, undefined), []);
 });
 
 console.log('Fichas, monstros e temas');

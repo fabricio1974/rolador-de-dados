@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=3">
+<link rel="stylesheet" href="css/estilo.css?v=4">
 </head>
 <body>
 <div class="app">
@@ -24,12 +24,18 @@
   <main class="tela" id="tela-dados">
     <section class="resultado" id="resultado" aria-live="polite">
       <div class="dica">
-        Monte a expressão e toque em <b>ROLAR</b>.<br>
-        <code>3×(3d6)</code> rola 3d6 três vezes<br>
-        <code>3×[3d6]</code> rola 3d6 uma vez e multiplica por 3<br>
-        <code>Acerto: 1d20+5; Dano: 1d8+3</code> rola as duas partes juntas
+        <p>Monte a expressão e toque em <b>ROLAR</b>.</p>
+        <dl>
+          <dt><code>3×(3d6)</code></dt><dd>rola 3d6 três vezes</dd>
+          <dt><code>3×[3d6]</code></dt><dd>rola 3d6 uma vez e multiplica por 3</dd>
+          <dt><code>6×(4d6kh3)</code></dt><dd>os 6 atributos, um por linha</dd>
+          <dt><code>Acerto: 1d20+5; Dano: 1d8+3</code></dt><dd>rola as duas partes juntas</dd>
+        </dl>
       </div>
     </section>
+
+    <!-- Favoritos e rolagens recentes: um toque rola de novo -->
+    <div class="atalhos" id="atalhos" hidden></div>
 
     <div>
       <div class="visor">
@@ -171,9 +177,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=3"></script>
-<script src="js/monstros.js?v=3"></script>
-<script src="js/logica.js?v=3"></script>
-<script src="js/app.js?v=3"></script>
+<script src="js/temas.js?v=4"></script>
+<script src="js/monstros.js?v=4"></script>
+<script src="js/logica.js?v=4"></script>
+<script src="js/app.js?v=4"></script>
 </body>
 </html>

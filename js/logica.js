@@ -248,9 +248,23 @@ function rolar(texto, rolarDado) {
 
 function rolarArvore(arvore, rolarDado) {
   const linhas = parcelas(arvore, 1, []).map(({ sinal, no }) => {
+    const texto = (sinal < 0 ? '−' : '') + formatar(no);
+    if (no.tipo === 'rep') {
+      // Repetição (ex.: 6×(4d6kh3)): guarda cada vez separada, com o seu valor,
+      // para a tela mostrar uma linha por repetição (os 6 atributos, por exemplo).
+      const repeticoes = [];
+      const n = valorConstante(no.vezes);
+      for (let k = 0; k < n; k++) {
+        const gruposDaVez = [];
+        repeticoes.push({ grupos: gruposDaVez, valor: avaliar(no.alvo, rolarDado, gruposDaVez) });
+      }
+      const grupos = repeticoes.flatMap(r => r.grupos);
+      const subtotal = sinal * repeticoes.reduce((s, r) => s + r.valor, 0);
+      return { texto, grupos, subtotal, repeticoes };
+    }
     const grupos = [];
     const subtotal = sinal * avaliar(no, rolarDado, grupos);
-    return { texto: (sinal < 0 ? '−' : '') + formatar(no), grupos, subtotal };
+    return { texto, grupos, subtotal };
   });
   const total = linhas.reduce((s, l) => s + l.subtotal, 0);
   return { expressao: formatar(arvore), linhas, total, stats: estatisticas(arvore) };
@@ -465,12 +479,37 @@ function rolarPartes(texto, rolarDado, opcoes = {}) {
       const res = rolarArvore(arvore, rolarDado);
       const natural = d20Natural(res);
       critico = usarCritico && natural === 20;
-      return { rotulo, res, natural };
+      return { rotulo, res, natural, ataque: true };
     }
     if (critico) return { rotulo, res: rolarArvore(dobrarDados(arvore), rolarDado), critico: true };
     return { rotulo, res: rolarArvore(arvore, rolarDado) };
   });
   return { partes };
+}
+
+// Soma das partes de dano seguidas: "Acerto; Dano; Fogo" -> Dano + Fogo.
+// Uma parte com d20 (ataque/teste) separa um bloco do outro, então num
+// ataque múltiplo cada ataque tem a sua soma. Só aparece com 2+ partes no bloco.
+// Devolve [{ fim, total, rotulos }], onde "fim" é a posição da última parte somada.
+function somasDeDano(rolagem) {
+  const somas = [];
+  let bloco = [];
+  const fechar = () => {
+    if (bloco.length >= 2) {
+      somas.push({
+        fim: bloco[bloco.length - 1].i,
+        total: bloco.reduce((s, b) => s + b.p.res.total, 0),
+        rotulos: bloco.map(b => b.p.rotulo || '?'),
+      });
+    }
+    bloco = [];
+  };
+  rolagem.partes.forEach((p, i) => {
+    if (p.ataque) fechar();
+    else bloco.push({ p, i });
+  });
+  fechar();
+  return somas;
 }
 
 // Resumo curto para o histórico: "Acerto 17 · Dano 11".
@@ -487,6 +526,28 @@ function aplicarModo(texto, modo) {
     if (/2d20k[hl]1?(?!\d)/.test(parte)) return parte.replace(/2d20k[hl]1?(?!\d)/, novo);
     return parte.replace(/(^|[^\d])1?d20(?![\dk])/, (m, antes) => antes + novo);
   }).join(';');
+}
+
+// Atalhos da aba Dados: primeiro os favoritos, depois as rolagens recentes do
+// histórico (sem repetir a mesma expressão e sem repetir um favorito).
+// Devolve [{ nome, expr, tipo: 'favorito' | 'recente' }].
+function montarAtalhos(favoritos, historico, maxRecentes = 6) {
+  const lista = [];
+  const vistas = new Set();
+  for (const f of favoritos || []) {
+    if (!f || typeof f.expr !== 'string' || !f.expr.trim()) continue;
+    vistas.add(f.expr.trim());
+    lista.push({ nome: f.nome || f.expr, expr: f.expr.trim(), tipo: 'favorito' });
+  }
+  let recentes = 0;
+  for (const h of historico || []) {
+    if (recentes >= maxRecentes) break;
+    if (!h || typeof h.expr !== 'string' || !h.expr.trim() || vistas.has(h.expr.trim())) continue;
+    vistas.add(h.expr.trim());
+    lista.push({ nome: h.titulo || h.expr, expr: h.expr.trim(), tipo: 'recente' });
+    recentes++;
+  }
+  return lista;
 }
 
 // 7) FICHAS: confere uma ficha (vinda de um backup, por exemplo) e devolve
@@ -528,6 +589,6 @@ if (typeof module !== 'undefined') {
   module.exports = {
     analisar, rolar, descrever, contarDados, estatisticas, rolarDadoCripto,
     apertarDado, apertarD, apertarOperador, apertarAbre, apertarFecha, alternarVantagem,
-    separarPartes, validar, rolarPartes, dobrarDados, resumir, aplicarModo, corDoTexto, formatar, limparFicha,
+    separarPartes, validar, rolarPartes, dobrarDados, resumir, somasDeDano, montarAtalhos, aplicarModo, corDoTexto, formatar, limparFicha,
   };
 }

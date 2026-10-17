@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '3';
+const VERSAO = '4';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -110,26 +110,70 @@ function selos(parte) {
   return lista.map(([classe, texto]) => el('span', 'selo ' + classe, texto));
 }
 
+// Um grupo de dados: cada dado é um quadradinho com a cor do seu tipo (d6, d20...).
+// "contador" numera os dados para a animação de entrada sair em sequência.
+function desenharGrupo(grupo, contador) {
+  const g = el('span', 'grupo');
+  for (const d of grupo) {
+    let classe = 'dado';
+    if (d.valor === d.faces) classe += ' max';
+    else if (d.valor === 1) classe += ' min';
+    if (d.descartado) classe += ' fora';
+    const dado = el('span', classe, String(d.valor));
+    dado.dataset.f = d.faces;   // o CSS usa para pintar com a cor do dado
+    dado.style.setProperty('--i', Math.min(contador.n++, 24));
+    g.append(dado);
+  }
+  return g;
+}
+
 function desenharLinhas(alvo, res) {
+  const contador = { n: 0 };
+  let anterior = null;
   res.linhas.forEach((linha, i) => {
-    const div = el('div', 'linha');
-    // Constante depois da primeira parcela aparece com sinal: "+5"
+    // Constante depois da primeira parcela aparece com sinal ("+5") na mesma
+    // linha dos dados de antes, para o resultado ocupar menos espaço.
     const sinal = i > 0 && !linha.grupos.length && !linha.texto.startsWith('−') ? '+' : '';
-    div.append(el('span', 'rotulo', sinal + linha.texto + (linha.grupos.length ? ':' : '')));
-    for (const grupo of linha.grupos) {
-      const g = el('span', 'grupo');
-      for (const d of grupo) {
-        let classe = 'dado';
-        if (d.valor === d.faces) classe += ' max';
-        else if (d.valor === 1) classe += ' min';
-        if (d.descartado) classe += ' fora';
-        g.append(el('span', classe, String(d.valor)));
-      }
-      div.append(g);
+    if (anterior && !linha.grupos.length) {
+      anterior.append(el('span', 'constante', sinal + linha.texto));
+      return;
     }
-    if (linha.grupos.length) div.append(el('span', 'subtotal', '= ' + linha.subtotal));
+    const div = el('div', 'linha');
+    const repetida = linha.repeticoes && linha.repeticoes.length > 1;
+    div.append(el('span', 'rotulo', sinal + linha.texto + (linha.grupos.length && !repetida ? ':' : '')));
+    anterior = repetida ? null : div;
+    if (repetida) {
+      // Repetição: uma linha por vez, numerada, com o valor de cada uma.
+      const lista = el('div', 'repeticoes');
+      linha.repeticoes.forEach((r, k) => {
+        const item = el('div', 'repeticao');
+        item.append(el('span', 'ordem', `${k + 1}ª`));
+        const dados = el('span', 'dados-rep');
+        for (const grupo of r.grupos) dados.append(desenharGrupo(grupo, contador));
+        item.append(dados, el('span', 'valor-rep', String(r.valor)));
+        lista.append(item);
+      });
+      div.append(el('span', 'subtotal', '= ' + linha.subtotal), lista);
+    } else {
+      for (const grupo of linha.grupos) div.append(desenharGrupo(grupo, contador));
+      if (linha.grupos.length) div.append(el('span', 'subtotal', '= ' + linha.subtotal));
+    }
     alvo.append(div);
   });
+}
+
+// Reinicia a animação de entrada do resultado (transição suave, sem "dado rolando").
+function animar(alvo) {
+  alvo.classList.remove('anima');
+  void alvo.offsetWidth; // força o navegador a "esquecer" a animação anterior
+  alvo.classList.add('anima');
+}
+
+// Classe de cor do número: verde no 20 natural ou crítico, vermelha no 1 natural.
+function classeNatural(parte) {
+  if (parte.natural === 20 || parte.critico) return ' critico';
+  if (parte.natural === 1) return ' falha';
+  return '';
 }
 
 function desenharRolagem(alvo, rolagem, titulo) {
@@ -141,23 +185,39 @@ function desenharRolagem(alvo, rolagem, titulo) {
     const p = partes[0];
     const exp = el('div', 'expr-rolada', p.res.expressao);
     exp.append(...selos(p));
-    alvo.append(el('div', 'total', String(p.res.total)), exp);
+    alvo.append(el('div', 'total' + classeNatural(p), String(p.res.total)), exp);
     if (config.stats) alvo.append(el('div', 'stats', textoStats(p.res.stats)));
     desenharLinhas(alvo, p.res);
   } else {
     // Várias partes (Acerto / Dano...): um bloco para cada.
-    for (const p of partes) {
+    const somas = somasDeDano(rolagem);
+    partes.forEach((p, i) => {
       const bloco = el('div', 'parte');
       const nome = el('span', 'nome', p.rotulo || 'Resultado');
       nome.append(...selos(p));
       const cabeca = el('div', 'parte-cabeca');
-      cabeca.append(nome, el('span', 'valor', String(p.res.total)));
+      cabeca.append(nome, el('span', 'valor' + classeNatural(p), String(p.res.total)));
       const stats = config.stats ? textoStats(p.res.stats) : '';
       bloco.append(cabeca, el('div', 'expr-rolada', p.res.expressao + (stats ? '  ·  ' + stats : '')));
       desenharLinhas(bloco, p.res);
       alvo.append(bloco);
-    }
+      // Depois da última parte de dano seguida, a soma delas (ex.: Dano + Fogo).
+      const soma = somas.find(s => s.fim === i);
+      if (soma) {
+        const linhaSoma = el('div', 'soma-dano');
+        linhaSoma.append(el('span', 'nome', 'Total'), el('small', '', soma.rotulos.join(' + ')),
+          el('span', 'valor', String(soma.total)));
+        alvo.append(linhaSoma);
+      }
+    });
   }
+  // A borda do resultado fica verde num 20 natural e vermelha num 1 natural.
+  const algumCritico = partes.some(p => p.natural === 20);
+  const algumaFalha = partes.some(p => p.natural === 1);
+  const moldura = alvo.closest('.ficha-resultado') || alvo;
+  moldura.classList.toggle('tem-critico', algumCritico);
+  moldura.classList.toggle('tem-falha', algumaFalha && !algumCritico);
+  animar(alvo);
   alvo.scrollTop = 0;
 }
 
@@ -181,6 +241,35 @@ let tituloVisor = ''; // nome da rolagem quando ela veio de um favorito/históri
 
 function mostrarErro(alvo, msg) {
   alvo.replaceChildren(el('p', 'erro', '⚠ ' + msg));
+  const moldura = alvo.closest('.ficha-resultado') || alvo;
+  moldura.classList.remove('tem-critico', 'tem-falha');
+  animar(alvo);
+}
+
+// Barra de atalhos: favoritos (★) e rolagens recentes (↻). Um toque já rola.
+function desenharAtalhos() {
+  const barra = $('atalhos');
+  barra.replaceChildren();
+  const atalhos = montarAtalhos(favoritos, historico);
+  barra.hidden = !atalhos.length;
+  for (const a of atalhos) {
+    const b = el('button', 'atalho ' + a.tipo, (a.tipo === 'favorito' ? '★ ' : '↻ ') + a.nome);
+    b.title = a.expr;
+    b.addEventListener('click', () => {
+      visor.value = a.expr;
+      tituloVisor = a.tipo === 'favorito' || a.nome !== a.expr ? a.nome : '';
+      executarRolagem();
+    });
+    barra.append(b);
+  }
+  barra.scrollLeft = 0;
+}
+
+// Expressão comprida: a letra do visor diminui para caber mais.
+function ajustarVisor() {
+  const n = visor.value.length;
+  visor.classList.toggle('medio', n > 14 && n <= 22);
+  visor.classList.toggle('longo', n > 22);
 }
 
 function atualizarPrevia() {
@@ -192,6 +281,7 @@ function atualizarPrevia() {
     } catch { /* expressão incompleta: sem prévia */ }
   }
   $('previa').textContent = texto;
+  ajustarVisor();
 }
 
 function executarRolagem() {
@@ -205,6 +295,7 @@ function executarRolagem() {
     const rolagem = fazerRolagem(expr);
     desenharRolagem(areaResultado, rolagem, tituloVisor);
     registrar(tituloVisor, expr, rolagem);
+    desenharAtalhos();
   } catch (e) {
     mostrarErro(areaResultado, e.message);
   }
@@ -259,7 +350,7 @@ function abrirPainel(tipo) {
   desenharPainel();
   if ($('painel').hidden) {
     $('painel').hidden = false;
-    abrirCamada(() => { $('painel').hidden = true; painelAtual = null; });
+    abrirCamada(() => { $('painel').hidden = true; painelAtual = null; desenharAtalhos(); });
   }
 }
 
@@ -449,7 +540,7 @@ $('arquivo-backup').addEventListener('change', async (ev) => {
     favoritos = (dados.favoritos || []).filter(f => f && typeof f.nome === 'string' && typeof f.expr === 'string');
     config = { ...CONFIG_PADRAO, ...(dados.config || {}) };
     salvarFichas(); gravar('rolador.favoritos', favoritos); salvarConfig();
-    aplicarTema(); desenharPainel(); desenharListaFichas();
+    aplicarTema(); desenharPainel(); desenharListaFichas(); desenharAtalhos();
     alert('Backup importado!');
   } catch {
     alert('Esse arquivo não é um backup válido do Rolador.');
@@ -607,6 +698,7 @@ function rolarDaFicha(f, r) {
     const rolagem = fazerRolagem(expr);
     desenharRolagem(alvo, rolagem, titulo);
     registrar(titulo, expr, rolagem);
+    desenharAtalhos();
   } catch (e) {
     mostrarErro(alvo, e.message);
   }
@@ -781,4 +873,5 @@ $('ed-apagar').addEventListener('click', () => {
 // ---------- 12. Início ----------
 aplicarTema();
 mostrarAba(config.aba === 'fichas' ? 'fichas' : 'dados');
+desenharAtalhos();
 atualizarPrevia();

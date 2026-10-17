@@ -11,7 +11,7 @@ e monstros com imagem e rolagens com nome, 10 temas de cores. Funciona offline.
 |---|---|
 | `2d12` | rola 2 dados de 12 faces e soma |
 | `1d20+5` | soma/subtrai dados e constantes |
-| `3×(3d6)` | **parênteses = repetir**: rola `3d6` três vezes, de forma independente (9 dados), e soma |
+| `3×(3d6)` | **parênteses = repetir**: rola `3d6` três vezes, de forma independente (9 dados), e soma. O resultado mostra uma linha por repetição, com o valor de cada uma (`6×(4d6kh3)` = os 6 atributos) |
 | `3×[3d6]` | **colchetes = multiplicar**: rola `3d6` uma vez (3 dados) e multiplica o resultado por 3 |
 | `2×(1d8+2×[1d4])` | parênteses e colchetes podem ser aninhados |
 | `2d20kh1` / `2d20kl1` | mantém o maior / menor dado (vantagem / desvantagem). `4d6kh3` descarta o menor |
@@ -19,11 +19,16 @@ e monstros com imagem e rolagens com nome, 10 temas de cores. Funciona offline.
 
 Se uma parte com d20 tirar **20 natural**, as partes seguintes sem d20 (o dano) rolam com
 **o dobro de dados** (regra de crítico de 2024; os modificadores não dobram).
+Duas ou mais partes de dano seguidas (ex.: `Acerto: 1d20+5; Dano: 1d8+3; Fogo: 1d6`)
+ganham uma linha **Total** com a soma delas.
 
 ## Telas
 
 - **🎲 Dados**: a calculadora. Vant/Desv trocam o último `1d20` por `2d20kh1`/`2d20kl1`;
   `dX` serve para dados de qualquer tamanho; ROLAR com o visor vazio repete a última rolagem.
+  Acima do visor fica uma barra de **atalhos**: seus favoritos (★) e as rolagens recentes (↻);
+  um toque já rola. Cada dado do resultado tem a cor do seu tipo (d6, d20...); 20 natural
+  deixa o número e a borda verdes, 1 natural, vermelhos.
 - **📜 Fichas**: personagens e monstros, com imagem (da galeria ou câmera), CA, PV com
   botões de dano/cura, modo Normal/Vantagem/Desvantagem e botões de rolagem com nome.
   Já vem com 10 monstros do SRD 5.2.1 (D&D 2024), do ND 1/4 ao 21.
