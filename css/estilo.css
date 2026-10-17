@@ -335,7 +335,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .resultado-botoes .icone { width: 38px; height: 38px; background: var(--tecla); }
 .resultado-botoes .ic { transition: transform .2s; }
 /* Recolhido: só o título e o resumo (ou o total grande) */
-.ficha-resultado.recolhido #ficha-resultado-conteudo > :not(.titulo-rolagem):not(.resumo-topo):not(.total):not(.erro) { display: none; }
+.ficha-resultado.recolhido #ficha-resultado-conteudo > :not(.titulo-rolagem):not(.resumo-topo):not(.total):not(.veredito):not(.erro) { display: none; }
 .ficha-resultado.recolhido .total { font-size: 2.4rem; margin: 2px 0 0; }
 .ficha-resultado.recolhido #recolher-resultado .ic { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) { .resultado-botoes .ic, .barra-pv > div { transition: none; } }
@@ -397,3 +397,100 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .opcao small { display: block; color: var(--fraco); }
 .opcao input { width: 22px; height: 22px; flex: none; accent-color: var(--acento); }
 .acoes-dados { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+/* ---------- Aba Combate (versão 6) ---------- */
+/* Três abas: no celular estreito o ícone fica em cima do nome, para tudo caber. */
+.abas button { position: relative; }
+@media (max-width: 440px) {
+  .abas button { flex-direction: column; gap: 1px; font-size: .74rem; letter-spacing: .2px; }
+  .abas .ic { width: 1.5em; height: 1.5em; }
+  .selo-aba { position: absolute; top: 2px; right: 2px; }  /* no canto, por cima do ícone */
+}
+.selo-aba {
+  padding: 0 4px; font-size: .62rem; font-weight: 900; line-height: 1.5;
+  background: var(--min); color: #fff; font-variant-numeric: tabular-nums;
+}
+.combate-cabeca { display: flex; gap: 4px; flex: none; }
+.combate-cabeca > div { background: var(--superficie); padding: 6px 10px; display: flex; flex-direction: column; justify-content: center; }
+.combate-cabeca small { font-size: .68rem; font-weight: 800; color: var(--fraco); text-transform: uppercase; letter-spacing: .5px; }
+.combate-cabeca .rodada { width: 76px; text-align: center; border-top: 3px solid var(--acento); }
+.combate-cabeca .rodada b { font-size: 1.8rem; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.combate-cabeca .vez-de { flex: 1; min-width: 0; }
+.combate-cabeca .vez-de b { font-size: 1.15rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combate-ferramentas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: none; }
+.combate-ferramentas .botao { padding: 9px 4px; font-size: .9rem; background: var(--superficie); }
+.combate-ferramentas .botao.destaque { background: var(--acento); color: var(--acento-txt); }
+.botao:disabled, .rolar:disabled, .icone:disabled { opacity: .4; cursor: default; filter: none; }
+.lista-combate { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.lista-combate .vazio p { margin: 0 0 10px; }
+.lista-combate > .aviso-pv { margin: 0; flex: none; }
+.combatente { background: var(--superficie); border-left: 4px solid var(--borda); flex: none; }
+.combatente.personagem { border-left-color: color-mix(in srgb, var(--acento) 45%, var(--borda)); }
+/* Quem está jogando: borda grossa na cor do tema e fundo levemente tingido. */
+.combatente.vez { border-left: 8px solid var(--acento); background: color-mix(in srgb, var(--acento) 14%, var(--superficie)); }
+.combatente.caido { opacity: .55; }
+.combatente.caido .retrato { filter: grayscale(1); }
+.combatente.aberto { opacity: 1; }
+.combatente-cabeca { display: flex; gap: 8px; align-items: center; width: 100%; padding: 6px 8px 6px 6px; text-align: left; }
+.combatente-cabeca:active { filter: brightness(1.2); }
+.combatente .ini {
+  width: 46px; height: 46px; flex: none; display: flex; align-items: center; justify-content: center;
+  background: var(--tecla); font-size: 1.4rem; font-weight: 900; font-variant-numeric: tabular-nums;
+}
+.combatente.vez .ini { background: var(--acento); color: var(--acento-txt); }
+.combatente .ini.sem { color: var(--fraco); border: 1px dashed var(--borda); }
+.combatente .retrato { width: 42px; height: 42px; font-size: 1.4rem; border-width: 1px; }
+.combatente .info { flex: 1; min-width: 0; display: block; }
+.combatente .nome { display: block; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combatente .numeros { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.combatente .num-temp { color: var(--d6); }
+.combatente .num-caido { color: var(--min); text-transform: uppercase; }
+.combatente .barra-pv { margin-top: 3px; }
+.combatente .tags { margin-top: 4px; }
+.combatente .tag { color: var(--d10); border-color: color-mix(in srgb, var(--d10) 50%, var(--borda)); }
+.combatente-detalhes { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 4px; }
+.combatente-detalhes .aviso-pv { margin: 0; }
+.combatente-acoes { display: flex; gap: 4px; }
+.combatente-acoes .botao { flex: 1; padding: 9px 6px; }
+.campo-ini { display: flex; align-items: center; gap: 6px; flex: 1.2; background: var(--tecla); padding: 0 0 0 10px; font-weight: 800; font-size: .85rem; color: var(--fraco); }
+.campo-ini input { text-align: center; font-weight: 900; font-size: 1.1rem; padding: 6px; height: 100%; }
+.combate-turno { display: flex; gap: 5px; flex: none; }
+.combate-turno .icone { width: 60px; height: 60px; }
+.combate-turno .rolar { flex: 1; font-size: 1.2rem; letter-spacing: 2px; }
+
+/* Painel "Adicionar ao combate" */
+.item-adicionar {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; margin-bottom: 4px;
+  background: var(--superficie); padding: 6px 8px; border-left: 4px solid var(--borda);
+}
+.item-adicionar:active { filter: brightness(1.25); }
+.item-adicionar.tem { border-left-color: var(--acento); }
+.item-adicionar:disabled { opacity: .5; }
+.item-adicionar .retrato { width: 44px; height: 44px; font-size: 1.5rem; border-width: 1px; }
+.item-adicionar .textos { flex: 1; min-width: 0; }
+.item-adicionar b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-adicionar small { color: var(--fraco); }
+.item-adicionar .quantos { font-weight: 900; color: var(--acento); font-size: .9rem; }
+.item-adicionar .mais { width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--acento); color: var(--acento-txt); }
+.folha-corpo .titulo-grupo { margin: 12px 0 6px; }
+.botao.pronto { width: 100%; margin-top: 8px; padding: 14px; }
+
+/* Ficha aberta pelo combate */
+.ficha-cabeca .tipo.combate { display: block; width: fit-content; background: var(--tecla); color: var(--texto); }
+.ficha-cabeca .tipo.combate.vez { background: var(--acento); color: var(--acento-txt); }
+
+/* Alvo (CA/CD) e sugestão de Vantagem/Desvantagem pelas condições */
+.titulo-rolagens { display: flex; align-items: center; gap: 8px; margin: 14px 0 6px; }
+.titulo-rolagens .titulo-secao { margin: 0; flex: 1; }
+.campo-alvo { display: flex; align-items: center; gap: 6px; font-size: .75rem; font-weight: 800; color: var(--fraco); text-transform: uppercase; letter-spacing: .5px; }
+.campo-alvo input { width: 64px; padding: 6px; text-align: center; font-weight: 900; font-size: 1.05rem; }
+.modo button.sugerido { outline: 2px dashed var(--d10); outline-offset: -4px; }
+.sugestao-modo { margin: 0 0 6px; padding: 6px 10px; background: var(--superficie); border-left: 4px solid var(--d10); font-size: .82rem; color: var(--fraco); line-height: 1.4; }
+.veredito { text-align: center; font-weight: 900; letter-spacing: 1px; margin: 2px auto 6px; padding: 3px 10px; width: fit-content; }
+.veredito.sucesso, .chip-veredito.sucesso, .selo.acerto { background: var(--max); color: #fff; }
+.veredito.fracasso, .chip-veredito.fracasso, .selo.erro { background: var(--min); color: #fff; }
+.chip-veredito { display: inline-flex; align-items: center; padding: 4px 8px; font-size: .78rem; font-weight: 900; letter-spacing: .5px; margin-left: -4px; }
+.chip-resumo.apagado { opacity: .4; }
+.chip-resumo.apagado b { text-decoration: line-through; }
+/* Título do resultado da ficha numa linha só (nomes longos terminam em "…") */
+#ficha-resultado-conteudo .titulo-rolagem { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 30px; }

@@ -535,15 +535,16 @@ function resumoCompacto(rolagem) {
     }
     bloco = [];
   };
-  for (const p of rolagem.partes) {
+  rolagem.partes.forEach((p, i) => {
     if (p.ataque) {
       fechar();
-      itens.push({ rotulo: p.rotulo || 'd20', valor: p.res.total, tipo: 'ataque', natural: p.natural });
+      // "parte" guarda a posição, para a tela achar o acerto/erro contra o alvo.
+      itens.push({ rotulo: p.rotulo || 'd20', valor: p.res.total, tipo: 'ataque', natural: p.natural, parte: i });
       depoisDeAtaque = true;
     } else {
       bloco.push(p);
     }
-  }
+  });
   fechar();
   return itens;
 }
@@ -695,6 +696,162 @@ function corDoTexto(hex) {
   return (lum + 0.05) / 0.05 > 1.05 / (lum + 0.05) ? '#111111' : '#ffffff';
 }
 
+// 10) ALVO: acertou a CA? passou na CD? (regras 2024)
+//     Uma parte com d20 é ATAQUE se tiver dano logo depois (ou se chamar "Acerto"/"Ataque");
+//     senão é um TESTE (salvaguarda, perícia). Só no ataque o 20 natural sempre acerta e
+//     o 1 natural sempre erra; em testes e salvaguardas vale só o total.
+//     Devolve uma lista do tamanho das partes: null nas partes sem d20, ou
+//     { tipo: 'ataque' | 'teste', sucesso, automatico } nas partes com d20.
+function compararComAlvo(rolagem, alvo) {
+  const n = Math.trunc(Number(alvo));
+  const partes = rolagem.partes;
+  return partes.map((p, i) => {
+    if (!p.ataque || alvo === null || alvo === '' || !Number.isFinite(n)) return null;
+    const seguinte = partes[i + 1];
+    const ehAtaque = /acerto|ataque/i.test(p.rotulo || '') || Boolean(seguinte && !seguinte.ataque);
+    if (ehAtaque && p.natural === 20) return { tipo: 'ataque', sucesso: true, automatico: true };
+    if (ehAtaque && p.natural === 1) return { tipo: 'ataque', sucesso: false, automatico: true };
+    return { tipo: ehAtaque ? 'ataque' : 'teste', sucesso: p.res.total >= n, automatico: false };
+  });
+}
+
+// 11) CONDIÇÕES → VANTAGEM / DESVANTAGEM (regras 2024, SRD 5.2.1).
+//     "condicional" = só vale numa situação (ex.: com a fonte do medo à vista), então
+//     a tela apenas sugere. Vantagem e Desvantagem juntas se anulam (fica Normal).
+const EFEITO_NO_D20 = {
+  ataque: [
+    { id: 'cego', efeito: 'desv' }, { id: 'envenenado', efeito: 'desv' }, { id: 'caido', efeito: 'desv' },
+    { id: 'contido', efeito: 'desv' }, { id: 'invisivel', efeito: 'vant' },
+    { id: 'amedrontado', efeito: 'desv', condicional: true }, { id: 'agarrado', efeito: 'desv', condicional: true },
+  ],
+  // Iniciativa é um teste de Destreza: Envenenado e Amedrontado também pesam;
+  // Incapacitado (e quem inclui Incapacitado) rola com Desvantagem; Invisível, com Vantagem.
+  iniciativa: [
+    { id: 'invisivel', efeito: 'vant' }, { id: 'incapacitado', efeito: 'desv' }, { id: 'atordoado', efeito: 'desv' },
+    { id: 'paralisado', efeito: 'desv' }, { id: 'petrificado', efeito: 'desv' }, { id: 'inconsciente', efeito: 'desv' },
+    { id: 'envenenado', efeito: 'desv' }, { id: 'amedrontado', efeito: 'desv', condicional: true },
+  ],
+};
+// Devolve { modo: 'normal' | 'vant' | 'desv', vant: [nomes], desv: [nomes] }.
+// Com "soCertas", ignora as condicionais (para aplicar sozinho, sem perguntar).
+function sugerirModo(condicoes, contexto, soCertas = false) {
+  const lista = EFEITO_NO_D20[contexto] || [];
+  const nomeDe = (id) => (CONDICOES.find(c => c.id === id) || { nome: id }).nome;
+  const vant = [], desv = [];
+  for (const regra of lista) {
+    if (!(condicoes || []).includes(regra.id) || (soCertas && regra.condicional)) continue;
+    (regra.efeito === 'vant' ? vant : desv).push(nomeDe(regra.id) + (regra.condicional ? '*' : ''));
+  }
+  const modo = vant.length && !desv.length ? 'vant' : desv.length && !vant.length ? 'desv' : 'normal';
+  return { modo, vant, desv };
+}
+
+// 12) COMBATE: ordem de iniciativa, turnos e rodadas.
+//     Cada combatente é { id, iniciativa (número ou null), ... }. A lista É a ordem.
+
+// Do maior para o menor. Empate: fica quem já estava na frente (o Mestre e os jogadores
+// decidem a ordem dos empatados, regra 2024; dá para trocar com subirNoEmpate).
+// Quem ainda não rolou (null) vai para o fim.
+function ordenarIniciativa(lista) {
+  const valor = (c) => (typeof c.iniciativa === 'number' ? c.iniciativa : -Infinity);
+  return lista.map((c, i) => ({ c, i }))
+    .sort((a, b) => valor(b.c) - valor(a.c) || a.i - b.i)
+    .map(x => x.c);
+}
+
+// Troca um combatente com o de cima, só se os dois tiverem a mesma iniciativa.
+function subirNoEmpate(lista, id) {
+  const i = lista.findIndex(c => c.id === id);
+  if (i <= 0 || lista[i - 1].iniciativa !== lista[i].iniciativa) return lista;
+  const nova = lista.slice();
+  [nova[i - 1], nova[i]] = [nova[i], nova[i - 1]];
+  return nova;
+}
+
+// Passa a vez. "vez" é o id de quem está jogando (null = combate não começou).
+// Ao passar do último para o primeiro, começa uma rodada nova. "pular" é um Set de ids
+// que perdem a vez (ex.: monstros com 0 PV); se todos estiverem nele, ninguém é pulado.
+function avancarTurno(lista, vez, rodada, pular = new Set()) {
+  if (!lista.length) return { vez: null, rodada: 0 };
+  const pode = (c) => !pular.has(c.id);
+  const algumPode = lista.some(pode);
+  let i = lista.findIndex(c => c.id === vez);
+  let r = Math.max(0, rodada || 0);
+  if (i < 0) { i = -1; r = Math.max(r, 1) - 1; }  // começa: a 1ª rodada abre no primeiro
+  for (let passos = 0; passos < lista.length; passos++) {
+    i++;
+    if (i >= lista.length) i = 0;
+    if (i === 0) r++;
+    if (!algumPode || pode(lista[i])) break;
+  }
+  return { vez: lista[i].id, rodada: r };
+}
+
+// Volta a vez para o anterior (para corrigir um toque sem querer). Nunca abaixo da rodada 1.
+function voltarTurno(lista, vez, rodada, pular = new Set()) {
+  const i0 = lista.findIndex(c => c.id === vez);
+  if (i0 < 0) return { vez, rodada };
+  const pode = (c) => !pular.has(c.id);
+  const algumPode = lista.some(pode);
+  let i = i0;
+  let r = rodada;
+  for (let passos = 0; passos < lista.length; passos++) {
+    if (i === 0) {
+      if (r <= 1) return { vez, rodada };  // já é o começo do combate
+      r--;
+      i = lista.length;
+    }
+    i--;
+    if (!algumPode || pode(lista[i])) break;
+  }
+  return { vez: lista[i].id, rodada: r };
+}
+
+// Nome da próxima cópia de um monstro: "Guerreiro Goblin 1", "... 2" (sem repetir número).
+function nomeDeCopia(base, nomesUsados) {
+  let n = 1;
+  while (nomesUsados.includes(`${base} ${n}`)) n++;
+  return `${base} ${n}`;
+}
+
+// A rolagem de Iniciativa da ficha (pelo nome), ou 1d20 se ela não tiver uma.
+function exprIniciativa(ficha) {
+  const semAcento = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  const r = ficha && (ficha.rolagens || []).find(x => semAcento(x.nome) === 'iniciativa');
+  return r ? r.expr : '1d20';
+}
+
+// Confere o combate salvo (pode vir corrompido ou de outra versão) e devolve um válido.
+function limparCombate(dados) {
+  const vazio = { participantes: [], vez: null, rodada: 0 };
+  if (!dados || typeof dados !== 'object' || !Array.isArray(dados.participantes)) return vazio;
+  const numero = (v) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Math.trunc(Number(v)) : null);
+  const ids = new Set();
+  const participantes = [];
+  for (const c of dados.participantes) {
+    if (!c || typeof c !== 'object' || typeof c.id !== 'string' || ids.has(c.id)) continue;
+    if (typeof c.nome !== 'string' || !c.nome.trim()) continue;
+    ids.add(c.id);
+    const pvMax = numero(c.pvMax);
+    participantes.push({
+      id: c.id,
+      fichaId: typeof c.fichaId === 'string' ? c.fichaId : '',
+      vinculado: c.vinculado === true,  // personagem: os PV e condições são os da ficha
+      nome: c.nome.trim().slice(0, 90),
+      tipo: c.tipo === 'personagem' ? 'personagem' : 'monstro',
+      iniciativa: numero(c.iniciativa),
+      ca: numero(c.ca),
+      pvMax,
+      pv: pvMax === null ? null : Math.max(0, Math.min(pvMax, numero(c.pv) ?? pvMax)),
+      pvTemp: Math.max(0, numero(c.pvTemp) || 0),
+      exaustao: Math.max(0, Math.min(MAX_EXAUSTAO, numero(c.exaustao) || 0)),
+      condicoes: Array.isArray(c.condicoes) ? CONDICOES.map(x => x.id).filter(id => c.condicoes.includes(id)) : [],
+    });
+  }
+  const vez = participantes.some(c => c.id === dados.vez) ? dados.vez : null;
+  return { participantes, vez, rodada: vez ? Math.max(1, numero(dados.rodada) || 1) : 0 };
+}
+
 // No Node (testes) exporta as funções; no navegador elas já ficam globais.
 if (typeof module !== 'undefined') {
   module.exports = {
@@ -702,5 +859,7 @@ if (typeof module !== 'undefined') {
     apertarDado, apertarD, apertarOperador, apertarAbre, apertarFecha, alternarVantagem,
     separarPartes, validar, rolarPartes, dobrarDados, resumir, somasDeDano, montarAtalhos, aplicarModo, corDoTexto, formatar, limparFicha,
     resumoCompacto, nomeCurto, CONDICOES, MAX_EXAUSTAO, aplicarDano, aplicarCura, ganharPVTemp, cdConcentracao, aplicarExaustao,
+    compararComAlvo, sugerirModo, ordenarIniciativa, subirNoEmpate, avancarTurno, voltarTurno,
+    nomeDeCopia, exprIniciativa, limparCombate,
   };
 }

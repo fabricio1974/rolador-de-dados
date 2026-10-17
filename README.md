@@ -41,8 +41,26 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
     Concentrando etc.; o efeito de cada uma aparece logo abaixo como lembrete, e um toque
     no ✕ tira. **Exaustão** tem níveis (− / +) e já desconta −2 por nível de todo d20 rolado
     pela ficha.
+  - **Alvo CA/CD** (ao lado de "Rolagens"): digite a CA do alvo (ou a CD da salvaguarda) e o
+    resultado mostra **ACERTOU/ERROU** ou **PASSOU/FALHOU**. Em ataques, 20 natural sempre acerta
+    e 1 natural sempre erra; em testes e salvaguardas vale só o total (regras 2024). O dano de
+    um ataque que errou fica riscado no resumo.
+  - Condições que mudam os ataques (Envenenado, Caído, Cego, Contido, Invisível...) marcam com
+    tracejado o modo sugerido (Vantagem/Desvantagem) e explicam o porquê; você decide se usa.
   - O resultado aparece embaixo, com o resumo no topo; a setinha recolhe os detalhes para
-    os botões ficarem à vista.
+    os botões ficarem à vista (e o app lembra se você deixou recolhido).
+- **Combate**: a ordem de iniciativa da mesa.
+  - **Adicionar** escolhe personagens e monstros. O mesmo monstro pode entrar várias vezes
+    (Guerreiro Goblin 1, 2, 3), cada um com seus PV e condições; personagens entram uma vez e
+    usam os PV da própria ficha.
+  - **Começar combate** rola a Iniciativa de quem falta (a rolagem "Iniciativa" da ficha, ou
+    1d20) e abre a rodada 1. Cópias do mesmo monstro rolam uma vez só e ficam com o mesmo número
+    (regra 2024). Invisível rola com Vantagem; Incapacitado, Envenenado etc., com Desvantagem.
+  - **Próximo turno** (botão grande embaixo) passa a vez e conta as rodadas; a seta ao lado
+    volta um turno. Monstro com 0 PV perde a vez; personagem com 0 PV não.
+  - Toque num combatente para abrir: Dano/Cura/Temp, iniciativa (digitar ou rolar), **Antes**
+    para desempatar com o de cima, **Ficha e rolagens** (rolar ataques daquele combatente) e Tirar.
+  - O combate fica salvo: dá para fechar o app e continuar depois. A aba mostra a rodada (R3).
 - **Histórico**, **Favoritos** e **Configurações** (tema, fundo, opções, backup): os ícones
   no alto da tela.
 ## Organização do código
@@ -62,5 +80,6 @@ testá-los no Node. O GitHub roda os testes a cada push (aba **Actions**).
 
 ## Dados salvos
 
-Tudo fica no `localStorage` do navegador, só no aparelho. Em **Configurações → Seus dados** dá para
+Tudo fica no `localStorage` do navegador, só no aparelho (`rolador.config`, `.historico`,
+`.favoritos`, `.fichas` e, desde a versão 6, `.combate`). Em **Configurações → Seus dados** dá para
 exportar e importar um backup (`.json`).

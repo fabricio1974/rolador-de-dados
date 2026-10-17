@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=5">
+<link rel="stylesheet" href="css/estilo.css?v=6">
 </head>
 <body>
 <div class="app">
@@ -14,6 +14,7 @@
     <nav class="abas">
       <button data-aba="dados" class="ativa"><i data-icone="dado"></i>Dados</button>
       <button data-aba="fichas"><i data-icone="ficha"></i>Fichas</button>
+      <button data-aba="combate"><i data-icone="espadas"></i>Combate<span class="selo-aba" id="selo-rodada" hidden></span></button>
     </nav>
     <button class="icone" id="abrir-historico" aria-label="Histórico"><i data-icone="relogio"></i></button>
     <button class="icone" id="abrir-favoritos" aria-label="Favoritos"><i data-icone="estrela"></i></button>
@@ -99,6 +100,24 @@
     </div>
     <div class="lista-fichas" id="lista-fichas"></div>
   </main>
+
+  <!-- ===== ABA COMBATE: ordem de iniciativa, turnos e PV de cada um ===== -->
+  <main class="tela" id="tela-combate" hidden>
+    <div class="combate-cabeca">
+      <div class="rodada"><small>Rodada</small><b id="rodada-num">—</b></div>
+      <div class="vez-de"><small id="vez-rotulo">Vez de</small><b id="vez-nome"></b></div>
+    </div>
+    <div class="combate-ferramentas">
+      <button class="botao" id="add-combatente"><i data-icone="mais"></i>Adicionar</button>
+      <button class="botao" id="rolar-iniciativas"><i data-icone="dado"></i>Iniciativa</button>
+      <button class="botao" id="encerrar-combate"><i data-icone="fechar"></i>Encerrar</button>
+    </div>
+    <div class="lista-combate" id="lista-combate"></div>
+    <div class="combate-turno">
+      <button class="icone" id="turno-anterior" aria-label="Voltar um turno"><i data-icone="voltar"></i></button>
+      <button class="rolar" id="proximo-turno">PRÓXIMO TURNO</button>
+    </div>
+  </main>
 </div>
 
 <!-- ===== FICHA ABERTA (tela cheia) ===== -->
@@ -180,9 +199,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=5"></script>
-<script src="js/monstros.js?v=5"></script>
-<script src="js/logica.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/temas.js?v=6"></script>
+<script src="js/monstros.js?v=6"></script>
+<script src="js/logica.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>

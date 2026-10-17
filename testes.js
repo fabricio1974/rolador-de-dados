@@ -390,5 +390,116 @@ teste('limparFicha: ficha antiga ganha campos novos zerados; condições inváli
   assert.strictEqual(new Set(L.CONDICOES.map(c => c.id)).size, L.CONDICOES.length);
 });
 
+console.log('Combate e alvo');
+
+teste('alvo: ataque acerta com total ≥ CA; 20 natural sempre acerta, 1 natural sempre erra', () => {
+  const acerto = L.rolarPartes('Acerto: 1d20+4; Dano: 1d6+2', dadoFalso([11, 3]));
+  assert.deepStrictEqual(L.compararComAlvo(acerto, 15), [{ tipo: 'ataque', sucesso: true, automatico: false }, null]);
+  assert.strictEqual(L.compararComAlvo(acerto, 16)[0].sucesso, false);
+  const vinte = L.rolarPartes('Acerto: 1d20+0; Dano: 1d6', dadoFalso([20, 3]));
+  assert.deepStrictEqual(L.compararComAlvo(vinte, 30)[0], { tipo: 'ataque', sucesso: true, automatico: true });
+  const um = L.rolarPartes('Acerto: 1d20+40; Dano: 1d6', dadoFalso([1, 3]));
+  assert.deepStrictEqual(L.compararComAlvo(um, 10)[0], { tipo: 'ataque', sucesso: false, automatico: true });
+  assert.deepStrictEqual(L.compararComAlvo(acerto, null), [null, null], 'sem alvo, sem comparação');
+  assert.deepStrictEqual(L.compararComAlvo(acerto, ''), [null, null]);
+});
+
+teste('alvo: teste/salvaguarda usa só o total (20 e 1 naturais não são automáticos)', () => {
+  const salv = L.rolarPartes('1d20+2', dadoFalso([20]));
+  assert.deepStrictEqual(L.compararComAlvo(salv, 25), [{ tipo: 'teste', sucesso: false, automatico: false }]);
+  const um = L.rolarPartes('1d20+12', dadoFalso([1]));
+  assert.strictEqual(L.compararComAlvo(um, 13)[0].sucesso, true);
+  const nomeado = L.rolarPartes('Ataque: 1d20+5', dadoFalso([20]));
+  assert.strictEqual(L.compararComAlvo(nomeado, 40)[0].tipo, 'ataque', 'nome "Ataque" conta como ataque');
+  const multi = L.rolarPartes('A1: 1d20+5; D1: 1d6; A2: 1d20+5; D2: 1d6', dadoFalso([10, 2, 5, 2]));
+  assert.deepStrictEqual(L.compararComAlvo(multi, 14).map(x => x && x.sucesso), [true, null, false, null]);
+  assert.strictEqual(L.resumoCompacto(multi)[2].parte, 2, 'resumo guarda a posição do ataque');
+});
+
+teste('condições sugerem Vantagem/Desvantagem; as duas juntas se anulam', () => {
+  assert.strictEqual(L.sugerirModo(['envenenado'], 'ataque').modo, 'desv');
+  assert.strictEqual(L.sugerirModo(['invisivel'], 'ataque').modo, 'vant');
+  assert.strictEqual(L.sugerirModo(['invisivel', 'caido'], 'ataque').modo, 'normal');
+  assert.strictEqual(L.sugerirModo([], 'ataque').modo, 'normal');
+  assert.deepStrictEqual(L.sugerirModo(['amedrontado'], 'ataque').desv, ['Amedrontado*']);
+  assert.strictEqual(L.sugerirModo(['amedrontado'], 'iniciativa', true).modo, 'normal', 'condicional não entra sozinha');
+  assert.strictEqual(L.sugerirModo(['paralisado'], 'iniciativa', true).modo, 'desv');
+  assert.strictEqual(L.sugerirModo(['surdo', 'concentrando'], 'iniciativa').modo, 'normal');
+});
+
+teste('iniciativa: maior primeiro, empate mantém a ordem, quem não rolou vai para o fim', () => {
+  const lista = [
+    { id: 'a', iniciativa: 12 }, { id: 'b', iniciativa: null }, { id: 'c', iniciativa: 18 },
+    { id: 'd', iniciativa: 12 }, { id: 'e', iniciativa: 0 },
+  ];
+  assert.deepStrictEqual(L.ordenarIniciativa(lista).map(c => c.id), ['c', 'a', 'd', 'e', 'b']);
+  assert.strictEqual(lista[0].id, 'a', 'não muda a lista original');
+  const ordem = L.ordenarIniciativa(lista);
+  assert.deepStrictEqual(L.subirNoEmpate(ordem, 'd').map(c => c.id), ['c', 'd', 'a', 'e', 'b']);
+  assert.strictEqual(L.subirNoEmpate(ordem, 'a'), ordem, 'sem empate com o de cima: não troca');
+  assert.strictEqual(L.subirNoEmpate(ordem, 'c'), ordem);
+});
+
+teste('turnos: começa na rodada 1, dá a volta somando rodada, pula quem está fora', () => {
+  const lista = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  let t = L.avancarTurno(lista, null, 0);
+  assert.deepStrictEqual(t, { vez: 'a', rodada: 1 });
+  t = L.avancarTurno(lista, t.vez, t.rodada);
+  assert.deepStrictEqual(t, { vez: 'b', rodada: 1 });
+  t = L.avancarTurno(lista, 'c', 1);
+  assert.deepStrictEqual(t, { vez: 'a', rodada: 2 });
+  assert.deepStrictEqual(L.avancarTurno(lista, 'c', 1, new Set(['a'])), { vez: 'b', rodada: 2 });
+  assert.deepStrictEqual(L.avancarTurno(lista, null, 0, new Set(['a'])), { vez: 'b', rodada: 1 });
+  assert.deepStrictEqual(L.avancarTurno(lista, 'a', 1, new Set(['a', 'b', 'c'])), { vez: 'b', rodada: 1 }, 'todos fora: ninguém é pulado');
+  assert.deepStrictEqual(L.avancarTurno([], 'x', 3), { vez: null, rodada: 0 });
+  assert.deepStrictEqual(L.avancarTurno(lista, 'sumiu', 2), { vez: 'a', rodada: 2 }, 'vez de quem saiu: recomeça no primeiro');
+});
+
+teste('voltar turno: volta uma vez e desfaz a rodada, mas não antes do começo', () => {
+  const lista = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  assert.deepStrictEqual(L.voltarTurno(lista, 'b', 1), { vez: 'a', rodada: 1 });
+  assert.deepStrictEqual(L.voltarTurno(lista, 'a', 2), { vez: 'c', rodada: 1 });
+  assert.deepStrictEqual(L.voltarTurno(lista, 'a', 1), { vez: 'a', rodada: 1 });
+  assert.deepStrictEqual(L.voltarTurno(lista, 'c', 2, new Set(['b'])), { vez: 'a', rodada: 2 });
+  for (let r = 1; r <= 3; r++) for (const c of lista) {
+    const ida = L.avancarTurno(lista, c.id, r);
+    assert.deepStrictEqual(L.voltarTurno(lista, ida.vez, ida.rodada), { vez: c.id, rodada: r }, 'avançar e voltar = parado');
+  }
+});
+
+teste('cópias de monstro ganham número; iniciativa vem da ficha', () => {
+  assert.strictEqual(L.nomeDeCopia('Goblin', []), 'Goblin 1');
+  assert.strictEqual(L.nomeDeCopia('Goblin', ['Goblin 1', 'Goblin 3']), 'Goblin 2');
+  assert.strictEqual(L.exprIniciativa(MONSTROS_PADRAO[0]), '1d20+2');
+  assert.strictEqual(L.exprIniciativa({ rolagens: [{ nome: ' INICIATIVA ', expr: '1d20+7' }] }), '1d20+7');
+  assert.strictEqual(L.exprIniciativa({ rolagens: [] }), '1d20');
+  assert.strictEqual(L.exprIniciativa(undefined), '1d20');
+  for (const m of MONSTROS_PADRAO) assert.doesNotThrow(() => L.validar(L.exprIniciativa(m)), m.nome);
+});
+
+teste('limparCombate: dados ausentes ou corrompidos viram um combate vazio e válido', () => {
+  const vazio = { participantes: [], vez: null, rodada: 0 };
+  assert.deepStrictEqual(L.limparCombate(null), vazio);
+  assert.deepStrictEqual(L.limparCombate('lixo'), vazio);
+  assert.deepStrictEqual(L.limparCombate({ participantes: 3 }), vazio);
+  const c = L.limparCombate({
+    participantes: [
+      { id: 'x', nome: 'Goblin 1', pvMax: '10', pv: 99, iniciativa: '14', condicoes: ['caido', 'voando'] },
+      { id: 'x', nome: 'Repetido' }, { nome: 'Sem id' }, null,
+      { id: 'y', nome: 'Ana', tipo: 'personagem', vinculado: true, iniciativa: 'abc' },
+    ],
+    vez: 'y', rodada: 0,
+  });
+  assert.deepStrictEqual(c.participantes.map(p => p.id), ['x', 'y']);
+  assert.strictEqual(c.participantes[0].pv, 10);
+  assert.strictEqual(c.participantes[0].iniciativa, 14);
+  assert.deepStrictEqual(c.participantes[0].condicoes, ['caido']);
+  assert.strictEqual(c.participantes[1].iniciativa, null);
+  assert.strictEqual(c.participantes[1].vinculado, true);
+  assert.strictEqual(c.rodada, 1, 'com vez marcada, a rodada é pelo menos 1');
+  assert.strictEqual(L.limparCombate({ participantes: [], vez: 'z', rodada: 5 }).rodada, 0);
+  assert.deepStrictEqual(L.limparCombate(c), c, 'limpar de novo não muda nada');
+});
+
 console.log(`\n${ok} passaram, ${falhou} falharam.`);
 process.exit(falhou ? 1 : 0);
