@@ -1,6 +1,9 @@
 # 🎲 Rolador de Dados
 
-Calculadora de dados para celular. Arquivo único (`index.html`), funciona offline.
+Rolador de dados para RPG no celular: calculadora de expressões, fichas de personagens
+e monstros com imagem e rolagens com nome, 10 temas de cores. Funciona offline.
+
+**Abrir no celular:** https://fabricio1974.github.io/rolador-de-dados/ (depois de ativar o GitHub Pages)
 
 ## Notação
 
@@ -11,25 +14,37 @@ Calculadora de dados para celular. Arquivo único (`index.html`), funciona offli
 | `3×(3d6)` | **parênteses = repetir**: rola `3d6` três vezes, de forma independente (9 dados), e soma |
 | `3×[3d6]` | **colchetes = multiplicar**: rola `3d6` uma vez (3 dados) e multiplica o resultado por 3 |
 | `2×(1d8+2×[1d4])` | parênteses e colchetes podem ser aninhados |
-| `2d20kh1` / `2d20kl1` | mantém o maior / menor dado (vantagem / desvantagem). `4d6kh3` = descarta o menor |
+| `2d20kh1` / `2d20kl1` | mantém o maior / menor dado (vantagem / desvantagem). `4d6kh3` descarta o menor |
+| `Acerto: 1d20+5; Dano: 1d8+3` | **várias partes** de uma vez, cada uma com seu nome |
 
-Botões especiais: **Vant/Desv** trocam o último `1d20` por `2d20kh1`/`2d20kl1` (tocar de novo desfaz);
-**dX** põe só o `d` para dados de outro tamanho (`3`, `dX`, `7` → `3d7`).
-Embaixo do visor aparece o mínimo, a média e o máximo possíveis. ROLAR com o visor vazio repete a última rolagem.
+Se uma parte com d20 tirar **20 natural**, as partes seguintes sem d20 (o dano) rolam com
+**o dobro de dados** (regra de crítico de 2024; os modificadores não dobram).
 
-No teclado do celular, `x` e `*` também valem como `×`.
+## Telas
 
-## Estrutura
+- **🎲 Dados**: a calculadora. Vant/Desv trocam o último `1d20` por `2d20kh1`/`2d20kl1`;
+  `dX` serve para dados de qualquer tamanho; ROLAR com o visor vazio repete a última rolagem.
+- **📜 Fichas**: personagens e monstros, com imagem (da galeria ou câmera), CA, PV com
+  botões de dano/cura, modo Normal/Vantagem/Desvantagem e botões de rolagem com nome.
+  Já vem com 10 monstros do SRD 5.2.1 (D&D 2024), do ND 1/4 ao 21.
+- **🕘 Histórico**, **★ Favoritos** e **⚙ Configurações** (tema, fundo, opções, backup).
 
-- `index.html`: tem tudo. Dentro dele há dois `<script>`:
-  - **Lógica** (entre `INÍCIO DA LÓGICA` e `FIM DA LÓGICA`): funções puras.
-    `tokenizar` → `analisar` (parser, monta a árvore) → `rolar` (percorre a árvore rolando os dados).
-    Também ficam aqui as regras do teclado (`apertarDado`, etc.).
-  - **Interface**: liga os botões, desenha o resultado e guarda o histórico e os favoritos no `localStorage`.
-- `testes.js`: testa a lógica. Rode com `node testes.js`.
-- `.github/workflows/testes.yml`: roda os testes no GitHub a cada push.
+## Organização do código
 
-## Testar no celular
+```
+index.html        estrutura da página (só HTML)
+css/estilo.css    visual; as cores são variáveis trocadas pelo tema
+js/logica.js      funções PURAS: parser, rolagem, crítico, estatísticas, teclado
+js/temas.js       os 10 temas de cores e os 3 tons de fundo
+js/monstros.js    os 10 monstros padrão
+js/app.js         a interface: liga botões, desenha telas, salva no localStorage
+testes.js         testes da lógica e dos dados (node testes.js)
+```
 
-Ative o GitHub Pages: **Settings → Pages → Branch: `main` / `(root)` → Save**.
-Em ~1 minuto o app fica em `https://fabricio1974.github.io/rolador-de-dados/`.
+`logica.js`, `temas.js` e `monstros.js` não mexem na tela, por isso o `testes.js` consegue
+testá-los no Node. O GitHub roda os testes a cada push (aba **Actions**).
+
+## Dados salvos
+
+Tudo fica no `localStorage` do navegador, só no aparelho. Em **⚙ → Seus dados** dá para
+exportar e importar um backup (`.json`).

@@ -1,16 +1,9 @@
 // Testes da lógica do rolador. Rode com:  node testes.js
-// Ele lê o index.html, pega só o bloco entre "INÍCIO DA LÓGICA" e "FIM DA LÓGICA"
-// e testa essas funções sem precisar abrir navegador.
-const fs = require('fs');
-const vm = require('vm');
+// Carrega os arquivos de js/ (que não dependem de tela) e testa as funções.
 const assert = require('assert');
-
-const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
-const bloco = html.match(/\/\/ ===== INÍCIO DA LÓGICA =====([\s\S]*?)\/\/ ===== FIM DA LÓGICA =====/)[1];
-const L = vm.runInNewContext(
-  bloco + '\n({ analisar, rolar, descrever, contarDados, rolarDadoCripto, apertarDado, apertarD, apertarOperador, apertarAbre, apertarFecha, alternarVantagem, estatisticas })',
-  { crypto: globalThis.crypto }
-);
+const L = require('./js/logica.js');
+const { TEMAS, FUNDOS } = require('./js/temas.js');
+const { MONSTROS_PADRAO } = require('./js/monstros.js');
 
 // Dado "falso" que devolve uma sequência conhecida e anota cada rolagem.
 function dadoFalso(sequencia = []) {
@@ -139,6 +132,91 @@ teste('estatísticas: mín, máx e média', () => {
   assert.ok(Math.abs(e('2d20kh1').media - 13.825) < 1e-9);
   assert.ok(Math.abs(e('2d20kl1').media - 7.175) < 1e-9);
   assert.ok(Math.abs(e('4d6kh3').media - 12.2446) < 1e-4);
+});
+
+console.log('Partes, crítico e modos');
+
+teste('"Acerto: ...; Dano: ..." rola as duas partes com nome', () => {
+  const r = L.rolarPartes('Acerto: 1d20+4; Dano: 1d6+2', dadoFalso([12, 3]));
+  assert.deepStrictEqual(r.partes.map(p => [p.rotulo, p.res.total]), [['Acerto', 16], ['Dano', 5]]);
+  assert.strictEqual(L.resumir(r), 'Acerto 16 · Dano 5');
+});
+
+teste('20 natural no acerto dobra os DADOS do dano (não o modificador)', () => {
+  const d = dadoFalso([20, 1, 2, 3, 4]);
+  const r = L.rolarPartes('Acerto: 1d20+4; Dano: 2d6+2', d);
+  assert.strictEqual(r.partes[0].natural, 20);
+  assert.strictEqual(r.partes[1].critico, true);
+  assert.strictEqual(r.partes[1].res.expressao, '4d6+2');
+  assert.strictEqual(r.partes[1].res.total, 1 + 2 + 3 + 4 + 2);
+});
+
+teste('crítico vale só até o próximo acerto, e pode ser desligado', () => {
+  const r = L.rolarPartes('A1: 1d20; D1: 1d8; A2: 1d20; D2: 1d8', dadoFalso([20, 5, 5, 7, 3]));
+  assert.strictEqual(r.partes[1].res.expressao, '2d8');
+  assert.strictEqual(r.partes[3].res.expressao, '1d8');
+  const sem = L.rolarPartes('A: 1d20; D: 1d8', dadoFalso([20, 5]), { critico: false });
+  assert.strictEqual(sem.partes[1].res.expressao, '1d8');
+});
+
+teste('com vantagem, o d20 descartado não conta como natural', () => {
+  const r = L.rolarPartes('A: 2d20kh1; D: 1d6', dadoFalso([20, 1, 4]));
+  assert.strictEqual(r.partes[0].natural, 20);
+  const r2 = L.rolarPartes('A: 2d20kl1; D: 1d6', dadoFalso([20, 1, 4]));
+  assert.strictEqual(r2.partes[0].natural, 1);
+  assert.strictEqual(r2.partes[1].critico, undefined);
+});
+
+teste('erro numa parte diz qual parte é', () => {
+  assert.throws(() => L.validar('Acerto: 1d20+4; Dano: 1d6+'), /^Error: Dano:/);
+});
+
+teste('aplicarModo força vantagem/desvantagem só nos d20', () => {
+  assert.strictEqual(L.aplicarModo('Acerto: 1d20+4; Dano: 1d6+2', 'vant'), 'Acerto: 2d20kh1+4; Dano: 1d6+2');
+  assert.strictEqual(L.aplicarModo('Acerto: 2d20kh1+4; Dano: 1d6', 'desv'), 'Acerto: 2d20kl1+4; Dano: 1d6');
+  assert.strictEqual(L.aplicarModo('Acerto: 2d20kh1+4', 'vant'), 'Acerto: 2d20kh1+4');
+  assert.strictEqual(L.aplicarModo('1d20+4', 'normal'), '1d20+4');
+  assert.strictEqual(L.aplicarModo('A1: 1d20+7; A2: 1d20+7', 'vant'), 'A1: 2d20kh1+7; A2: 2d20kh1+7');
+});
+
+console.log('Fichas, monstros e temas');
+
+teste('as rolagens dos 10 monstros padrão são todas válidas', () => {
+  assert.strictEqual(MONSTROS_PADRAO.length, 10);
+  for (const m of MONSTROS_PADRAO) {
+    assert.ok(L.limparFicha(m), m.nome);
+    for (const r of m.rolagens) {
+      assert.doesNotThrow(() => L.validar(r.expr), `${m.nome} / ${r.nome}`);
+    }
+  }
+  assert.strictEqual(new Set(MONSTROS_PADRAO.map(m => m.id)).size, 10, 'ids repetidos');
+});
+
+teste('limparFicha aceita só campos conhecidos e imagens data:', () => {
+  assert.strictEqual(L.limparFicha({ nome: '' }), null);
+  assert.strictEqual(L.limparFicha(null), null);
+  const f = L.limparFicha({ nome: ' Ana ', tipo: 'x', pvMax: '20', pv: 50, imagem: 'javascript:alert(1)', extra: 1,
+                            rolagens: [{ nome: 'A', expr: '1d20' }, { nome: 1 }] });
+  assert.strictEqual(f.nome, 'Ana');
+  assert.strictEqual(f.tipo, 'personagem');
+  assert.strictEqual(f.pvMax, 20);
+  assert.strictEqual(f.pv, 20);
+  assert.strictEqual(f.imagem, null);
+  assert.strictEqual(f.extra, undefined);
+  assert.strictEqual(f.rolagens.length, 1);
+});
+
+teste('10 temas com 7 cores de dados cada, e cor de texto legível', () => {
+  assert.strictEqual(TEMAS.length, 10);
+  for (const t of TEMAS) {
+    assert.strictEqual(t.dados.length, 7, t.nome);
+    for (const c of [...t.dados, t.acento]) assert.match(c, /^#[0-9a-f]{6}$/i, t.nome);
+  }
+  assert.ok(FUNDOS.length >= 1);
+  assert.strictEqual(L.corDoTexto('#ffffff'), '#111111');
+  assert.strictEqual(L.corDoTexto('#000000'), '#ffffff');
+  assert.strictEqual(L.corDoTexto('#f5c84b'), '#111111');
+  assert.strictEqual(L.corDoTexto('#023e8a'), '#ffffff');
 });
 
 console.log('Erros');
