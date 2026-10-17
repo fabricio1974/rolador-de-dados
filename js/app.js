@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '7';
+const VERSAO = '8';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -66,9 +66,18 @@ function ler(chave, padrao) {
     return v === null ? padrao : v;
   } catch { return padrao; }
 }
-function gravar(chave, valor) {
+// Sem espaço: avisa uma vez (senão a mudança some ao fechar o app sem ninguém saber).
+// "avisar = false" quando quem chama já mostra o próprio aviso (editor de ficha).
+let avisouSemEspaco = false;
+function gravar(chave, valor, avisar = true) {
   try { localStorage.setItem(chave, JSON.stringify(valor)); return true; }
-  catch { return false; }
+  catch {
+    if (avisar && !avisouSemEspaco) {
+      avisouSemEspaco = true;
+      setTimeout(() => alert('Sem espaço para salvar no aparelho: as últimas mudanças podem se perder ao fechar o app. Faça um backup e remova imagens de algumas fichas.'), 0);
+    }
+    return false;
+  }
 }
 
 const num = (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
@@ -76,9 +85,10 @@ const semAcento = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(
 
 // ---------- 2. Estado (o que fica salvo) ----------
 const CONFIG_PADRAO = { tema: 'classico', fundo: 'carvao', vibrar: true, stats: true, critico: true, agitar: false, aba: 'dados', recolhido: false };
-let config = { ...CONFIG_PADRAO, ...ler('rolador.config', {}) };
-let historico = ler('rolador.historico', []);
-let favoritos = ler('rolador.favoritos', []);
+// Tudo passa por uma conferência: dado estragado (ou de versão antiga) não quebra a tela.
+let config = limparConfig(ler('rolador.config', {}), CONFIG_PADRAO);
+let historico = limparHistorico(ler('rolador.historico', []));
+let favoritos = limparFavoritos(ler('rolador.favoritos', []));
 let fichas = ler('rolador.fichas', null);
 if (!Array.isArray(fichas)) {
   // Primeira vez: começa com os 10 monstros padrão.
@@ -87,19 +97,16 @@ if (!Array.isArray(fichas)) {
 } else {
   // Fichas de versões antigas não têm os campos novos (condições, PV temporário...):
   // limparFicha completa o que falta sem mexer no resto. Os monstros padrão salvos
-  // antes da versão 7 ganham os usos novos (Sopro de Fogo, Resistência Lendária...).
-  fichas = fichas.map(f => {
-    const antiga = f && typeof f === 'object' && !('recursos' in f);
-    const padrao = antiga && MONSTROS_PADRAO.find(m => m.id === f.id && m.recursos);
-    return limparFicha(padrao ? { ...f, recursos: padrao.recursos } : f);
-  }).filter(Boolean);
+  // antes da versão 7 ganham os usos novos e perdem a rolagem "Recarga do Sopro (5–6)".
+  fichas = fichas.map(f => limparFicha(migrarFicha(f, MONSTROS_PADRAO))).filter(Boolean);
+  gravar('rolador.fichas', fichas);
 }
 
 // Combate em andamento (versão 6). Sem nada salvo ou com dado estragado: combate vazio.
 let combate = limparCombate(ler('rolador.combate', null));
 
 const salvarConfig = () => gravar('rolador.config', config);
-const salvarFichas = () => gravar('rolador.fichas', fichas);
+const salvarFichas = (avisar = true) => gravar('rolador.fichas', fichas, avisar);
 const salvarCombate = () => gravar('rolador.combate', combate);
 
 // ---------- 3. Tema ----------
@@ -135,6 +142,11 @@ window.addEventListener('popstate', (ev) => {
   while (camadas.length > nivel) camadas.pop()();
   if (depoisDeVoltar) { const f = depoisDeVoltar; depoisDeVoltar = null; f(); }
 });
+
+// Recarregou a página com uma camada aberta: o navegador ainda tem as entradas das
+// camadas, mas elas não existem mais. Volta até a entrada de base, senão o botão
+// voltar deixaria de fechar as próximas camadas abertas.
+if (history.state && history.state.camada > 0) history.go(-history.state.camada);
 
 function mostrarAba(aba) {
   config.aba = aba;
@@ -673,7 +685,9 @@ function exportarBackup() {
   const blob = new Blob([JSON.stringify(dados)], { type: 'application/json' });
   const a = el('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `rolador-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  const hoje = new Date();
+  const data = [hoje.getFullYear(), hoje.getMonth() + 1, hoje.getDate()].map(n => String(n).padStart(2, '0')).join('-');
+  a.download = `rolador-backup-${data}.json`;
   document.body.append(a);
   a.click();
   a.remove();
@@ -694,15 +708,16 @@ $('arquivo-backup').addEventListener('change', async (ev) => {
   const n = lido.combate.participantes.length;
   if (!confirm(`Importar ${lido.fichas.length} fichas, ${lido.favoritos.length} favoritos, ${lido.historico.length} rolagens` +
     `${n ? ` e um combate com ${n}` : ''}? Isso SUBSTITUI os dados atuais.`)) return;
-  fichas = lido.fichas;
+  fichas = lido.fichas.map(f => limparFicha(migrarFicha(f, MONSTROS_PADRAO))).filter(Boolean);
   favoritos = lido.favoritos;
   historico = lido.historico;
   combate = lido.combate;
-  config = { ...CONFIG_PADRAO, ...lido.config, aba: config.aba };
+  config = { ...limparConfig(lido.config, CONFIG_PADRAO), aba: config.aba };
+  resultadoRecolhido = config.recolhido;  // a variável da ficha acompanha a config importada
   combatenteAberto = null; avisoCombate = '';
   salvarFichas(); gravar('rolador.favoritos', favoritos); gravar('rolador.historico', historico);
   salvarCombate(); salvarConfig();
-  aplicarTema(); desenharPainel(); desenharListaFichas(); desenharAtalhos(); desenharCombate();
+  aplicarTema(); aplicarRecolhido(); desenharPainel(); desenharListaFichas(); desenharAtalhos(); desenharCombate();
   alert('Backup importado!');
 });
 
@@ -809,6 +824,7 @@ let avisoUsos = '';              // recado depois de gastar um uso, rolar recarg
 let resultadoRecolhido = !!config.recolhido;  // painel de resultado mostrando só o resumo
 let combatenteFicha = null;      // ficha aberta pelo combate: id do combatente (ex.: Goblin 2)
 let valorAlvo = '';              // CA ou CD do alvo, para mostrar acertou/errou
+let donoDoAlvo = '';             // de quem é o valorAlvo (ficha ou combatente)
 
 const acharFicha = (id) => fichas.find(f => f.id === id);
 
@@ -820,6 +836,8 @@ function abrirFicha(id, combatenteId = null) {
   modo = 'normal';
   escolhendoCondicao = false;
   avisoPV = ''; avisoUsos = '';
+  // A CA/CD do alvo vale para quem estava aberto: outra ficha começa sem alvo.
+  if (donoDoAlvo !== (combatenteId || id)) { valorAlvo = ''; donoDoAlvo = combatenteId || id; }
   $('ficha-resultado').hidden = true;
   desenharFicha();
   $('ficha').hidden = false;
@@ -880,6 +898,7 @@ function mudarPV(f, acao, n) {
   if (acao === 'cura') {
     const estavaCaido = f.pv === 0;
     f.pv = aplicarCura(f.pv, f.pvMax, n);
+    if (estavaCaido) acordar(f);
     if (estavaCaido && contaMorte) { f.morte = limparMorte(null); return 'Voltou a ter PV: acorda e as salvaguardas contra a morte zeram.'; }
     return '';
   }
@@ -902,6 +921,11 @@ function mudarPV(f, acao, n) {
   }
   f.pv = novo.pv; f.pvTemp = novo.pvTemp;
   return recados.join(' ');
+}
+
+// Voltou a ter PV (cura ou 20 natural contra a morte): deixa de estar Inconsciente.
+function acordar(f) {
+  f.condicoes = f.condicoes.filter(x => x !== 'inconsciente');
 }
 
 // Quadradinhos marcáveis (usos, sucessos, falhas): "cheios" de "total".
@@ -949,7 +973,7 @@ function blocoMorte(f, depois, aoRolar) {
     const p = rolagem.partes[0];
     const r = salvaguardaMorte(f.morte, p.natural, p.res.total);
     f.morte = r.morte;
-    if (r.resultado === 'recupera') f.pv = Math.min(f.pvMax, 1);
+    if (r.resultado === 'recupera') { f.pv = Math.min(f.pvMax, 1); acordar(f); }
     registrar(`${f.nome} — Salvaguarda contra a morte`, expr, rolagem);
     desenharAtalhos();
     if (aoRolar) aoRolar(rolagem, r.texto);
@@ -1407,14 +1431,18 @@ function salvarEditor() {
     // PV atual: mantém o que estava (ou começa cheio)
     pv: antiga && antiga.pvMax ? antiga.pv : $('ed-pv').value,
   });
+  // Usos apagados: a contagem de gastos deles sai da ficha e das cópias no combate.
+  ficha.gastos = podarGastos(ficha.gastos, ficha.recursos);
+  for (const c of combate.participantes) if (c.fichaId === ficha.id) c.gastos = podarGastos(c.gastos, ficha.recursos);
   const i = fichas.findIndex(f => f.id === ficha.id);
   const copiaAnterior = fichas.slice();
   if (i >= 0) fichas[i] = ficha; else fichas.unshift(ficha);
-  if (!salvarFichas()) {
+  if (!salvarFichas(false)) {
     fichas = copiaAnterior;
     aviso.textContent = 'Sem espaço para salvar. Remova imagens de outras fichas ou faça backup e apague algumas.';
     return;
   }
+  salvarCombate();
   if (edNova) depoisDeVoltar = () => abrirFicha(ficha.id);
   voltar();
   if (fichaAtual) desenharFicha();
@@ -1429,7 +1457,7 @@ $('ed-duplicar').addEventListener('click', () => {
   const original = acharFicha(edFicha.id);
   const copia = { ...structuredClone(original), id: 'f-' + Date.now().toString(36), nome: original.nome + ' (cópia)' };
   fichas.splice(fichas.indexOf(original) + 1, 0, copia);
-  if (!salvarFichas()) { fichas.splice(fichas.indexOf(copia), 1); $('ed-aviso').textContent = 'Sem espaço para duplicar.'; return; }
+  if (!salvarFichas(false)) { fichas.splice(fichas.indexOf(copia), 1); $('ed-aviso').textContent = 'Sem espaço para duplicar.'; return; }
   depoisDeVoltar = () => abrirFicha(copia.id);
   history.go(-camadas.length);
 });
@@ -1458,8 +1486,9 @@ function adicionarAoCombate(f) {
   const id = 'c-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   if (f.tipo === 'personagem') {
     if (combate.participantes.some(c => c.vinculado && c.fichaId === f.id)) return;
+    // Vinculado: PV, condições e usos ficam só na ficha (aqui, campos vazios).
     combate.participantes.push({ id, fichaId: f.id, vinculado: true, nome: f.nome, tipo: 'personagem', iniciativa: null,
-      ca: f.ca, pvMax: f.pvMax, pv: f.pv, pvTemp: 0, exaustao: 0, condicoes: [], gastos: {} });
+      ca: null, pvMax: null, pv: null, pvTemp: 0, exaustao: 0, condicoes: [], gastos: {} });
   } else {
     const nome = nomeDeCopia(f.nome, combate.participantes.map(c => c.nome));
     combate.participantes.push({ id, fichaId: f.id, vinculado: false, nome, tipo: 'monstro', iniciativa: null,
@@ -1511,6 +1540,7 @@ function proximoTurno() {
   const t = avancarTurno(combate.participantes, combate.vez, combate.rodada, foraDoCombate());
   combate.vez = t.vez; combate.rodada = t.rodada;
   combatenteAberto = null;
+  delete combate.desfazer;
   const lembretes = inicioDaVez(combate.participantes.find(c => c.id === combate.vez));
   if (lembretes) avisoCombate = avisoCombate ? avisoCombate + ' · ' + lembretes : lembretes;
   salvarFichas();
@@ -1528,6 +1558,9 @@ function inicioDaVez(c) {
   const recados = [];
   if (ficha && ficha.recursos.length) {
     const t = inicioDoTurno(ficha.recursos, e.gastos, rolarDadoCripto);
+    // Guarda o que mudou sozinho, para "voltar turno" desfazer (e não ganhar outra recarga).
+    const mudanca = mudancaDeGastos(e.gastos, t.gastos);
+    if (mudanca.ids.length) combate.desfazer = { id: c.id, ...mudanca };
     e.gastos = t.gastos;
     recados.push(...t.recados);
   }
@@ -1540,6 +1573,11 @@ function inicioDaVez(c) {
 
 function turnoAnterior() {
   if (!combate.vez) return;
+  // Desfaz a recarga/Ações Lendárias que o início desta vez devolveu sozinho.
+  const d = combate.desfazer;
+  const daVez = d && d.id === combate.vez && combate.participantes.find(c => c.id === d.id);
+  if (daVez) { const e = estadoDe(daVez); e.gastos = desfazerGastos(e.gastos, d); salvarFichas(); }
+  delete combate.desfazer;
   const t = voltarTurno(combate.participantes, combate.vez, combate.rodada, foraDoCombate());
   combate.vez = t.vez; combate.rodada = t.rodada;
   avisoCombate = '';
@@ -1549,17 +1587,23 @@ function turnoAnterior() {
 
 function removerCombatente(c) {
   if (!confirm(`Tirar "${c.nome}" do combate?`)) return;
-  if (combate.vez === c.id) {
-    // Era a vez dele: passa para o próximo antes de tirar.
-    const t = avancarTurno(combate.participantes, c.id, combate.rodada, new Set([...foraDoCombate(), c.id]));
-    combate.vez = t.vez === c.id ? null : t.vez;
-    combate.rodada = combate.vez ? t.rodada : 0;
-  }
-  combate.participantes = combate.participantes.filter(x => x.id !== c.id);
-  if (!combate.participantes.length) { combate.vez = null; combate.rodada = 0; }
+  tirarDoCombate(new Set([c.id]));
   combatenteAberto = null;
   salvarCombate();
   desenharCombate();
+}
+
+// Tira da lista os combatentes de "ids". Se era a vez de um deles, a vez passa para
+// o próximo que fica (o combate continua na mesma rodada, não recomeça).
+function tirarDoCombate(ids) {
+  if (combate.vez && ids.has(combate.vez)) {
+    const t = avancarTurno(combate.participantes, combate.vez, combate.rodada, new Set([...foraDoCombate(), ...ids]));
+    combate.vez = ids.has(t.vez) ? null : t.vez;
+    combate.rodada = combate.vez ? t.rodada : 0;
+    delete combate.desfazer;
+  }
+  combate.participantes = combate.participantes.filter(x => !ids.has(x.id));
+  if (!combate.participantes.length) { combate.vez = null; combate.rodada = 0; }
 }
 
 // O que aparece no cartão de quem está com 0 PV: "fora", "0 PV ✓1 ✗2", "estável", "morto".
@@ -1567,7 +1611,8 @@ function textoCaido(e) {
   if (e.tipo === 'monstro' || !e.morte) return e.tipo === 'monstro' ? 'fora' : '0 PV';
   if (e.morte.falhas >= 3) return 'morto';
   if (e.morte.estavel) return 'estável';
-  return `0 PV · ✓${e.morte.sucessos} ✗${e.morte.falhas}`;
+  // Por extenso: "✗" parece "×" em algumas fontes.
+  return `0 PV · ${e.morte.sucessos} suc. · ${e.morte.falhas} falha${e.morte.falhas === 1 ? '' : 's'}`;
 }
 
 function cartaoCombatente(c, empatadoComOAnterior) {
@@ -1670,14 +1715,14 @@ function cartaoCombatente(c, empatadoComOAnterior) {
 
 // "rolarAteAVez": depois de passar o turno, rola a lista até quem está jogando.
 function desenharCombate(rolarAteAVez = false) {
-  // Personagem cuja ficha foi apagada sai do combate.
-  const antes = combate.participantes.length;
-  combate.participantes = combate.participantes.filter(c => !c.vinculado || acharFicha(c.fichaId));
-  for (const c of combate.participantes) if (c.vinculado) c.nome = acharFicha(c.fichaId).nome;  // ficha renomeada
-  if (combate.participantes.length !== antes) {
-    if (!combate.participantes.some(c => c.id === combate.vez)) { combate.vez = null; combate.rodada = 0; }
+  // Personagem cuja ficha foi apagada sai do combate (sem recomeçar o combate).
+  const semFicha = new Set(combate.participantes.filter(c => c.vinculado && !acharFicha(c.fichaId)).map(c => c.id));
+  if (semFicha.size) {
+    tirarDoCombate(semFicha);
+    if (semFicha.has(combatenteAberto)) combatenteAberto = null;
     salvarCombate();
   }
+  for (const c of combate.participantes) if (c.vinculado) c.nome = acharFicha(c.fichaId).nome;  // ficha renomeada
   // Selo na aba: a rodada, para lembrar que há um combate em andamento.
   const selo = $('selo-rodada');
   selo.hidden = !combate.vez;
@@ -1771,7 +1816,7 @@ $('rolar-iniciativas').addEventListener('click', () => {
 });
 $('encerrar-combate').addEventListener('click', () => {
   if (!confirm('Encerrar o combate? A lista é esvaziada; os PV dos personagens continuam nas fichas.')) return;
-  combate = { participantes: [], vez: null, rodada: 0 };
+  combate = limparCombate(null);
   combatenteAberto = null; avisoCombate = '';
   salvarCombate();
   desenharCombate();

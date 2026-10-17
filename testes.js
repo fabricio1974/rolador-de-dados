@@ -636,5 +636,103 @@ teste('lerBackup: versão 1 (sem combate) e versão 2 (com combate)', () => {
   assert.deepStrictEqual(v2.config, {}, 'config estragada vira vazia');
 });
 
+console.log('Continuidade (versão 8)');
+
+teste('migrarFicha: monstro padrão antigo perde a rolagem "Recarga do Sopro (5–6)" e ganha o uso', () => {
+  const v6 = { id: 'm-dragao-jovem', nome: 'Dragão', rolagens: [{ nome: 'Sopro de Fogo', expr: '16d6' }, { nome: 'Recarga do Sopro (5–6)', expr: '1d6' }] };
+  const m = L.limparFicha(L.migrarFicha(v6, MONSTROS_PADRAO));
+  assert.deepStrictEqual(m.rolagens.map(r => r.nome), ['Sopro de Fogo']);
+  assert.deepStrictEqual(m.recursos.map(r => r.id), ['sopro']);
+  // Salvo pela versão 7 (já com recursos e ainda com a rolagem velha): também limpa.
+  const v7 = { ...v6, recursos: [{ id: 'sopro', nome: 'Sopro de Fogo', max: 1, recarga: '5' }] };
+  assert.deepStrictEqual(L.migrarFicha(v7, MONSTROS_PADRAO).rolagens.map(r => r.nome), ['Sopro de Fogo']);
+  assert.deepStrictEqual(L.limparFicha(L.migrarFicha(m, MONSTROS_PADRAO)), m, 'rodar de novo não muda nada');
+  // Quem apagou o uso de recarga fica com a rolagem; ficha de outro id não é tocada.
+  const semUso = { ...v6, recursos: [] };
+  assert.strictEqual(L.migrarFicha(semUso, MONSTROS_PADRAO).rolagens.length, 2);
+  const outra = { id: 'f-1', nome: 'Ana', rolagens: v6.rolagens };
+  assert.strictEqual(L.migrarFicha(outra, MONSTROS_PADRAO), outra);
+  // Vampiro: "Recarga do Encanto (5–6)"
+  const vamp = L.migrarFicha({ id: 'm-vampiro', nome: 'Vampiro', rolagens: [{ nome: 'Recarga do Encanto (5–6)', expr: '1d6' }] }, MONSTROS_PADRAO);
+  assert.deepStrictEqual(vamp.rolagens, []);
+});
+
+teste('aplicarExaustao: "2×1d20" sem parênteses também desconta em cada teste', () => {
+  assert.strictEqual(L.aplicarExaustao('2×1d20', 1), '2×(1d20−2)');
+  assert.strictEqual(L.aplicarExaustao('1d20×2', 2), '(1d20−4)×2');
+  assert.strictEqual(L.aplicarExaustao('2×1d20+3', 1), '2×(1d20−2)+3');
+  assert.strictEqual(L.aplicarExaustao('2×[1d20]', 1), '2×[1d20]−2', 'colchete rola uma vez: desconta uma vez');
+  assert.strictEqual(L.rolarPartes(L.aplicarExaustao('2×1d20', 1), dadoFalso([10, 10])).partes[0].res.total, 16);
+  assert.strictEqual(L.rolarPartes(L.aplicarExaustao('1d20×2', 1), dadoFalso([10, 10])).partes[0].res.total, 16);
+});
+
+teste('PV máximo 0, negativo ou vazio vira "sem PV"; CA fica entre 0 e 99', () => {
+  for (const v of [0, -5, '', null, 'abc', '-3']) assert.strictEqual(L.limparFicha({ nome: 'X', pvMax: v }).pvMax, null, String(v));
+  assert.strictEqual(L.limparFicha({ nome: 'X', pvMax: 1e9 }).pvMax, 99999);
+  assert.strictEqual(L.limparFicha({ nome: 'X', ca: -2 }).ca, 0);
+  assert.strictEqual(L.limparFicha({ nome: 'X', ca: 500 }).ca, 99);
+  assert.strictEqual(L.limparFicha({ nome: 'X', ca: '' }).ca, null);
+  const c = L.limparCombate({ participantes: [{ id: 'a', nome: 'G 1', pvMax: -4 }] });
+  assert.strictEqual(c.participantes[0].pvMax, null);
+  // Descanso longo em quem tinha PV máximo negativo não põe PV negativo.
+  const f = L.limparFicha({ nome: 'X', pvMax: -5 });
+  assert.strictEqual(L.descansar(f, [], 'longo').mudancas.pv, undefined);
+});
+
+teste('limparCombate: combatente vinculado não guarda PV/condições/usos próprios', () => {
+  const c = L.limparCombate({ participantes: [{ id: 'p', nome: 'Ana', tipo: 'personagem', vinculado: true, fichaId: 'f1',
+    ca: 15, pvMax: 20, pv: 3, pvTemp: 5, exaustao: 2, condicoes: ['caido'], gastos: { x: 1 }, iniciativa: 12 }] });
+  const p = c.participantes[0];
+  assert.deepStrictEqual([p.ca, p.pvMax, p.pv, p.pvTemp, p.exaustao, p.condicoes, p.gastos, p.iniciativa],
+    [null, null, null, 0, 0, [], {}, 12]);
+});
+
+teste('voltar turno desfaz a recarga do início da vez, mas não o que o Mestre mexeu depois', () => {
+  const antes = { sopro: 1, acoes: 3, res: 1 };
+  const depois = { res: 1 };  // o Sopro recarregou e as Ações Lendárias voltaram
+  const m = L.mudancaDeGastos(antes, depois);
+  assert.deepStrictEqual(m.ids.sort(), ['acoes', 'sopro']);
+  assert.deepStrictEqual(L.desfazerGastos(depois, m), antes);
+  // O Mestre gastou de novo o Sopro durante o turno: o Sopro fica como está.
+  assert.deepStrictEqual(L.desfazerGastos({ res: 1, sopro: 1 }, m), { res: 1, sopro: 1, acoes: 3 });
+  assert.deepStrictEqual(L.desfazerGastos({ a: 1 }, null), { a: 1 });
+  // O desfazer sobrevive a salvar/recarregar (limparCombate), só para quem está com a vez.
+  const comb = { participantes: [{ id: 'd', nome: 'Dragão 1' }, { id: 'g', nome: 'Goblin 1' }], vez: 'd', rodada: 2,
+    desfazer: { id: 'd', ...m } };
+  const limpo = L.limparCombate(comb);
+  assert.deepStrictEqual(L.desfazerGastos(depois, limpo.desfazer), antes);
+  assert.deepStrictEqual(L.limparCombate(limpo), limpo);
+  assert.strictEqual(L.limparCombate({ ...comb, vez: 'g' }).desfazer, undefined);
+});
+
+teste('podarGastos: uso apagado no editor não deixa contagem órfã', () => {
+  assert.deepStrictEqual(L.podarGastos({ a: 1, b: 2 }, [{ id: 'a' }]), { a: 1 });
+  assert.deepStrictEqual(L.podarGastos(undefined, []), {});
+});
+
+teste('backup e dados salvos estragados: histórico, favoritos e config conferidos campo a campo', () => {
+  const h = L.limparHistorico([{ expr: '1d6', titulo: 5, resumo: {}, detalhe: ['x'], quando: 'ontem' },
+    { expr: '1d20', total: 12 }, { expr: 3 }, null, { expr: '1d4', quando: 1e20 }]);
+  assert.deepStrictEqual(h, [{ titulo: '', expr: '1d6' }, { titulo: '', expr: '1d20', resumo: '12' }, { titulo: '', expr: '1d4' }]);
+  const atual = { titulo: 'Ana — Espada', expr: 'Acerto: 1d20+5', resumo: 'Acerto 17', detalhe: 'x', quando: Date.now() - 1000 };
+  assert.deepStrictEqual(L.limparHistorico([atual]), [atual], 'item atual passa igual');
+  assert.deepStrictEqual(L.limparHistorico('lixo'), []);
+  assert.deepStrictEqual(L.limparFavoritos([{ nome: 'a', expr: '1d6', extra: 1 }, { nome: 1, expr: 'x' }]), [{ nome: 'a', expr: '1d6' }]);
+  const padrao = { tema: 'classico', vibrar: true, aba: 'dados' };
+  assert.deepStrictEqual(L.limparConfig({ tema: 'neon', vibrar: 'sim', lixo: 1 }, padrao), { tema: 'neon', vibrar: true, aba: 'dados' });
+  assert.deepStrictEqual(L.limparConfig('abc', padrao), padrao);
+  assert.deepStrictEqual(L.limparConfig([1], padrao), padrao);
+  const b = L.lerBackup({ app: 'rolador-de-dados', fichas: [], historico: [{ expr: '<b>1d6</b>', titulo: {} }] });
+  assert.deepStrictEqual(b.historico, [{ titulo: '', expr: '<b>1d6</b>' }]);
+});
+
+teste('dado com faces demais dá erro claro (antes travava o sorteio com crypto)', () => {
+  assert.throws(() => L.analisar('1d9999999999'), /no máximo 1\.000\.000 de faces/);
+  assert.throws(() => L.analisar('1d4294967296'), /faces/);
+  assert.strictEqual(L.rolar('1d1000000', () => 1000000).total, 1000000);
+  const r = L.rolarDadoCripto(1000000);
+  assert.ok(r >= 1 && r <= 1000000);
+});
+
 console.log(`\n${ok} passaram, ${falhou} falharam.`);
 process.exit(falhou ? 1 : 0);

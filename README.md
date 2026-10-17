@@ -27,7 +27,7 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
 ## Telas
 
 - **Dados**: a calculadora. Vant/Desv trocam o último `1d20` por `2d20kh1`/`2d20kl1`;
-  `dX` serve para dados de qualquer tamanho; ROLAR com o visor vazio repete a última rolagem.
+  `dX` serve para dados de qualquer tamanho (até 1.000.000 de faces); ROLAR com o visor vazio repete a última rolagem.
   Acima do visor fica uma barra de **atalhos**: seus favoritos (★) e as rolagens recentes (↻);
   um toque já rola. Cada dado do resultado tem a cor do seu tipo (d6, d20...); 20 natural
   deixa o número e a borda verdes, 1 natural, vermelhos.
@@ -48,7 +48,7 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
   - **Salvaguardas contra a morte** (personagem com 0 PV): quadradinhos de 3 sucessos e 3 falhas
     e o botão **Rolar 1d20** (regras 2024: 10+ é sucesso, 1 natural = duas falhas, 20 natural =
     volta com 1 PV; três sucessos = Estável, três falhas = morte). Dano com 0 PV já marca uma falha;
-    qualquer cura zera as contas.
+    qualquer cura zera as contas e tira o Inconsciente.
   - **Usos e descanso** (embaixo das rolagens): espaços de magia, Fúria, Dados de Vida, Resistência
     Lendária, "Recarga 5–6"... viram quadradinhos (toque num cheio para gastar, num vazio para
     recuperar). Cadastre no lápis, em **Usos e recargas** (nome, quantos e quando voltam).
@@ -67,7 +67,7 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
     1d20) e abre a rodada 1. Cópias do mesmo monstro rolam uma vez só e ficam com o mesmo número
     (regra 2024). Invisível rola com Vantagem; Incapacitado, Envenenado etc., com Desvantagem.
   - **Próximo turno** (botão grande embaixo) passa a vez e conta as rodadas; a seta ao lado
-    volta um turno. Monstro com 0 PV perde a vez; personagem com 0 PV não.
+    volta um turno (e desfaz a recarga rolada sozinha no início daquela vez). Monstro com 0 PV perde a vez; personagem com 0 PV não.
   - Toque num combatente para abrir: Dano/Cura/Temp, iniciativa (digitar ou rolar), **Antes**
     para desempatar com o de cima, **Ficha e rolagens** (rolar ataques daquele combatente) e Tirar.
   - **Início do turno**: quando chega a vez de um monstro, as Recargas X–6 gastas rolam 1d6

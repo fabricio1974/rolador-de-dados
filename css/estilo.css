@@ -15,6 +15,7 @@
   --d4-txt: #fff; --d6-txt: #fff; --d8-txt: #fff; --d10-txt: #fff;
   --d12-txt: #fff; --d20-txt: #111; --d100-txt: #fff;
   --max: #22a559;  --min: #d64545;
+  --min-txt: #ff6b6b;  /* vermelho para TEXTO: o --min fica escuro demais no fundo Grafite */
   --vant: #22a559; --desv: #d64545;
 }
 * { box-sizing: border-box; border-radius: 0; }  /* tudo quadrado */
@@ -74,7 +75,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .titulo-rolagem { text-align: center; font-weight: 800; color: var(--acento); margin-bottom: 2px; }
 .total { font-size: 3.8rem; font-weight: 900; line-height: 1; text-align: center; margin: 6px 0 4px; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
 .total.critico, .parte-cabeca .valor.critico { color: var(--max); text-shadow: 0 0 18px color-mix(in srgb, var(--max) 55%, transparent); }
-.total.falha, .parte-cabeca .valor.falha { color: var(--min); }
+.total.falha, .parte-cabeca .valor.falha { color: var(--min-txt); }
 .expr-rolada { text-align: center; color: var(--fraco); font-weight: 600; word-break: break-all; }
 .stats { text-align: center; color: var(--fraco); font-size: .82rem; margin: 2px 0 8px; }
 .linha { padding: 6px 0; border-top: 1px solid var(--borda); }
@@ -102,7 +103,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .dado.fora { opacity: .35; text-decoration: line-through; background: transparent; }
 .subtotal { font-weight: 800; white-space: nowrap; }
 .constante { font-weight: 800; white-space: nowrap; margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--borda); }
-.erro { text-align: center; padding: 16px 4px; font-weight: 700; color: var(--min); }
+.erro { text-align: center; padding: 16px 4px; font-weight: 700; color: var(--min-txt); }
 .dica { padding: 6px 2px; color: var(--fraco); font-size: .92rem; }
 .dica p { margin: 0 0 10px; text-align: center; }
 .dica dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: baseline; }
@@ -133,7 +134,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .chip-resumo.critico { border-color: var(--max); }
 .chip-resumo.critico b { color: var(--max); }
 .chip-resumo.falha { border-color: var(--min); }
-.chip-resumo.falha b { color: var(--min); }
+.chip-resumo.falha b { color: var(--min-txt); }
 .titulo-rolagem + .resumo-topo { margin-top: 0; }
 .resumo-topo + .parte { border-top: 0; }
 
@@ -363,7 +364,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .linha-rolagem.invalida { border-left-color: var(--min); }
 .linha-rolagem.invalida .rol-expr { border-color: var(--min); }
 .editor-acoes { display: flex; gap: 6px; justify-content: space-between; }
-.aviso { color: var(--min); font-weight: 700; margin: 0; min-height: 1em; }
+.aviso { color: var(--min-txt); font-weight: 700; margin: 0; min-height: 1em; }
 .aviso.ok { color: var(--max); }
 
 /* ---------- Painel (folha) ---------- */
@@ -406,6 +407,18 @@ code { background: var(--tecla-op); padding: 1px 5px; }
   .abas .ic { width: 1.5em; height: 1.5em; }
   .selo-aba { position: absolute; top: 2px; right: 2px; }  /* no canto, por cima do ícone */
 }
+/* Celular bem estreito (320 px): as abas encolhem e os ícones do topo ficam menores,
+   senão a engrenagem saía da tela. */
+.abas, .abas button { min-width: 0; }
+@media (max-width: 359px) {
+  .topo { gap: 4px; }
+  .abas { gap: 3px; }
+  .abas button { font-size: .68rem; letter-spacing: 0; padding: 0 2px; }
+  .topo > .icone { width: 38px; }
+}
+/* "Desvantagem" cabe dentro do tracejado de modo sugerido em celulares mais estreitos. */
+@media (max-width: 389px) { .modo button { font-size: .85rem; } }
+@media (max-width: 359px) { .modo button { font-size: .78rem; padding-left: 7px; padding-right: 7px; } }
 .selo-aba {
   padding: 0 4px; font-size: .62rem; font-weight: 900; line-height: 1.5;
   background: var(--min); color: #fff; font-variant-numeric: tabular-nums;
@@ -444,7 +457,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .combatente .nome { display: block; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .combatente .numeros { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .combatente .num-temp { color: var(--d6); }
-.combatente .num-caido { color: var(--min); text-transform: uppercase; }
+.combatente .num-caido { color: var(--min-txt); text-transform: uppercase; }
 .combatente .barra-pv { margin-top: 3px; }
 .combatente .tags { margin-top: 4px; }
 .combatente .tag { color: var(--d10); border-color: color-mix(in srgb, var(--d10) 50%, var(--borda)); }

@@ -3,6 +3,9 @@
 // testes.js consegue testá-las sozinhas, no Node, sem navegador.
 
 const LIMITE_DADOS = 1000; // proteção para "1000×(1000d6)" não travar o celular
+// Faces demais (ex.: d9999999999) travavam o sorteio com crypto (que trabalha com
+// números de até 4.294.967.295), então o dado tem no máximo 1 milhão de faces.
+const LIMITE_FACES = 1000000;
 
 // 1) TOKENIZADOR: transforma o texto em uma lista de "peças" (tokens).
 //    "2d12+3×(3d6)" -> [2] [d] [12] [+] [3] [×] [(] [3] [d] [6] [)]
@@ -102,6 +105,7 @@ function analisar(texto) {
       pegar();
       if (qtd < 1) throw new Error('A quantidade de dados precisa ser pelo menos 1.');
       if (faces.valor < 2) throw new Error('Um dado precisa ter pelo menos 2 faces.');
+      if (faces.valor > LIMITE_FACES) throw new Error('Um dado pode ter no máximo 1.000.000 de faces.');
       const no = { tipo: 'dado', qtd, faces: faces.valor };
       if (ver() && ver().tipo === 'k') {
         const alto = pegar().alto;
@@ -657,6 +661,11 @@ function aplicarExaustao(texto, nivel) {
   return String(texto).split(';').map(parte => {
     if (!/d20(?!\d)/.test(parte)) return parte;
     if (/(?:[×*]|\dx)\s*\(/.test(parte)) return parte.replace(/(\d*d20(?:k[hl]\d*)?)(?!\d)/g, '$1' + redutor);
+    // Repetição sem parênteses ("2×1d20" ou "1d20×2" = dois testes): o d20 ganha
+    // parênteses com o redutor dentro, para valer em cada teste.
+    const d20 = '(\\d*d20(?:k[hl]\\d*)?)(?!\\d)';
+    const colado = new RegExp(`(?<=(?:[×*]|\\dx)\\s*)${d20}|${d20}(?=\\s*(?:[×*]|x\\s*\\d))`, 'g');
+    if (colado.test(parte)) return parte.replace(colado, (m) => `(${m}${redutor})`);
     return parte.replace(/\s+$/, '') + redutor;
   }).join(';');
 }
@@ -667,7 +676,7 @@ function aplicarExaustao(texto, nivel) {
 function limparFicha(f) {
   if (!f || typeof f !== 'object' || typeof f.nome !== 'string' || !f.nome.trim()) return null;
   const numero = (v) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Math.trunc(Number(v)) : null);
-  const pvMax = numero(f.pvMax);
+  const pvMax = pvMaximo(f.pvMax);
   const pv = numero(f.pv);
   return {
     id: typeof f.id === 'string' && f.id ? f.id : 'f-' + Math.random().toString(36).slice(2),
@@ -676,7 +685,7 @@ function limparFicha(f) {
     subtitulo: typeof f.subtitulo === 'string' ? f.subtitulo.slice(0, 120) : '',
     emoji: typeof f.emoji === 'string' ? f.emoji.slice(0, 8) : '',
     imagem: typeof f.imagem === 'string' && f.imagem.startsWith('data:image/') ? f.imagem : null,
-    ca: numero(f.ca),
+    ca: classeArmadura(f.ca),
     pvMax,
     pv: pvMax === null ? null : Math.max(0, Math.min(pvMax, pv === null ? pvMax : pv)),
     notas: typeof f.notas === 'string' ? f.notas.slice(0, 2000) : '',
@@ -695,6 +704,36 @@ function limparFicha(f) {
     gastos: limparGastos(f.gastos),
     morte: limparMorte(f.morte),
   };
+}
+
+// PV máximo: inteiro de 1 a 99999; 0, negativo, vazio ou lixo = sem PV (null).
+// (Um PV máximo negativo deixava o Descanso Longo pôr PV negativo na ficha.)
+function pvMaximo(v) {
+  const n = Math.trunc(Number(v));
+  return v === '' || v === null || !Number.isFinite(n) || n < 1 ? null : Math.min(99999, n);
+}
+// CA: inteiro de 0 a 99, ou null.
+function classeArmadura(v) {
+  const n = Math.trunc(Number(v));
+  return v === '' || v === null || !Number.isFinite(n) ? null : Math.max(0, Math.min(99, n));
+}
+
+// Monstros padrão salvos antes da versão 7: ganham os usos novos (Sopro de Fogo,
+// Resistência Lendária...) e perdem a rolagem antiga "Recarga do Sopro (5–6)" (1d6),
+// que virou o botão de recarga do uso (senão a ficha fica com as duas coisas).
+// "padroes" é a lista MONSTROS_PADRAO. Pode rodar de novo sem mudar nada.
+const ROLAGENS_DE_RECARGA_ANTIGAS = ['Recarga do Sopro (5–6)', 'Recarga do Encanto (5–6)'];
+function migrarFicha(f, padroes = []) {
+  if (!f || typeof f !== 'object') return f;
+  const padrao = padroes.find(m => m.id === f.id && m.recursos);
+  if (!padrao) return f;
+  const novo = { ...f };
+  if (!('recursos' in f)) novo.recursos = padrao.recursos;
+  const temRecarga = Array.isArray(novo.recursos) && novo.recursos.some(r => r && Number(r.recarga));
+  if (temRecarga && Array.isArray(f.rolagens)) {
+    novo.rolagens = f.rolagens.filter(r => !(r && ROLAGENS_DE_RECARGA_ANTIGAS.includes(r.nome) && String(r.expr).trim() === '1d6'));
+  }
+  return novo;
 }
 
 // 9) CORES: texto preto ou branco, o que tiver mais contraste com o fundo.
@@ -842,25 +881,72 @@ function limparCombate(dados) {
     if (!c || typeof c !== 'object' || typeof c.id !== 'string' || ids.has(c.id)) continue;
     if (typeof c.nome !== 'string' || !c.nome.trim()) continue;
     ids.add(c.id);
-    const pvMax = numero(c.pvMax);
+    const vinculado = c.vinculado === true;  // personagem: PV, condições e usos são os da ficha
+    // Vinculado não guarda números próprios (ficariam velhos, diferentes da ficha).
+    const pvMax = vinculado ? null : pvMaximo(c.pvMax);
     participantes.push({
       id: c.id,
       fichaId: typeof c.fichaId === 'string' ? c.fichaId : '',
-      vinculado: c.vinculado === true,  // personagem: os PV e condições são os da ficha
+      vinculado,
       nome: c.nome.trim().slice(0, 90),
       tipo: c.tipo === 'personagem' ? 'personagem' : 'monstro',
       iniciativa: numero(c.iniciativa),
-      ca: numero(c.ca),
+      ca: vinculado ? null : classeArmadura(c.ca),
       pvMax,
       pv: pvMax === null ? null : Math.max(0, Math.min(pvMax, numero(c.pv) ?? pvMax)),
-      pvTemp: Math.max(0, numero(c.pvTemp) || 0),
-      exaustao: Math.max(0, Math.min(MAX_EXAUSTAO, numero(c.exaustao) || 0)),
-      condicoes: Array.isArray(c.condicoes) ? CONDICOES.map(x => x.id).filter(id => c.condicoes.includes(id)) : [],
-      gastos: limparGastos(c.gastos),  // versão 7: usos gastos desta cópia (Sopro, Resistência Lendária...)
+      pvTemp: vinculado ? 0 : Math.max(0, numero(c.pvTemp) || 0),
+      exaustao: vinculado ? 0 : Math.max(0, Math.min(MAX_EXAUSTAO, numero(c.exaustao) || 0)),
+      condicoes: !vinculado && Array.isArray(c.condicoes) ? CONDICOES.map(x => x.id).filter(id => c.condicoes.includes(id)) : [],
+      gastos: vinculado ? {} : limparGastos(c.gastos),  // versão 7: usos gastos desta cópia (Sopro...)
     });
   }
   const vez = participantes.some(c => c.id === dados.vez) ? dados.vez : null;
-  return { participantes, vez, rodada: vez ? Math.max(1, numero(dados.rodada) || 1) : 0 };
+  const limpo = { participantes, vez, rodada: vez ? Math.max(1, numero(dados.rodada) || 1) : 0 };
+  // Versão 8: o que o início da vez mudou sozinho (recarga rolada, Ações Lendárias),
+  // para "voltar turno" desfazer. Só vale para quem está com a vez.
+  const d = dados.desfazer;
+  if (vez && d && typeof d === 'object' && d.id === vez) {
+    const ids = Array.isArray(d.ids) ? d.ids.filter(x => typeof x === 'string').map(x => x.slice(0, 40)) : [];
+    limpo.desfazer = { id: vez, ids, antes: limparGastos(d.antes), depois: limparGastos(d.depois) };
+  }
+  return limpo;
+}
+
+// O que mudou nos gastos (só os usos que mudaram): { antes, depois }.
+function mudancaDeGastos(antes, depois) {
+  // Um uso que não aparece em "gastos" tem 0 gasto. "ids" lista os que mudaram.
+  const a = {}, d = {}, ids = [];
+  for (const id of new Set([...Object.keys(antes || {}), ...Object.keys(depois || {})])) {
+    const x = (antes || {})[id] || 0, y = (depois || {})[id] || 0;
+    if (x === y) continue;
+    ids.push(id);
+    if (x) a[id] = x;
+    if (y) d[id] = y;
+  }
+  return { ids, antes: a, depois: d };
+}
+
+// Voltar turno: desfaz o que o início da vez mudou sozinho ("mudanca" = { antes, depois }),
+// mas só nos usos que ninguém mexeu depois (se o Mestre já gastou o Sopro, fica gasto).
+function desfazerGastos(atuais, mudanca) {
+  const novos = { ...(atuais || {}) };
+  if (!mudanca) return novos;
+  const ids = new Set([...(mudanca.ids || []), ...Object.keys(mudanca.antes || {}), ...Object.keys(mudanca.depois || {})]);
+  for (const id of ids) {
+    const depois = (mudanca.depois || {})[id] || 0;
+    if ((novos[id] || 0) !== depois) continue;
+    const antes = (mudanca.antes || {})[id] || 0;
+    if (antes) novos[id] = antes; else delete novos[id];
+  }
+  return novos;
+}
+
+// Usos apagados no editor: tira a contagem de gastos que ficou sem dono.
+function podarGastos(gastos, recursos) {
+  const ids = new Set((recursos || []).map(r => r.id));
+  const novos = {};
+  for (const [id, n] of Object.entries(gastos || {})) if (ids.has(id)) novos[id] = n;
+  return novos;
 }
 
 // 13) RECURSOS: usos que acabam e voltam (espaços de magia, Fúria, Sopro "Recarga 5–6"...).
@@ -1049,14 +1135,46 @@ function lerBackup(dados) {
   if (!dados || typeof dados !== 'object' || dados.app !== 'rolador-de-dados' || !Array.isArray(dados.fichas)) {
     throw new Error('Esse arquivo não é um backup válido do Rolador.');
   }
-  const texto = (v) => typeof v === 'string';
   return {
     fichas: dados.fichas.map(limparFicha).filter(Boolean),
-    favoritos: (Array.isArray(dados.favoritos) ? dados.favoritos : []).filter(f => f && texto(f.nome) && texto(f.expr)),
-    historico: (Array.isArray(dados.historico) ? dados.historico : []).filter(h => h && texto(h.expr)).slice(0, 50),
+    favoritos: limparFavoritos(dados.favoritos),
+    historico: limparHistorico(dados.historico),
     config: dados.config && typeof dados.config === 'object' && !Array.isArray(dados.config) ? dados.config : {},
     combate: limparCombate(dados.combate),
   };
+}
+
+// Favoritos: só { nome, expr } com texto.
+function limparFavoritos(lista) {
+  if (!Array.isArray(lista)) return [];
+  return lista.filter(f => f && typeof f.nome === 'string' && typeof f.expr === 'string')
+    .map(f => ({ nome: f.nome.slice(0, 80), expr: f.expr.slice(0, 300) }));
+}
+
+// Histórico: cada campo com o tipo certo (um backup estragado não quebra a tela).
+// Rolagens da versão 3 tinham "total" em vez de "resumo".
+function limparHistorico(lista) {
+  if (!Array.isArray(lista)) return [];
+  const texto = (v) => typeof v === 'string';
+  return lista.filter(h => h && texto(h.expr)).slice(0, 50).map(h => {
+    const item = { titulo: texto(h.titulo) ? h.titulo.slice(0, 200) : '', expr: h.expr.slice(0, 300) };
+    if (texto(h.resumo)) item.resumo = h.resumo.slice(0, 200);
+    else if (Number.isFinite(h.total)) item.resumo = String(h.total);
+    if (texto(h.detalhe)) item.detalhe = h.detalhe.slice(0, 2000);
+    // Hora válida: de 2000 até um dia no futuro (relógio do celular adiantado).
+    if (Number.isFinite(h.quando) && h.quando > 946684800000 && h.quando < Date.now() + 86400000) item.quando = h.quando;
+    return item;
+  });
+}
+
+// Configurações: só as chaves conhecidas ("padrao"), cada uma com o tipo do padrão.
+function limparConfig(c, padrao) {
+  const limpa = { ...padrao };
+  if (!c || typeof c !== 'object' || Array.isArray(c)) return limpa;
+  for (const chave of Object.keys(padrao)) {
+    if (typeof c[chave] === typeof padrao[chave]) limpa[chave] = c[chave];
+  }
+  return limpa;
 }
 
 // No Node (testes) exporta as funções; no navegador elas já ficam globais.
@@ -1070,5 +1188,7 @@ if (typeof module !== 'undefined') {
     nomeDeCopia, exprIniciativa, limparCombate,
     RECARGAS, limparRecursos, limparGastos, usosRestantes, definirRestantes, recarregou, inicioDoTurno, descansar,
     limparMorte, salvaguardaMorte, falhaPorDano, tituloDoDia, agruparHistorico, horaCurta, lerBackup,
+    migrarFicha, pvMaximo, classeArmadura, mudancaDeGastos, desfazerGastos, podarGastos,
+    limparFavoritos, limparHistorico, limparConfig,
   };
 }
