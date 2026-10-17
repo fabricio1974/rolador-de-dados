@@ -319,5 +319,76 @@ teste('Vant/Desv trocam o último 1d20 e alternam', () => {
   assert.strictEqual(L.apertarDado('2d20kh1', 6), '2d20kh1+1d6');
 });
 
+console.log('Resumo compacto e ficha em combate');
+
+teste('resumoCompacto: ataque + dano somado num número só', () => {
+  const r = L.rolarPartes('Acerto: 1d20+5; Dano: 1d8+3; Fogo: 1d6', dadoFalso([20, 5, 4, 3, 2]));
+  const itens = L.resumoCompacto(r);
+  assert.deepStrictEqual(itens.map(i => [i.rotulo, i.valor, i.tipo]), [['Acerto', 25, 'ataque'], ['Dano', 5 + 4 + 3 + 3 + 2, 'dano']]);
+  assert.strictEqual(itens[0].natural, 20);
+  assert.strictEqual(itens[1].critico, true);
+  assert.strictEqual(L.resumir(r), 'Acerto 25 · Dano 17');
+});
+
+teste('resumoCompacto: dano de uma parte mantém o nome; partes sem ataque ficam separadas', () => {
+  const r = L.rolarPartes('Acerto: 1d20+4; Corte: 1d6+2', dadoFalso([12, 3]));
+  assert.deepStrictEqual(L.resumoCompacto(r).map(i => `${i.rotulo} ${i.valor}`), ['Acerto 16', 'Corte 5']);
+  const attr = L.rolarPartes('For: 3d6; Des: 3d6', dadoFalso([1, 2, 3, 4, 5, 6]));
+  assert.deepStrictEqual(L.resumoCompacto(attr).map(i => [i.rotulo, i.valor, i.tipo]), [['For', 6, 'parte'], ['Des', 15, 'parte']]);
+  const multi = L.rolarPartes('A1: 1d20; D1: 1d6; A2: 1d20; D2: 1d6; F2: 1d4', dadoFalso([10, 6, 11, 1, 4]));
+  assert.deepStrictEqual(L.resumoCompacto(multi).map(i => `${i.rotulo} ${i.valor}`), ['A1 10', 'D1 6', 'A2 11', 'Dano 5']);
+});
+
+teste('nomeCurto: partes com nome viram "Acerto + Dano"', () => {
+  assert.strictEqual(L.nomeCurto('Acerto: 1d20+5; Dano: 2d6+3; Fogo: 1d6'), 'Acerto + Dano + Fogo');
+  assert.strictEqual(L.nomeCurto('1d20+5; Dano: 1d8'), '1d20+5; Dano: 1d8');
+  assert.strictEqual(L.nomeCurto(' 2d6 '), '2d6');
+  assert.strictEqual(L.nomeCurto(''), '');
+  assert.strictEqual(L.montarAtalhos([], [{ titulo: '', expr: 'A: 1d20; D: 1d6' }])[0].nome, 'A + D');
+});
+
+teste('dano gasta os PV temporários primeiro e para no 0', () => {
+  assert.deepStrictEqual(L.aplicarDano(20, 5, 3), { pv: 20, pvTemp: 2, sobra: 0 });
+  assert.deepStrictEqual(L.aplicarDano(20, 5, 8), { pv: 17, pvTemp: 0, sobra: 0 });
+  assert.deepStrictEqual(L.aplicarDano(4, 0, 10), { pv: 0, pvTemp: 0, sobra: 6 });
+  assert.deepStrictEqual(L.aplicarDano(10, undefined, -3), { pv: 10, pvTemp: 0, sobra: 0 });
+});
+
+teste('cura para no máximo; PV temporários não se somam (fica o maior)', () => {
+  assert.strictEqual(L.aplicarCura(5, 12, 10), 12);
+  assert.strictEqual(L.aplicarCura(5, 12, 3), 8);
+  assert.strictEqual(L.ganharPVTemp(5, 3), 5);
+  assert.strictEqual(L.ganharPVTemp(5, 8), 8);
+  assert.strictEqual(L.ganharPVTemp(undefined, 4), 4);
+});
+
+teste('CD de Concentração: maior entre 10 e metade do dano, no máximo 30', () => {
+  assert.strictEqual(L.cdConcentracao(7), 10);
+  assert.strictEqual(L.cdConcentracao(25), 12);
+  assert.strictEqual(L.cdConcentracao(100), 30);
+});
+
+teste('exaustão tira 2 por nível só das partes com d20', () => {
+  assert.strictEqual(L.aplicarExaustao('Acerto: 1d20+4; Dano: 1d6+2', 2), 'Acerto: 1d20+4−4; Dano: 1d6+2');
+  assert.strictEqual(L.aplicarExaustao('1d20+3', 0), '1d20+3');
+  assert.strictEqual(L.aplicarExaustao('2d6', 3), '2d6');
+  assert.strictEqual(L.aplicarExaustao('1d20', 9), '1d20−12', 'nível máximo é 6');
+  assert.doesNotThrow(() => L.validar(L.aplicarExaustao(L.aplicarModo('Acerto: 1d20+4; Dano: 1d6', 'vant'), 1)));
+  assert.strictEqual(L.rolar('1d20−2', () => 10).total, 8);
+});
+
+teste('limparFicha: ficha antiga ganha campos novos zerados; condições inválidas saem', () => {
+  const antiga = L.limparFicha({ nome: 'Velha', pvMax: 10, pv: 4, rolagens: [] });
+  assert.strictEqual(antiga.pvTemp, 0);
+  assert.strictEqual(antiga.exaustao, 0);
+  assert.deepStrictEqual(antiga.condicoes, []);
+  const nova = L.limparFicha({ nome: 'X', pvTemp: '7', exaustao: 9, condicoes: ['caido', 'voando', 'envenenado', 'caido'] });
+  assert.strictEqual(nova.pvTemp, 7);
+  assert.strictEqual(nova.exaustao, 6);
+  assert.deepStrictEqual(nova.condicoes, ['caido', 'envenenado']);
+  assert.deepStrictEqual(L.limparFicha(nova), nova, 'limpar de novo não muda nada');
+  assert.strictEqual(new Set(L.CONDICOES.map(c => c.id)).size, L.CONDICOES.length);
+});
+
 console.log(`\n${ok} passaram, ${falhou} falharam.`);
 process.exit(falhou ? 1 : 0);

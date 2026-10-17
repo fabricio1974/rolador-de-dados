@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=4">
+<link rel="stylesheet" href="css/estilo.css?v=5">
 </head>
 <body>
 <div class="app">
   <!-- ===== TOPO: abas + ícones ===== -->
   <header class="topo">
     <nav class="abas">
-      <button data-aba="dados" class="ativa">🎲 Dados</button>
-      <button data-aba="fichas">📜 Fichas</button>
+      <button data-aba="dados" class="ativa"><i data-icone="dado"></i>Dados</button>
+      <button data-aba="fichas"><i data-icone="ficha"></i>Fichas</button>
     </nav>
-    <button class="icone" id="abrir-historico" aria-label="Histórico">🕘</button>
-    <button class="icone" id="abrir-favoritos" aria-label="Favoritos">★</button>
-    <button class="icone" id="abrir-config" aria-label="Configurações">⚙</button>
+    <button class="icone" id="abrir-historico" aria-label="Histórico"><i data-icone="relogio"></i></button>
+    <button class="icone" id="abrir-favoritos" aria-label="Favoritos"><i data-icone="estrela"></i></button>
+    <button class="icone" id="abrir-config" aria-label="Configurações"><i data-icone="ajustes"></i></button>
   </header>
 
   <!-- ===== ABA DADOS: a calculadora ===== -->
@@ -41,7 +41,7 @@
       <div class="visor">
         <input id="expr" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
                autocorrect="off" spellcheck="false" placeholder="1d20+5" aria-label="Expressão">
-        <button id="salvar-favorito" aria-label="Salvar como favorito">☆</button>
+        <button id="salvar-favorito" aria-label="Salvar como favorito"><i data-icone="estrela"></i></button>
       </div>
       <div class="previa" id="previa"></div>
     </div>
@@ -104,13 +104,16 @@
 <!-- ===== FICHA ABERTA (tela cheia) ===== -->
 <section class="tela-cheia" id="ficha" hidden>
   <header class="topo">
-    <button class="icone" id="ficha-voltar" aria-label="Voltar">←</button>
+    <button class="icone" id="ficha-voltar" aria-label="Voltar"><i data-icone="voltar"></i></button>
     <h1 id="ficha-titulo"></h1>
-    <button class="icone" id="ficha-editar" aria-label="Editar">✎</button>
+    <button class="icone" id="ficha-editar" aria-label="Editar"><i data-icone="lapis"></i></button>
   </header>
   <div class="ficha-corpo" id="ficha-corpo"></div>
   <div class="ficha-resultado" id="ficha-resultado" hidden>
-    <button class="icone fechar-resultado" id="fechar-resultado" aria-label="Fechar resultado">✕</button>
+    <div class="resultado-botoes">
+      <button class="icone" id="recolher-resultado" aria-label="Recolher detalhes" aria-expanded="true"><i data-icone="seta"></i></button>
+      <button class="icone" id="fechar-resultado" aria-label="Fechar resultado"><i data-icone="fechar"></i></button>
+    </div>
     <div id="ficha-resultado-conteudo"></div>
   </div>
 </section>
@@ -118,7 +121,7 @@
 <!-- ===== EDITOR DE FICHA (tela cheia) ===== -->
 <section class="tela-cheia" id="editor" hidden>
   <header class="topo">
-    <button class="icone" id="editor-cancelar" aria-label="Cancelar">✕</button>
+    <button class="icone" id="editor-cancelar" aria-label="Cancelar"><i data-icone="fechar"></i></button>
     <h1 id="editor-titulo">Nova ficha</h1>
     <button class="botao destaque" id="editor-salvar">Salvar</button>
   </header>
@@ -126,7 +129,7 @@
     <div class="editor-imagem">
       <div class="retrato grande" id="ed-retrato"></div>
       <div class="coluna">
-        <label class="botao" for="ed-arquivo">📷 Escolher imagem</label>
+        <label class="botao" for="ed-arquivo"><i data-icone="camera"></i>Escolher imagem</label>
         <input id="ed-arquivo" type="file" accept="image/*" hidden>
         <button type="button" class="botao" id="ed-remover-imagem">Remover imagem</button>
         <label class="campo-mini">Emoji (sem imagem) <input id="ed-emoji" maxlength="4"></label>
@@ -168,7 +171,7 @@
   <div class="folha">
     <header class="topo">
       <h1 id="painel-titulo">Histórico</h1>
-      <button class="icone" id="fechar-painel" aria-label="Fechar">✕</button>
+      <button class="icone" id="fechar-painel" aria-label="Fechar"><i data-icone="fechar"></i></button>
     </header>
     <div class="folha-corpo" id="painel-corpo"></div>
   </div>
@@ -177,9 +180,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=4"></script>
-<script src="js/monstros.js?v=4"></script>
-<script src="js/logica.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/temas.js?v=5"></script>
+<script src="js/monstros.js?v=5"></script>
+<script src="js/logica.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>

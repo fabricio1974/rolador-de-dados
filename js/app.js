@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '4';
+const VERSAO = '5';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -14,6 +14,37 @@ function el(tag, classe, texto) {
   if (texto !== undefined) e.textContent = texto;
   return e;
 }
+
+// Ícones desenhados aqui mesmo (SVG), para ficarem iguais em qualquer celular
+// (emojis mudam de cara de um aparelho para outro). Cada um é uma lista de traços
+// numa grade de 24×24; o traço usa a cor do texto do botão.
+const ICONES = {
+  dado: ['M4 4h16v16H4z', 'M8 8h1v1H8z', 'M15 8h1v1h-1z', 'M11.5 11.5h1v1h-1z', 'M8 15h1v1H8z', 'M15 15h1v1h-1z'],
+  ficha: ['M5 3h10l4 4v14H5z', 'M15 3v4h4', 'M8 11h8', 'M8 15h8', 'M8 19h5'],
+  relogio: ['M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z', 'M12 7v5l3 3'],
+  estrela: ['M12 3l2.6 5.8 6.4.7-4.8 4.3 1.4 6.2L12 16.8 6.4 20l1.4-6.2L3 9.5l6.4-.7z'],
+  ajustes: ['M4 6h9', 'M19 6h1', 'M4 12h3', 'M13 12h7', 'M4 18h11', 'M13 4h6v4h-6z', 'M7 10h6v4H7z', 'M15 16h5v4h-5z'],
+  voltar: ['M20 12H5', 'M11 5l-7 7 7 7'],
+  lapis: ['M4 20h4L20 8l-4-4L4 16z', 'M13 7l4 4'],
+  fechar: ['M6 6l12 12', 'M18 6L6 18'],
+  camera: ['M3 7h4l2-3h6l2 3h4v13H3z', 'M12 9a4 4 0 1 0 0 8a4 4 0 1 0 0-8z'],
+  seta: ['M6 9l6 6 6-6'],
+};
+function icone(nome) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('class', 'ic');
+  svg.setAttribute('aria-hidden', 'true');
+  for (const d of ICONES[nome] || []) {
+    const traco = document.createElementNS(ns, 'path');
+    traco.setAttribute('d', d);
+    svg.append(traco);
+  }
+  return svg;
+}
+// No HTML, <i data-icone="nome"></i> vira o desenho.
+document.querySelectorAll('[data-icone]').forEach(i => i.replaceWith(icone(i.dataset.icone)));
 
 // localStorage pode falhar (modo anônimo, memória cheia), então sempre com try/catch.
 function ler(chave, padrao) {
@@ -40,6 +71,10 @@ if (!Array.isArray(fichas)) {
   // Primeira vez: começa com os 10 monstros padrão.
   fichas = MONSTROS_PADRAO.map(limparFicha);
   gravar('rolador.fichas', fichas);
+} else {
+  // Fichas de versões antigas não têm os campos novos (condições, PV temporário...):
+  // limparFicha completa o que falta sem mexer no resto.
+  fichas = fichas.map(limparFicha).filter(Boolean);
 }
 
 const salvarConfig = () => gravar('rolador.config', config);
@@ -176,6 +211,19 @@ function classeNatural(parte) {
   return '';
 }
 
+function desenharResumo(rolagem) {
+  const faixa = el('div', 'resumo-topo');
+  for (const item of resumoCompacto(rolagem)) {
+    let classe = 'chip-resumo ' + item.tipo;
+    if (item.natural === 20 || item.critico) classe += ' critico';
+    else if (item.natural === 1) classe += ' falha';
+    const chip = el('span', classe);
+    chip.append(el('small', '', item.rotulo), el('b', '', String(item.valor)));
+    faixa.append(chip);
+  }
+  return faixa;
+}
+
 function desenharRolagem(alvo, rolagem, titulo) {
   alvo.replaceChildren();
   if (titulo) alvo.append(el('div', 'titulo-rolagem', titulo));
@@ -189,7 +237,9 @@ function desenharRolagem(alvo, rolagem, titulo) {
     if (config.stats) alvo.append(el('div', 'stats', textoStats(p.res.stats)));
     desenharLinhas(alvo, p.res);
   } else {
-    // Várias partes (Acerto / Dano...): um bloco para cada.
+    // Várias partes: primeiro um resumo compacto ("Acerto 25 · Dano 19"), que fica
+    // grudado no topo enquanto se rolam os detalhes; depois um bloco para cada parte.
+    alvo.append(desenharResumo(rolagem));
     const somas = somasDeDano(rolagem);
     partes.forEach((p, i) => {
       const bloco = el('div', 'parte');
@@ -346,7 +396,7 @@ let painelAtual = null;
 
 function abrirPainel(tipo) {
   painelAtual = tipo;
-  $('painel-titulo').textContent = { historico: '🕘 Histórico', favoritos: '★ Favoritos', config: '⚙ Configurações' }[tipo];
+  $('painel-titulo').textContent = { historico: 'Histórico', favoritos: 'Favoritos', config: 'Configurações' }[tipo];
   desenharPainel();
   if ($('painel').hidden) {
     $('painel').hidden = false;
@@ -376,10 +426,12 @@ function rolarNoVisor(expr, titulo) {
 function itemDeLista(principal, secundario, resumo, aoAbrir, aoRemover) {
   const linha = el('div', 'item');
   const abrir = el('button', 'abrir');
+  abrir.append(el('span', 'principal', principal));
   if (resumo) abrir.append(el('span', 'resumo', resumo));
-  abrir.append(principal, el('small', '', secundario));
+  abrir.append(el('small', '', secundario));
   abrir.addEventListener('click', aoAbrir);
-  const remover = el('button', 'remover', '✕');
+  const remover = el('button', 'remover');
+  remover.append(icone('fechar'));
   remover.setAttribute('aria-label', 'Remover');
   remover.addEventListener('click', aoRemover);
   linha.append(abrir, remover);
@@ -389,7 +441,7 @@ function itemDeLista(principal, secundario, resumo, aoAbrir, aoRemover) {
 function desenharHistorico(corpo) {
   if (!historico.length) { corpo.append(el('p', 'vazio', 'Nenhuma rolagem ainda.')); return; }
   historico.forEach((h, i) => {
-    corpo.append(itemDeLista(h.titulo || h.expr, h.detalhe || h.expr, h.resumo ?? String(h.total ?? ''),
+    corpo.append(itemDeLista(h.titulo || nomeCurto(h.expr), h.detalhe || h.expr, h.resumo ?? String(h.total ?? ''),
       () => rolarNoVisor(h.expr, h.titulo),
       () => { historico.splice(i, 1); gravar('rolador.historico', historico); desenharPainel(); }));
   });
@@ -571,6 +623,37 @@ function barraPV(f) {
   return barra;
 }
 
+// Nomes curtos das condições marcadas (e da exaustão), para a lista e o cabeçalho.
+function nomesDasCondicoes(f) {
+  const nomes = CONDICOES.filter(c => f.condicoes.includes(c.id)).map(c => c.nome);
+  if (f.exaustao) nomes.unshift(`Exaustão ${f.exaustao}`);
+  return nomes;
+}
+
+function cartaoFicha(f) {
+  const cartao = el('button', 'cartao-ficha ' + f.tipo + (f.pvMax && f.pv === 0 ? ' caido' : ''));
+  const info = el('div', 'info');
+  info.append(el('div', 'nome', f.nome), el('div', 'sub', f.subtitulo || (f.tipo === 'monstro' ? 'Monstro' : 'Personagem')));
+  const numeros = el('div', 'numeros');
+  if (f.ca !== null) numeros.append(el('span', 'num-ca', `CA ${f.ca}`));
+  if (f.pvMax) {
+    numeros.append(el('span', 'num-pv', `PV ${f.pv}/${f.pvMax}`));
+    if (f.pvTemp) numeros.append(el('span', 'num-temp', `+${f.pvTemp} temp`));
+  }
+  numeros.append(el('span', 'num-rol', `${f.rolagens.length} rolagens`));
+  info.append(numeros);
+  if (f.pvMax) info.append(barraPV(f));
+  const condicoes = nomesDasCondicoes(f);
+  if (condicoes.length) {
+    const tags = el('div', 'tags');
+    for (const nome of condicoes) tags.append(el('span', 'tag', nome));
+    info.append(tags);
+  }
+  cartao.append(retrato(f), info);
+  cartao.addEventListener('click', () => abrirFicha(f.id));
+  return cartao;
+}
+
 function desenharListaFichas() {
   const lista = $('lista-fichas');
   lista.replaceChildren();
@@ -585,17 +668,18 @@ function desenharListaFichas() {
     if (filtro === 'personagem' && !busca) lista.lastChild.textContent = 'Nenhum personagem ainda. Toque em "+ Nova" para criar o seu, com imagem e rolagens.';
     return;
   }
-  for (const f of visiveis) {
-    const cartao = el('button', 'cartao-ficha');
-    const info = el('div', 'info');
-    info.append(el('div', 'nome', f.nome), el('div', 'sub', f.subtitulo || (f.tipo === 'monstro' ? 'Monstro' : 'Personagem')));
-    const numeros = [f.ca !== null ? `CA ${f.ca}` : '', f.pvMax ? `PV ${f.pv}/${f.pvMax}` : '', `${f.rolagens.length} rolagens`]
-      .filter(Boolean).join(' · ');
-    info.append(el('div', 'numeros', numeros));
-    if (f.pvMax) info.append(barraPV(f));
-    cartao.append(retrato(f), info);
-    cartao.addEventListener('click', () => abrirFicha(f.id));
-    lista.append(cartao);
+  // Em "Todos", personagens e monstros ficam em grupos separados, com título.
+  const grupos = filtro === 'todos'
+    ? [['Personagens', visiveis.filter(f => f.tipo === 'personagem')], ['Monstros', visiveis.filter(f => f.tipo === 'monstro')]]
+    : [['', visiveis]];
+  for (const [titulo, doGrupo] of grupos) {
+    if (!doGrupo.length) continue;
+    if (titulo) {
+      const cabeca = el('h2', 'titulo-grupo', titulo);
+      cabeca.append(el('span', '', String(doGrupo.length)));
+      lista.append(cabeca);
+    }
+    for (const f of doGrupo) lista.append(cartaoFicha(f));
   }
 }
 
@@ -612,16 +696,154 @@ $('nova-ficha').addEventListener('click', () => abrirEditor(null));
 // ---------- 10. Ficha aberta ----------
 let fichaAtual = null;
 let modo = 'normal';
+let escolhendoCondicao = false;  // a grade de condições está aberta?
+let avisoPV = '';                // recado depois de dano/cura (ex.: teste de Concentração)
+let resultadoRecolhido = false;  // painel de resultado mostrando só o resumo
 
 const acharFicha = (id) => fichas.find(f => f.id === id);
 
 function abrirFicha(id) {
   fichaAtual = id;
   modo = 'normal';
+  escolhendoCondicao = false;
+  avisoPV = '';
   $('ficha-resultado').hidden = true;
   desenharFicha();
   $('ficha').hidden = false;
+  $('ficha-corpo').scrollTop = 0;
   abrirCamada(() => { $('ficha').hidden = true; fichaAtual = null; desenharListaFichas(); });
+}
+
+// Salva e redesenha mantendo a posição da rolagem da tela (para não "pular" ao tocar).
+function mudouFicha() {
+  salvarFichas();
+  const corpo = $('ficha-corpo');
+  const posicao = corpo.scrollTop;
+  desenharFicha();
+  corpo.scrollTop = posicao;
+}
+
+function caixa(rotulo, valor, classe) {
+  const c = el('div', 'caixa' + (classe ? ' ' + classe : ''));
+  c.append(el('div', 'rot', rotulo), el('div', 'num', valor));
+  return c;
+}
+
+// PV: caixas de CA / PV / temporários e, embaixo, a quantidade com Dano, Cura e Temp.
+function desenharPV(f, corpo) {
+  const caixas = el('div', 'caixas');
+  caixas.append(caixa('CA', f.ca !== null ? String(f.ca) : '—', 'caixa-ca'));
+  if (!f.pvMax) {
+    caixas.append(caixa('Pontos de Vida', '—'));
+    corpo.append(caixas);
+    return;
+  }
+  const pv = caixa('Pontos de Vida', '', 'caixa-pv');
+  const numero = pv.querySelector('.num');
+  numero.append(el('span', '', String(f.pv)), el('small', '', ' / ' + f.pvMax));
+  pv.append(barraPV(f));
+  caixas.append(pv, caixa('Temp.', f.pvTemp ? '+' + f.pvTemp : '0', 'caixa-temp' + (f.pvTemp ? ' tem' : '')));
+  corpo.append(caixas);
+
+  const controles = el('div', 'pv-controles');
+  const qtd = el('input'); qtd.type = 'number'; qtd.inputMode = 'numeric'; qtd.min = '0'; qtd.placeholder = 'qtd';
+  qtd.setAttribute('aria-label', 'Quantidade de dano, cura ou PV temporários');
+  const mudar = (acao) => {
+    const n = Math.abs(parseInt(qtd.value, 10)) || 0;
+    if (!n) { qtd.focus(); return; }
+    avisoPV = '';
+    if (acao === 'dano') {
+      const novo = aplicarDano(f.pv, f.pvTemp, n);
+      const recados = [];
+      if (novo.pvTemp < f.pvTemp) recados.push(`${f.pvTemp - novo.pvTemp} nos PV temporários.`);
+      if (f.condicoes.includes('concentrando')) recados.push(`Concentração: salvaguarda de Constituição CD ${cdConcentracao(n)}.`);
+      if (f.tipo === 'personagem' && novo.sobra >= f.pvMax) recados.push('Dano massivo: o que passou do 0 é igual ou maior que o PV máximo, morte instantânea.');
+      else if (novo.pv === 0 && f.pv > 0) {
+        recados.push(f.tipo === 'personagem' ? 'Chegou a 0 PV: fica Inconsciente e faz salvaguardas contra a morte.' : 'Chegou a 0 PV.');
+      } else if (f.pv === 0 && novo.sobra > 0 && f.tipo === 'personagem') {
+        recados.push('Dano com 0 PV: uma falha na salvaguarda contra a morte (duas se for crítico).');
+      }
+      avisoPV = recados.join(' ');
+      f.pv = novo.pv; f.pvTemp = novo.pvTemp;
+    } else if (acao === 'cura') {
+      f.pv = aplicarCura(f.pv, f.pvMax, n);
+    } else {
+      f.pvTemp = ganharPVTemp(f.pvTemp, n);
+    }
+    mudouFicha();
+  };
+  for (const [acao, texto] of [['dano', '− Dano'], [null, ''], ['cura', '+ Cura'], ['temp', '+ Temp']]) {
+    if (!acao) { controles.append(qtd); continue; }
+    const b = el('button', acao, texto);
+    b.addEventListener('click', () => mudar(acao));
+    controles.append(b);
+  }
+  corpo.append(controles);
+  if (avisoPV) corpo.append(el('p', 'aviso-pv', avisoPV));
+}
+
+// Condições (Caído, Envenenado...), Concentração e Exaustão: marcadas com um toque.
+function desenharCondicoes(f, corpo) {
+  const area = el('div', 'condicoes');
+  const marcadas = el('div', 'tags');
+  if (f.exaustao) marcadas.append(el('span', 'tag forte', `Exaustão ${f.exaustao}`));
+  for (const c of CONDICOES) {
+    if (!f.condicoes.includes(c.id)) continue;
+    const tag = el('button', 'tag forte' + (c.marcador ? ' marcador' : ''), c.nome + ' ');
+    tag.append(icone('fechar'));
+    tag.setAttribute('aria-label', `Tirar ${c.nome}`);
+    tag.addEventListener('click', () => { f.condicoes = f.condicoes.filter(x => x !== c.id); mudouFicha(); });
+    marcadas.append(tag);
+  }
+  const alternar = el('button', 'tag adicionar' + (escolhendoCondicao ? ' aberto' : ''), escolhendoCondicao ? 'Pronto' : '+ Condição');
+  alternar.setAttribute('aria-expanded', String(escolhendoCondicao));
+  alternar.addEventListener('click', () => { escolhendoCondicao = !escolhendoCondicao; mudouFicha(); });
+  marcadas.append(alternar);
+  area.append(marcadas);
+
+  if (escolhendoCondicao) {
+    const grade = el('div', 'grade-condicoes');
+    for (const c of CONDICOES) {
+      const ligada = f.condicoes.includes(c.id);
+      const b = el('button', 'opcao-condicao' + (ligada ? ' ligada' : '') + (c.marcador ? ' marcador' : ''), c.nome);
+      b.setAttribute('aria-pressed', String(ligada));
+      b.addEventListener('click', () => {
+        // Guarda na ordem da lista de condições, sem repetir.
+        const novas = new Set(f.condicoes);
+        if (ligada) novas.delete(c.id); else novas.add(c.id);
+        f.condicoes = CONDICOES.map(x => x.id).filter(id => novas.has(id));
+        mudouFicha();
+      });
+      grade.append(b);
+    }
+    // Exaustão tem níveis (1 a 6): − nível +
+    const exaustao = el('div', 'exaustao');
+    const menos = el('button', '', '−'); menos.setAttribute('aria-label', 'Diminuir exaustão');
+    const mais = el('button', '', '+'); mais.setAttribute('aria-label', 'Aumentar exaustão');
+    menos.disabled = !f.exaustao;
+    mais.disabled = f.exaustao >= MAX_EXAUSTAO;
+    menos.addEventListener('click', () => { f.exaustao = Math.max(0, f.exaustao - 1); mudouFicha(); });
+    mais.addEventListener('click', () => { f.exaustao = Math.min(MAX_EXAUSTAO, f.exaustao + 1); mudouFicha(); });
+    const texto = el('span', '', 'Exaustão ');
+    texto.append(el('b', '', String(f.exaustao)));
+    exaustao.append(texto, menos, mais);
+    area.append(grade, exaustao);
+  }
+
+  // Lembrete do efeito de cada condição marcada.
+  const efeitos = el('ul', 'efeitos');
+  if (f.exaustao) {
+    efeitos.append(el('li', '', `Exaustão ${f.exaustao}: −${2 * f.exaustao} em todo teste de d20 (já descontado nas rolagens abaixo) e −${num(1.5 * f.exaustao)} m de deslocamento.` +
+      (f.exaustao >= MAX_EXAUSTAO ? ' No nível 6, a criatura morre.' : '')));
+  }
+  for (const c of CONDICOES) {
+    if (!f.condicoes.includes(c.id)) continue;
+    const item = el('li');
+    item.append(el('b', '', c.nome + ': '), c.efeito);
+    efeitos.append(item);
+  }
+  if (efeitos.children.length) area.append(efeitos);
+  corpo.append(area);
 }
 
 function desenharFicha() {
@@ -631,68 +853,47 @@ function desenharFicha() {
   const corpo = $('ficha-corpo');
   corpo.replaceChildren();
 
-  // Cabeça: imagem + descrição
-  const cabeca = el('div', 'ficha-cabeca');
-  const textos = el('div');
+  // Cabeça: imagem + tipo + descrição
+  const cabeca = el('div', 'ficha-cabeca' + (f.tipo === 'monstro' ? ' monstro' : ''));
+  const textos = el('div', 'textos');
   textos.append(el('div', 'tipo', f.tipo === 'monstro' ? 'Monstro' : 'Personagem'), el('div', 'sub', f.subtitulo || ''));
   cabeca.append(retrato(f, true), textos);
   corpo.append(cabeca);
 
-  // CA e PV
-  const caixas = el('div', 'caixas');
-  const ca = el('div', 'caixa');
-  ca.append(el('div', 'rot', 'CA'), el('div', 'num', f.ca !== null ? String(f.ca) : '—'));
-  const pv = el('div', 'caixa');
-  pv.append(el('div', 'rot', 'Pontos de Vida'), el('div', 'num', f.pvMax ? `${f.pv} / ${f.pvMax}` : '—'));
-  if (f.pvMax) {
-    pv.append(barraPV(f));
-    const controles = el('div', 'pv-controles');
-    const qtd = el('input'); qtd.type = 'number'; qtd.inputMode = 'numeric'; qtd.min = '0'; qtd.placeholder = 'qtd';
-    qtd.setAttribute('aria-label', 'Quantidade de dano ou cura');
-    const dano = el('button', 'dano', '− Dano');
-    const cura = el('button', 'cura', '+ Cura');
-    const mudar = (sinal) => {
-      const n = Math.abs(parseInt(qtd.value, 10)) || 0;
-      if (!n) { qtd.focus(); return; }
-      f.pv = Math.max(0, Math.min(f.pvMax, f.pv + sinal * n));
-      salvarFichas();
-      desenharFicha();
-    };
-    dano.addEventListener('click', () => mudar(-1));
-    cura.addEventListener('click', () => mudar(+1));
-    controles.append(dano, qtd, cura);
-    pv.append(controles);
-  }
-  caixas.append(ca, pv);
-  corpo.append(caixas);
+  desenharPV(f, corpo);
+  desenharCondicoes(f, corpo);
 
   // Modo: normal / vantagem / desvantagem (vale para os d20 das rolagens)
   const modos = el('div', 'modo');
   for (const [id, nome] of [['normal', 'Normal'], ['vant', 'Vantagem'], ['desv', 'Desvantagem']]) {
     const b = el('button', modo === id ? 'ativo' : '', nome);
     b.dataset.modo = id;
-    b.addEventListener('click', () => { modo = id; desenharFicha(); });
+    b.addEventListener('click', () => { modo = id; mudouFicha(); });
     modos.append(b);
   }
-  corpo.append(modos);
+  corpo.append(el('h2', 'titulo-secao', 'Rolagens'), modos);
 
   // Rolagens
   const botoes = el('div', 'botoes-rolagem');
   for (const r of f.rolagens) {
-    const b = el('button', 'botao-rolagem');
+    const b = el('button', 'botao-rolagem' + (/d20(?!\d)/.test(r.expr) ? ' teste' : ''));
     b.append(el('b', '', r.nome), el('small', '', r.expr));
     b.addEventListener('click', () => rolarDaFicha(f, r));
     botoes.append(b);
   }
-  if (!f.rolagens.length) botoes.append(el('p', 'vazio', 'Sem rolagens. Toque em ✎ para adicionar.'));
+  if (!f.rolagens.length) botoes.append(el('p', 'vazio', 'Sem rolagens. Toque no lápis para adicionar.'));
   corpo.append(botoes);
 
-  if (f.notas) corpo.append(el('div', 'notas', f.notas));
+  if (f.notas) corpo.append(el('h2', 'titulo-secao', 'Notas'), el('div', 'notas', f.notas));
 }
 
 function rolarDaFicha(f, r) {
-  const expr = aplicarModo(r.expr, modo);
-  const titulo = `${f.nome} — ${r.nome}` + (modo === 'vant' ? ' (Vantagem)' : modo === 'desv' ? ' (Desvantagem)' : '');
+  const expr = aplicarExaustao(aplicarModo(r.expr, modo), f.exaustao);
+  const extras = [];
+  if (modo === 'vant') extras.push('Vantagem');
+  if (modo === 'desv') extras.push('Desvantagem');
+  if (f.exaustao && expr !== aplicarModo(r.expr, modo)) extras.push(`Exaustão −${2 * f.exaustao}`);
+  const titulo = `${f.nome} — ${r.nome}` + (extras.length ? ` (${extras.join(', ')})` : '');
   const alvo = $('ficha-resultado-conteudo');
   try {
     const rolagem = fazerRolagem(expr);
@@ -703,12 +904,19 @@ function rolarDaFicha(f, r) {
     mostrarErro(alvo, e.message);
   }
   $('ficha-resultado').hidden = false;
-  $('ficha-resultado').scrollTop = 0;
+}
+
+// Recolher: o painel de resultado mostra só o título e o resumo, liberando os botões.
+function aplicarRecolhido() {
+  $('ficha-resultado').classList.toggle('recolhido', resultadoRecolhido);
+  $('recolher-resultado').setAttribute('aria-expanded', String(!resultadoRecolhido));
+  $('recolher-resultado').setAttribute('aria-label', resultadoRecolhido ? 'Mostrar detalhes' : 'Recolher detalhes');
 }
 
 $('ficha-voltar').addEventListener('click', voltar);
 $('ficha-editar').addEventListener('click', () => abrirEditor(fichaAtual));
 $('fechar-resultado').addEventListener('click', () => { $('ficha-resultado').hidden = true; });
+$('recolher-resultado').addEventListener('click', () => { resultadoRecolhido = !resultadoRecolhido; aplicarRecolhido(); });
 
 // ---------- 11. Editor de ficha ----------
 let edFicha = null;     // cópia sendo editada
@@ -719,7 +927,8 @@ function abrirEditor(id) {
   edFicha = id
     ? structuredClone(acharFicha(id))
     : { id: 'f-' + Date.now().toString(36), tipo: 'personagem', nome: '', subtitulo: '', emoji: '', imagem: null,
-        ca: null, pvMax: null, pv: null, notas: '', rolagens: [{ nome: 'Iniciativa', expr: '1d20+0' }] };
+        ca: null, pvMax: null, pv: null, pvTemp: 0, exaustao: 0, condicoes: [], notas: '',
+        rolagens: [{ nome: 'Iniciativa', expr: '1d20+0' }] };
   $('editor-titulo').textContent = edNova ? 'Nova ficha' : 'Editar ficha';
   $('ed-nome').value = edFicha.nome;
   $('ed-tipo').value = edFicha.tipo;
@@ -748,10 +957,11 @@ function desenharLinhasRolagem() {
   caixa.replaceChildren();
   edFicha.rolagens.forEach((r, i) => {
     const linha = el('div', 'linha-rolagem');
-    const nome = el('input'); nome.placeholder = 'Nome (ex.: Espada)'; nome.value = r.nome;
-    const expr = el('input'); expr.placeholder = 'Acerto: 1d20+5; Dano: 1d8+3'; expr.value = r.expr;
+    const nome = el('input', 'rol-nome'); nome.placeholder = 'Nome (ex.: Espada)'; nome.value = r.nome;
+    const expr = el('input', 'rol-expr'); expr.placeholder = 'Acerto: 1d20+5; Dano: 1d8+3'; expr.value = r.expr;
     expr.autocapitalize = 'off'; expr.spellcheck = false;
-    const remover = el('button', '', '✕'); remover.type = 'button'; remover.setAttribute('aria-label', 'Remover rolagem');
+    const remover = el('button', 'remover'); remover.type = 'button'; remover.setAttribute('aria-label', 'Remover rolagem');
+    remover.append(icone('fechar'));
     nome.addEventListener('input', () => { r.nome = nome.value; });
     expr.addEventListener('input', () => { r.expr = expr.value; linha.classList.remove('invalida'); });
     remover.addEventListener('click', () => { edFicha.rolagens.splice(i, 1); desenharLinhasRolagem(); });
@@ -872,6 +1082,7 @@ $('ed-apagar').addEventListener('click', () => {
 
 // ---------- 12. Início ----------
 aplicarTema();
+aplicarRecolhido();
 mostrarAba(config.aba === 'fichas' ? 'fichas' : 'dados');
 desenharAtalhos();
 atualizarPrevia();

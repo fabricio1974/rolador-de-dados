@@ -512,10 +512,46 @@ function somasDeDano(rolagem) {
   return somas;
 }
 
-// Resumo curto para o histórico: "Acerto 17 · Dano 11".
+// Resumo compacto de uma rolagem em partes, para ver tudo sem rolar a tela:
+// "Acerto 25 · Dano 19". Depois de um ataque/teste (parte com d20), as partes de
+// dano seguidas viram UM número só (a soma), com o nome "Dano" se forem 2 ou mais.
+// Partes que não vêm depois de um ataque (ex.: "For: 4d6kh3; Des: 4d6kh3") ficam separadas.
+// Devolve [{ rotulo, valor, tipo: 'ataque' | 'dano' | 'parte', natural, critico }].
+function resumoCompacto(rolagem) {
+  const itens = [];
+  let bloco = [];
+  let depoisDeAtaque = false;
+  const fechar = () => {
+    if (!bloco.length) return;
+    if (depoisDeAtaque) {
+      itens.push({
+        rotulo: bloco.length === 1 ? (bloco[0].rotulo || 'Dano') : 'Dano',
+        valor: bloco.reduce((s, p) => s + p.res.total, 0),
+        tipo: 'dano',
+        critico: bloco.some(p => p.critico),
+      });
+    } else {
+      for (const p of bloco) itens.push({ rotulo: p.rotulo || '=', valor: p.res.total, tipo: 'parte' });
+    }
+    bloco = [];
+  };
+  for (const p of rolagem.partes) {
+    if (p.ataque) {
+      fechar();
+      itens.push({ rotulo: p.rotulo || 'd20', valor: p.res.total, tipo: 'ataque', natural: p.natural });
+      depoisDeAtaque = true;
+    } else {
+      bloco.push(p);
+    }
+  }
+  fechar();
+  return itens;
+}
+
+// Resumo curto para o histórico: "Acerto 17 · Dano 11" (o dano já somado).
 function resumir(rolagem) {
   if (rolagem.partes.length === 1) return String(rolagem.partes[0].res.total);
-  return rolagem.partes.map(p => `${p.rotulo || '='} ${p.res.total}`).join(' · ');
+  return resumoCompacto(rolagem).map(i => `${i.rotulo} ${i.valor}`).join(' · ');
 }
 
 // Vantagem/Desvantagem das fichas: força o modo no primeiro d20 de cada parte de ataque.
@@ -526,6 +562,17 @@ function aplicarModo(texto, modo) {
     if (/2d20k[hl]1?(?!\d)/.test(parte)) return parte.replace(/2d20k[hl]1?(?!\d)/, novo);
     return parte.replace(/(^|[^\d])1?d20(?![\dk])/, (m, antes) => antes + novo);
   }).join(';');
+}
+
+// Nome curto para uma rolagem sem título: "Acerto: 1d20+5; Dano: 2d6+3" vira
+// "Acerto + Dano" (cabe no botão). Se alguma parte não tiver nome, fica a expressão.
+function nomeCurto(expr) {
+  const texto = String(expr || '').trim();
+  try {
+    const partes = separarPartes(texto);
+    if (partes.length > 1 && partes.every(p => p.rotulo)) return partes.map(p => p.rotulo).join(' + ');
+  } catch { /* vazio: devolve como veio */ }
+  return texto;
 }
 
 // Atalhos da aba Dados: primeiro os favoritos, depois as rolagens recentes do
@@ -544,13 +591,71 @@ function montarAtalhos(favoritos, historico, maxRecentes = 6) {
     if (recentes >= maxRecentes) break;
     if (!h || typeof h.expr !== 'string' || !h.expr.trim() || vistas.has(h.expr.trim())) continue;
     vistas.add(h.expr.trim());
-    lista.push({ nome: h.titulo || h.expr, expr: h.expr.trim(), tipo: 'recente' });
+    lista.push({ nome: h.titulo || nomeCurto(h.expr), expr: h.expr.trim(), tipo: 'recente' });
     recentes++;
   }
   return lista;
 }
 
-// 7) FICHAS: confere uma ficha (vinda de um backup, por exemplo) e devolve
+// 7) FICHA EM COMBATE (regras 2024): condições, exaustão, PV temporários, concentração.
+// Efeitos resumidos do SRD 5.2.1, só para lembrar na mesa.
+const CONDICOES = [
+  { id: 'agarrado', nome: 'Agarrado', efeito: 'Deslocamento 0. Desvantagem em ataques contra quem não for quem o agarra.' },
+  { id: 'amedrontado', nome: 'Amedrontado', efeito: 'Desvantagem em testes de atributo e ataques com a fonte do medo à vista; não pode se aproximar dela.' },
+  { id: 'atordoado', nome: 'Atordoado', efeito: 'Incapacitado. Falha em salvaguardas de For e Des. Ataques contra ele têm Vantagem.' },
+  { id: 'caido', nome: 'Caído', efeito: 'Desvantagem nos seus ataques. Ataques contra ele: Vantagem a até 1,5 m, senão Desvantagem. Levantar custa metade do deslocamento.' },
+  { id: 'cego', nome: 'Cego', efeito: 'Falha em testes que exigem visão. Ataques contra ele têm Vantagem; os dele, Desvantagem.' },
+  { id: 'contido', nome: 'Contido', efeito: 'Deslocamento 0. Ataques contra ele têm Vantagem; os dele, Desvantagem. Desvantagem em salvaguardas de Des.' },
+  { id: 'enfeiticado', nome: 'Enfeitiçado', efeito: 'Não ataca quem o enfeitiçou, que tem Vantagem em testes sociais com ele.' },
+  { id: 'envenenado', nome: 'Envenenado', efeito: 'Desvantagem em jogadas de ataque e testes de atributo.' },
+  { id: 'incapacitado', nome: 'Incapacitado', efeito: 'Sem ação, Ação Bônus nem Reação. Perde a Concentração, não fala. Desvantagem na Iniciativa.' },
+  { id: 'inconsciente', nome: 'Inconsciente', efeito: 'Incapacitado e Caído; larga o que segura. Falha em salvaguardas de For e Des. Acerto a até 1,5 m é crítico.' },
+  { id: 'invisivel', nome: 'Invisível', efeito: 'Vantagem na Iniciativa e nos ataques; ataques contra ele têm Desvantagem (se não o veem).' },
+  { id: 'paralisado', nome: 'Paralisado', efeito: 'Incapacitado, deslocamento 0. Falha em salvaguardas de For e Des. Acerto a até 1,5 m é crítico.' },
+  { id: 'petrificado', nome: 'Petrificado', efeito: 'Incapacitado, deslocamento 0. Falha em For e Des. Resistência a todo dano. Ataques contra ele têm Vantagem.' },
+  { id: 'surdo', nome: 'Surdo', efeito: 'Falha em testes que exigem audição.' },
+  { id: 'concentrando', nome: 'Concentrando', efeito: 'Ao sofrer dano: salvaguarda de Con, CD 10 ou metade do dano (a maior, até 30).', marcador: true },
+];
+const MAX_EXAUSTAO = 6;
+
+// Dano: os PV temporários são gastos primeiro; os PV normais não passam de 0.
+// Devolve { pv, pvTemp, sobra } novos (não muda a ficha: quem chama decide salvar).
+// "sobra" é o dano que passou do 0: se for igual ou maior que o PV máximo, um
+// personagem morre na hora (dano massivo, regra de 2024).
+function aplicarDano(pv, pvTemp, dano) {
+  dano = Math.max(0, Math.trunc(dano) || 0);
+  const temp = Math.max(0, pvTemp || 0);
+  const absorvido = Math.min(temp, dano);
+  const resto = dano - absorvido;
+  return { pv: Math.max(0, pv - resto), pvTemp: temp - absorvido, sobra: Math.max(0, resto - pv) };
+}
+
+// Cura: soma e para no máximo. Cura não mexe nos PV temporários.
+function aplicarCura(pv, pvMax, cura) {
+  return Math.min(pvMax, pv + Math.max(0, Math.trunc(cura) || 0));
+}
+
+// PV temporários não se somam: fica o maior (regra de 2024: você escolhe qual manter).
+function ganharPVTemp(atual, novo) {
+  return Math.max(Math.max(0, atual || 0), Math.max(0, Math.trunc(novo) || 0));
+}
+
+// CD do teste de Concentração ao sofrer dano: a maior entre 10 e metade do dano, no máximo 30.
+function cdConcentracao(dano) {
+  return Math.min(30, Math.max(10, Math.floor(dano / 2)));
+}
+
+// Exaustão (2024): −2 por nível em todo teste de d20. Põe o redutor em cada parte
+// que tem d20 (ataque, teste, salvaguarda, iniciativa); o dano não muda.
+function aplicarExaustao(texto, nivel) {
+  const n = Math.max(0, Math.min(MAX_EXAUSTAO, Math.trunc(nivel) || 0));
+  if (!n) return texto;
+  return String(texto).split(';').map(parte =>
+    /d20(?!\d)/.test(parte) ? parte.replace(/\s+$/, '') + '−' + (2 * n) : parte).join(';');
+}
+
+
+// 8) FICHAS: confere uma ficha (vinda de um backup, por exemplo) e devolve
 //    só os campos conhecidos, ou null se não for uma ficha válida.
 function limparFicha(f) {
   if (!f || typeof f !== 'object' || typeof f.nome !== 'string' || !f.nome.trim()) return null;
@@ -568,6 +673,12 @@ function limparFicha(f) {
     pvMax,
     pv: pvMax === null ? null : Math.max(0, Math.min(pvMax, pv === null ? pvMax : pv)),
     notas: typeof f.notas === 'string' ? f.notas.slice(0, 2000) : '',
+    // Campos da versão 5 (fichas antigas não têm: começam zerados).
+    pvTemp: Math.max(0, numero(f.pvTemp) || 0),
+    exaustao: Math.max(0, Math.min(MAX_EXAUSTAO, numero(f.exaustao) || 0)),
+    condicoes: Array.isArray(f.condicoes)
+      ? CONDICOES.map(c => c.id).filter(id => f.condicoes.includes(id))
+      : [],
     rolagens: Array.isArray(f.rolagens)
       ? f.rolagens.filter(r => r && typeof r.nome === 'string' && typeof r.expr === 'string')
           .map(r => ({ nome: r.nome.slice(0, 60), expr: r.expr.slice(0, 300) }))
@@ -575,7 +686,7 @@ function limparFicha(f) {
   };
 }
 
-// 8) CORES: texto preto ou branco, o que tiver mais contraste com o fundo.
+// 9) CORES: texto preto ou branco, o que tiver mais contraste com o fundo.
 function corDoTexto(hex) {
   const h = hex.replace('#', '');
   const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255)
@@ -590,5 +701,6 @@ if (typeof module !== 'undefined') {
     analisar, rolar, descrever, contarDados, estatisticas, rolarDadoCripto,
     apertarDado, apertarD, apertarOperador, apertarAbre, apertarFecha, alternarVantagem,
     separarPartes, validar, rolarPartes, dobrarDados, resumir, somasDeDano, montarAtalhos, aplicarModo, corDoTexto, formatar, limparFicha,
+    resumoCompacto, nomeCurto, CONDICOES, MAX_EXAUSTAO, aplicarDano, aplicarCura, ganharPVTemp, cdConcentracao, aplicarExaustao,
   };
 }

@@ -30,6 +30,9 @@ input, select, textarea {
   background: var(--tecla-op); border: 2px solid var(--borda); padding: 10px; width: 100%; min-width: 0;
 }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--acento); }
+/* Ícones SVG (js/app.js → ICONES): traço reto, cor do texto. */
+.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: square; stroke-linejoin: miter; vertical-align: -.25em; }
 code { background: var(--tecla-op); padding: 1px 5px; }
 [hidden] { display: none !important; }
 
@@ -41,9 +44,11 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .tela { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .topo { display: flex; align-items: center; gap: 6px; min-height: 44px; }
 .topo h1 { flex: 1; font-size: 1.15rem; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.icone { width: 42px; height: 42px; font-size: 1.25rem; background: var(--superficie); flex: none; }
+.icone { width: 42px; height: 42px; font-size: 1.25rem; background: var(--superficie); flex: none;
+  display: inline-flex; align-items: center; justify-content: center; }
 .abas { flex: 1; display: flex; gap: 4px; }
-.abas button { flex: 1; height: 42px; background: var(--superficie); font-weight: 700; color: var(--fraco); }
+.abas button { flex: 1; height: 42px; background: var(--superficie); font-weight: 700; color: var(--fraco);
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
 .abas button.ativa { background: var(--acento); color: var(--acento-txt); }
 .botao { display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   background: var(--tecla); padding: 10px 14px; font-weight: 700; cursor: pointer; }
@@ -115,6 +120,23 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .repeticao .grupo { margin: 1px 4px 1px 0; }
 .repeticao .valor-rep { font-size: 1.3rem; font-weight: 900; min-width: 2ch; text-align: right; font-variant-numeric: tabular-nums; }
 
+/* Resumo compacto no topo (Acerto 25 · Dano 19): fica grudado enquanto se rola o resultado. */
+.resumo-topo {
+  position: sticky; top: -10px; z-index: 1; display: flex; flex-wrap: wrap; gap: 4px;
+  margin: -10px -12px 4px; padding: 8px 12px; background: var(--superficie); border-bottom: 1px solid var(--borda);
+}
+.chip-resumo { display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 10px; background: var(--tecla); border-bottom: 3px solid var(--borda); }
+.chip-resumo small { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--fraco); }
+.chip-resumo b { font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.chip-resumo.ataque { border-color: var(--acento); }
+.chip-resumo.dano b { color: var(--acento); }
+.chip-resumo.critico { border-color: var(--max); }
+.chip-resumo.critico b { color: var(--max); }
+.chip-resumo.falha { border-color: var(--min); }
+.chip-resumo.falha b { color: var(--min); }
+.titulo-rolagem + .resumo-topo { margin-top: 0; }
+.resumo-topo + .parte { border-top: 0; }
+
 /* Soma das partes de dano (Dano + Fogo) */
 .soma-dano { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; padding: 8px 10px; background: var(--tecla); border-left: 4px solid var(--acento); }
 .soma-dano .nome { font-weight: 900; text-transform: uppercase; letter-spacing: 1px; font-size: .85rem; }
@@ -148,7 +170,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .visor input { flex: 1; font-size: 1.55rem; font-weight: 700; padding: 8px 12px; text-align: right; height: 52px; }
 .visor input.medio { font-size: 1.2rem; }
 .visor input.longo { font-size: .98rem; }
-.visor button { background: var(--superficie); padding: 0 14px; font-size: 1.4rem; }
+.visor button { background: var(--superficie); padding: 0 14px; font-size: 1.4rem; color: var(--acento); }
 .previa { min-height: 1.1em; text-align: right; font-size: .82rem; color: var(--fraco); padding: 2px 62px 0 0; }
 
 /* ---------- Atalhos (favoritos e recentes) ---------- */
@@ -189,11 +211,31 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .filtros button { flex: 1; padding: 8px 4px; background: var(--superficie); color: var(--fraco); font-weight: 700; font-size: .9rem; }
 .filtros button.ativo { background: var(--tecla); color: var(--texto); box-shadow: inset 0 -3px 0 var(--acento); }
 .lista-fichas { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-.cartao-ficha { display: flex; gap: 10px; align-items: center; background: var(--superficie); padding: 8px; text-align: left; width: 100%; }
+.titulo-grupo { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-size: .75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fraco); }
+.titulo-grupo:first-child { margin-top: 0; }
+.titulo-grupo span { background: var(--tecla); color: var(--texto); padding: 1px 6px; font-size: .7rem; }
+.titulo-grupo::after { content: ''; flex: 1; height: 1px; background: var(--borda); }
+.cartao-ficha {
+  display: flex; gap: 10px; align-items: center; background: var(--superficie); padding: 8px 26px 8px 8px; text-align: left; width: 100%;
+  border-left: 4px solid var(--acento); position: relative; flex: none;
+}
+/* setinha ">" no canto: dá a ideia de que o cartão abre */
+.cartao-ficha::after {
+  content: ''; position: absolute; right: 11px; top: 50%; width: 7px; height: 7px; margin-top: -4px;
+  border-top: 2px solid var(--fraco); border-right: 2px solid var(--fraco); transform: rotate(45deg);
+}
+.cartao-ficha:active { filter: brightness(1.2); }
+.cartao-ficha.monstro { border-left-color: var(--borda); }  /* personagens ganham a cor do tema */
+.cartao-ficha .tag { color: var(--d10); border-color: color-mix(in srgb, var(--d10) 50%, var(--borda)); }
+.cartao-ficha.caido { opacity: .6; }
+.cartao-ficha.caido .retrato { filter: grayscale(1); }
 .cartao-ficha .info { flex: 1; min-width: 0; }
 .cartao-ficha .nome { font-weight: 800; }
 .cartao-ficha .sub { color: var(--fraco); font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cartao-ficha .numeros { font-size: .82rem; margin-top: 3px; }
+.cartao-ficha .numeros { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: .82rem; margin-top: 3px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cartao-ficha .num-temp { color: var(--d6); }
+.cartao-ficha .num-rol { color: var(--fraco); font-weight: 400; }
+.cartao-ficha .tags { margin-top: 5px; }
 .retrato {
   width: 60px; height: 60px; flex: none; background: var(--tecla); border: 2px solid var(--borda);
   display: flex; align-items: center; justify-content: center; font-size: 2rem; overflow: hidden;
@@ -201,6 +243,7 @@ code { background: var(--tecla-op); padding: 1px 5px; }
 .retrato img { width: 100%; height: 100%; object-fit: cover; }
 .retrato.grande { width: 112px; height: 112px; font-size: 3.6rem; }
 .barra-pv { height: 5px; background: var(--tecla); margin-top: 4px; }
+.barra-pv > div { transition: width .25s ease-out; }
 .barra-pv > div { height: 100%; background: var(--max); }
 .barra-pv.ferido > div { background: var(--d10); }
 .barra-pv.critico > div { background: var(--min); }
@@ -213,48 +256,112 @@ code { background: var(--tecla-op); padding: 1px 5px; }
   padding: 6px 10px env(safe-area-inset-bottom);
 }
 .ficha-corpo, .editor-corpo { flex: 1; overflow-y: auto; padding-bottom: 16px; }
-.ficha-cabeca { display: flex; gap: 12px; align-items: center; margin: 6px 0 10px; }
-.ficha-cabeca .sub { color: var(--fraco); }
-.ficha-cabeca .tipo { font-size: .75rem; font-weight: 800; text-transform: uppercase; color: var(--acento); }
-.caixas { display: grid; grid-template-columns: 76px 1fr; gap: 6px; margin-bottom: 8px; }
-.caixa { background: var(--superficie); padding: 8px; text-align: center; }
-.caixa .rot { font-size: .7rem; font-weight: 800; color: var(--fraco); text-transform: uppercase; }
-.caixa .num { font-size: 1.6rem; font-weight: 900; }
-.pv-controles { display: grid; grid-template-columns: 1fr 70px 1fr; gap: 4px; margin-top: 6px; }
-.pv-controles input { text-align: center; padding: 6px; }
-.pv-controles button { padding: 8px 4px; font-weight: 800; color: #fff; }
+.ficha-cabeca { display: flex; gap: 12px; align-items: center; margin: 4px 0 10px; }
+.ficha-cabeca .textos { min-width: 0; }
+.ficha-cabeca .sub { color: var(--fraco); line-height: 1.35; }
+.ficha-cabeca .tipo {
+  display: inline-block; font-size: .7rem; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+  background: var(--acento); color: var(--acento-txt); padding: 2px 7px; margin-bottom: 5px;
+}
+.ficha-cabeca.monstro .tipo { background: var(--min); color: #fff; }
+.titulo-secao { font-size: .75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fraco); margin: 14px 0 6px; }
+
+/* CA | PV | Temp. */
+.caixas { display: grid; grid-template-columns: 64px 1fr 64px; gap: 4px; }
+.caixas:has(> :nth-child(2):last-child) { grid-template-columns: 64px 1fr; }
+.caixa { background: var(--superficie); padding: 8px 6px; text-align: center; }
+.caixa .rot { font-size: .68rem; font-weight: 800; color: var(--fraco); text-transform: uppercase; letter-spacing: .5px; }
+.caixa .num { font-size: 1.6rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.caixa .num small { font-size: 1rem; color: var(--fraco); font-weight: 700; }
+.caixa-ca { border-top: 3px solid var(--acento); }
+.caixa-pv .barra-pv { height: 7px; margin-top: 6px; }
+.caixa-temp .num { color: var(--fraco); }
+.caixa-temp.tem { border-top: 3px solid var(--d6); }
+.caixa-temp.tem .num { color: var(--d6); }
+.pv-controles { display: grid; grid-template-columns: 1fr 64px 1fr 1fr; gap: 4px; margin-top: 4px; }
+.pv-controles input { text-align: center; padding: 6px; font-weight: 800; font-size: 1.05rem; }
+.pv-controles button { padding: 10px 2px; font-weight: 800; color: #fff; }
 .pv-controles .dano { background: var(--min); }
 .pv-controles .cura { background: var(--max); }
-.modo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 8px; }
+.pv-controles .temp { background: var(--tecla); color: var(--texto); border-bottom: 3px solid var(--d6); }
+.aviso-pv { margin: 6px 0 0; padding: 7px 10px; background: var(--tecla); border-left: 4px solid var(--d10); font-weight: 700; font-size: .9rem; }
+
+/* Condições */
+.condicoes { margin-top: 10px; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; font-size: .75rem; font-weight: 800;
+  background: var(--tecla); border: 1px solid var(--borda); color: var(--texto);
+}
+.tag .ic { width: 1em; height: 1em; vertical-align: 0; }
+.condicoes .tag { padding: 6px 10px; font-size: .85rem; }
+.tag.forte { border-color: var(--d10); color: var(--d10); }
+.tag.marcador { border-color: var(--d6); color: var(--d6); }
+.tag.adicionar { color: var(--fraco); border-style: dashed; }
+.tag.adicionar.aberto { color: var(--acento-txt); background: var(--acento); border: 1px solid var(--acento); }
+.grade-condicoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 6px; }
+.opcao-condicao { padding: 9px 2px; background: var(--superficie); color: var(--fraco); font-weight: 700; font-size: .82rem; border: 1px solid var(--borda); }
+.opcao-condicao.ligada { background: color-mix(in srgb, var(--d10) 25%, var(--superficie)); border-color: var(--d10); color: var(--texto); }
+.opcao-condicao.marcador.ligada { background: color-mix(in srgb, var(--d6) 25%, var(--superficie)); border-color: var(--d6); }
+.exaustao { display: flex; align-items: center; gap: 4px; margin-top: 4px; background: var(--superficie); padding: 4px 4px 4px 12px; }
+.exaustao span { flex: 1; font-weight: 700; }
+.exaustao button { width: 48px; height: 38px; background: var(--tecla); font-size: 1.3rem; font-weight: 900; }
+.exaustao button:disabled { opacity: .35; }
+.efeitos { list-style: none; margin: 6px 0 0; padding: 8px 10px; background: var(--superficie); border-left: 4px solid var(--d10); font-size: .82rem; color: var(--fraco); line-height: 1.4; }
+.efeitos li + li { margin-top: 4px; }
+.efeitos b { color: var(--texto); }
+
+.modo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; }
 .modo button { padding: 9px 4px; background: var(--superficie); font-weight: 700; color: var(--fraco); }
 .modo button.ativo[data-modo="normal"] { background: var(--tecla); color: var(--texto); box-shadow: inset 0 -3px 0 var(--acento); }
 .modo button.ativo[data-modo="vant"] { background: var(--vant); color: #fff; }
 .modo button.ativo[data-modo="desv"] { background: var(--desv); color: #fff; }
-.botoes-rolagem { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.botoes-rolagem { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
 .botao-rolagem {
-  background: var(--superficie); border-left: 4px solid var(--acento); padding: 10px; text-align: left; min-height: 58px;
+  background: var(--superficie); border-left: 4px solid var(--borda); padding: 10px; text-align: left; min-height: 58px;
 }
-.botao-rolagem b { display: block; }
-.botao-rolagem small { color: var(--fraco); font-size: .75rem; word-break: break-word; }
+.botao-rolagem.teste { border-left-color: var(--acento); }  /* tem d20: ataque, teste ou salvaguarda */
+.botao-rolagem b { display: block; line-height: 1.25; }
+.botao-rolagem small { display: block; margin-top: 2px; color: var(--fraco); font-size: .75rem; word-break: break-word; line-height: 1.35; }
 .botao-rolagem:active { filter: brightness(1.3); }
-.notas { background: var(--superficie); padding: 10px; margin-top: 8px; white-space: pre-wrap; color: var(--fraco); font-size: .9rem; }
-.ficha-resultado { position: relative; background: var(--superficie); border-top: 4px solid var(--acento); margin: 0 -10px; }
-#ficha-resultado-conteudo { max-height: 50dvh; overflow-y: auto; padding: 10px 12px; }
-#ficha-resultado-conteudo .titulo-rolagem { padding: 0 40px; }
-.fechar-resultado { position: absolute; top: 6px; right: 6px; width: 36px; height: 36px; background: var(--tecla); z-index: 1; }
+.notas { background: var(--superficie); padding: 10px; white-space: pre-wrap; color: var(--fraco); font-size: .9rem; line-height: 1.45; }
+
+/* Resultado da ficha: no máximo ~40% da tela, para os botões continuarem à vista. */
+.ficha-resultado { position: relative; background: var(--superficie); border-top: 4px solid var(--acento); margin: 0 -10px; flex: none; }
+#ficha-resultado-conteudo { max-height: 40dvh; overflow-y: auto; padding: 10px 12px; }
+#ficha-resultado-conteudo .titulo-rolagem { text-align: left; padding-right: 84px; min-height: 30px; }
+#ficha-resultado-conteudo .resumo-topo { top: -10px; }
+.resultado-botoes { position: absolute; top: 4px; right: 6px; z-index: 2; display: flex; gap: 4px; }
+.resultado-botoes .icone { width: 38px; height: 38px; background: var(--tecla); }
+.resultado-botoes .ic { transition: transform .2s; }
+/* Recolhido: só o título e o resumo (ou o total grande) */
+.ficha-resultado.recolhido #ficha-resultado-conteudo > :not(.titulo-rolagem):not(.resumo-topo):not(.total):not(.erro) { display: none; }
+.ficha-resultado.recolhido .total { font-size: 2.4rem; margin: 2px 0 0; }
+.ficha-resultado.recolhido #recolher-resultado .ic { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .resultado-botoes .ic, .barra-pv > div { transition: none; } }
 
 /* Editor */
 .editor-corpo { display: flex; flex-direction: column; gap: 10px; }
 .editor-corpo label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; font-weight: 700; color: var(--fraco); }
-.editor-corpo h2 { margin: 8px 0 0; font-size: 1.05rem; }
+.editor-corpo h2 { margin: 10px 0 0; font-size: .75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fraco);
+  display: flex; align-items: center; gap: 8px; }
+.editor-corpo h2::after { content: ''; flex: 1; height: 1px; background: var(--borda); }
 .editor-imagem { display: flex; gap: 10px; align-items: center; }
+.editor-corpo label.botao { flex-direction: row; color: var(--texto); font-size: 1rem; }
 .coluna { display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .campo-mini input { padding: 6px; }
 .linha-campos { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 6px; }
 .ajuda { color: var(--fraco); font-size: .85rem; margin: 0; line-height: 1.5; }
-.linha-rolagem { display: grid; grid-template-columns: 1fr 1.4fr 40px; gap: 4px; margin-bottom: 4px; }
-.linha-rolagem button { background: var(--tecla); }
-.linha-rolagem.invalida input:last-of-type { border-color: var(--min); }
+/* Cada rolagem: nome em cima, expressão embaixo, ✕ ao lado das duas. */
+.linha-rolagem {
+  display: grid; grid-template-columns: 1fr 44px; gap: 3px; margin-bottom: 6px;
+  background: var(--superficie); padding: 6px; border-left: 4px solid var(--acento);
+}
+.linha-rolagem .rol-nome { grid-column: 1; font-weight: 700; }
+.linha-rolagem .rol-expr { grid-column: 1; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9rem; }
+.linha-rolagem .remover { grid-column: 2; grid-row: 1 / span 2; background: var(--tecla); color: var(--fraco); display: flex; align-items: center; justify-content: center; }
+.linha-rolagem.invalida { border-left-color: var(--min); }
+.linha-rolagem.invalida .rol-expr { border-color: var(--min); }
 .editor-acoes { display: flex; gap: 6px; justify-content: space-between; }
 .aviso { color: var(--min); font-weight: 700; margin: 0; min-height: 1em; }
 .aviso.ok { color: var(--max); }
@@ -266,11 +373,12 @@ code { background: var(--tecla-op); padding: 1px 5px; }
   padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); display: flex; flex-direction: column;
 }
 .folha-corpo { overflow-y: auto; }
-.item { display: flex; align-items: stretch; gap: 4px; background: var(--superficie); margin-bottom: 4px; }
+.item { display: flex; align-items: stretch; gap: 4px; background: var(--superficie); margin-bottom: 4px; border-left: 4px solid var(--borda); }
 .item .abrir { flex: 1; min-width: 0; text-align: left; padding: 10px 12px; font-weight: 700; }
 .item .abrir small { display: block; font-weight: 400; color: var(--fraco); white-space: pre-wrap; word-break: break-word; }
-.item .resumo { float: right; margin-left: 8px; font-weight: 900; color: var(--acento); }
-.item .remover { padding: 0 14px; color: var(--fraco); }
+.item .abrir .principal { display: block; }
+.item .resumo { display: block; margin: 2px 0 3px; font-weight: 900; font-size: 1.05rem; color: var(--acento); font-variant-numeric: tabular-nums; }
+.item .remover { padding: 0 14px; color: var(--fraco); display: flex; align-items: center; }
 .form-linha { display: grid; grid-template-columns: 1fr 1fr auto; gap: 4px; margin-bottom: 6px; }
 
 /* Configurações */
