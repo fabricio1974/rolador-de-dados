@@ -256,10 +256,11 @@ teste('temas antigos (até a versão 8) apontam para um tema novo que existe', (
   assert.strictEqual(ids.size, TEMAS.length, 'ids de tema repetidos');
 });
 
-teste('10 temas com 7 cores de dados cada, e cor de texto legível', () => {
-  assert.strictEqual(TEMAS.length, 10);
+teste('11 temas (Material + 10) com 9 cores de dados cada, e cor de texto legível', () => {
+  assert.strictEqual(TEMAS.length, 11);
+  assert.strictEqual(TEMAS[0].id, 'material', 'Material é o padrão');
   for (const t of TEMAS) {
-    assert.strictEqual(t.dados.length, 7, t.nome);
+    assert.strictEqual(t.dados.length, 9, t.nome);  // d4 d6 d8 d10 d12 d20 d100 d3 d2
     for (const c of [...t.dados, t.acento]) assert.match(c, /^#[0-9a-f]{6}$/i, t.nome);
   }
   assert.ok(FUNDOS.length >= 1);
@@ -767,7 +768,10 @@ teste('backup e dados salvos estragados: histórico, favoritos e config conferid
   const atual = { titulo: 'Ana — Espada', expr: 'Acerto: 1d20+5', resumo: 'Acerto 17', detalhe: 'x', quando: Date.now() - 1000 };
   assert.deepStrictEqual(L.limparHistorico([atual]), [atual], 'item atual passa igual');
   assert.deepStrictEqual(L.limparHistorico('lixo'), []);
-  assert.deepStrictEqual(L.limparFavoritos([{ nome: 'a', expr: '1d6', extra: 1 }, { nome: 1, expr: 'x' }]), [{ nome: 'a', expr: '1d6' }]);
+  assert.deepStrictEqual(L.limparFavoritos([{ nome: 'a', expr: '1d6', extra: 1 }, { nome: 1, expr: 'x' }]), [{ nome: 'a', expr: '1d6', grupo: '' }]);
+  // Versão 11: favorito com grupo (personagem); grupo de tipo errado vira vazio.
+  assert.deepStrictEqual(L.limparFavoritos([{ nome: 'Adaga', expr: '1d8+4', grupo: ' Lilith ' }, { nome: 'b', expr: '1d4', grupo: 7 }]),
+    [{ nome: 'Adaga', expr: '1d8+4', grupo: 'Lilith' }, { nome: 'b', expr: '1d4', grupo: '' }]);
   const padrao = { tema: 'classico', vibrar: true, aba: 'dados' };
   assert.deepStrictEqual(L.limparConfig({ tema: 'neon', vibrar: 'sim', lixo: 1 }, padrao), { tema: 'neon', vibrar: true, aba: 'dados' });
   assert.deepStrictEqual(L.limparConfig('abc', padrao), padrao);

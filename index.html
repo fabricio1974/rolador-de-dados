@@ -3,95 +3,122 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#121212">
+<meta name="theme-color" content="#3a3e44">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=10">
+<link rel="stylesheet" href="css/estilo.css?v=11">
 </head>
 <body>
 <div class="app">
-  <!-- ===== TOPO: abas + ícones ===== -->
-  <header class="topo">
-    <nav class="abas">
-      <button data-aba="dados" class="ativa"><i data-icone="dado"></i>Dados</button>
-      <button data-aba="fichas"><i data-icone="ficha"></i>Fichas</button>
-      <button data-aba="combate"><i data-icone="espadas"></i>Combate<span class="selo-aba" id="selo-rodada" hidden></span></button>
+  <!-- ===== BARRA DE CIMA: menu (☰) + abas só com ícones ===== -->
+  <header class="barra-app">
+    <button class="icone" id="abrir-menu" aria-label="Menu"><i data-icone="menu"></i></button>
+    <nav class="abas" role="tablist">
+      <button data-aba="dados" class="ativa" aria-label="Dados (simples)" title="Simples"><i data-icone="hexagono"></i></button>
+      <button data-aba="avancado" aria-label="Dados (avançado)" title="Avançado"><i data-icone="avancado"></i></button>
+      <button data-aba="favoritos" aria-label="Favoritos" title="Favoritos"><i data-icone="coracao"></i></button>
+      <button data-aba="historico" aria-label="Histórico" title="Histórico"><i data-icone="historico"></i></button>
+      <button data-aba="fichas" aria-label="Fichas" title="Fichas"><i data-icone="ficha"></i></button>
+      <button data-aba="combate" aria-label="Combate" title="Combate"><i data-icone="espadas"></i><span class="selo-aba" id="selo-rodada" hidden></span></button>
     </nav>
-    <button class="icone" id="abrir-historico" aria-label="Histórico"><i data-icone="relogio"></i></button>
-    <button class="icone" id="abrir-favoritos" aria-label="Favoritos"><i data-icone="estrela"></i></button>
-    <button class="icone" id="abrir-config" aria-label="Configurações"><i data-icone="engrenagem"></i></button>
   </header>
 
-  <!-- ===== ABA DADOS: a calculadora ===== -->
-  <main class="tela" id="tela-dados">
-    <section class="resultado" id="resultado" aria-live="polite">
-      <div class="dica">
-        <p>Monte a expressão e toque em <b>ROLAR</b>.</p>
-        <dl>
-          <dt><code>3×(3d6)</code></dt><dd>rola 3d6 três vezes</dd>
-          <dt><code>3×[3d6]</code></dt><dd>rola 3d6 uma vez e multiplica por 3</dd>
-          <dt><code>6×(4d6kh3)</code></dt><dd>os 6 atributos, um por linha</dd>
-          <dt><code>Acerto: 1d20+5; Dano: 1d8+3</code></dt><dd>rola as duas partes juntas</dd>
-        </dl>
+  <!-- ===== ABAS SIMPLES E AVANÇADO: a calculadora (mesmo visor, teclados diferentes) ===== -->
+  <main class="tela tela-calc" id="tela-dados">
+    <section class="display">
+      <div class="resultado" id="resultado" aria-live="polite">
+        <div class="dica">
+          <p>Toque nos dados e em <b>ROLAR</b>.</p>
+          <dl>
+            <dt><code>3×(3d6)</code></dt><dd>rola 3d6 três vezes</dd>
+            <dt><code>3×[3d6]</code></dt><dd>rola 3d6 uma vez e multiplica por 3</dd>
+            <dt><code>4d6×(3d4)</code></dt><dd>o 4d6 diz quantas vezes rolar o 3d4</dd>
+            <dt><code>Acerto: 1d20+5; Dano: 1d8+3</code></dt><dd>rola as duas partes juntas (aba Avançado)</dd>
+          </dl>
+        </div>
       </div>
-    </section>
-
-    <!-- Favoritos e rolagens recentes: um toque rola de novo -->
-    <div class="atalhos" id="atalhos" hidden></div>
-
-    <div>
       <div class="visor">
         <input id="expr" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
-               autocorrect="off" spellcheck="false" placeholder="1d20+5" aria-label="Expressão">
-        <button id="salvar-favorito" aria-label="Salvar como favorito"><i data-icone="estrela"></i></button>
+               autocorrect="off" spellcheck="false" placeholder="" aria-label="Expressão">
+        <button id="apagar-tecla" aria-label="Apagar o último"><i data-icone="backspace"></i></button>
       </div>
       <div class="previa" id="previa"></div>
+    </section>
+
+    <!-- Teclado SIMPLES: dados em blocos + números -->
+    <div class="teclado" id="teclado-simples">
+      <div class="grade-dados quatro">
+        <button data-dado="100">d100</button>
+        <button data-dado="20">d20</button>
+        <button data-dado="12">d12</button>
+        <button data-dado="10">d10</button>
+      </div>
+      <div class="grade-dados cinco">
+        <button data-dado="8">d8</button>
+        <button data-dado="6">d6</button>
+        <button data-dado="4">d4</button>
+        <button data-dado="3">d3</button>
+        <button data-dado="2">d2</button>
+      </div>
+      <div class="numeros tres">
+        <button data-tecla="7">7</button><button data-tecla="8">8</button><button data-tecla="9">9</button>
+        <button data-tecla="4">4</button><button data-tecla="5">5</button><button data-tecla="6">6</button>
+        <button data-tecla="1">1</button><button data-tecla="2">2</button><button data-tecla="3">3</button>
+        <button data-op="−">-</button><button data-tecla="0">0</button><button data-op="+">+</button>
+      </div>
     </div>
 
-    <div class="teclado">
-      <button data-dado="4">d4</button>
-      <button data-dado="6">d6</button>
-      <button data-dado="8">d8</button>
-      <button data-dado="10">d10</button>
-      <button data-dado="12">d12</button>
-
-      <button data-dado="20">d20</button>
-      <button data-dado="100">d100</button>
-      <button class="op" data-acao="d" aria-label="Dado de outro tamanho">dX</button>
-      <button class="pequeno" data-acao="vantagem">Vant</button>
-      <button class="pequeno" data-acao="desvantagem">Desv</button>
-
-      <button data-tecla="7">7</button>
-      <button data-tecla="8">8</button>
-      <button data-tecla="9">9</button>
-      <button class="op" data-abre="(">(</button>
-      <button class="op" data-fecha=")">)</button>
-
-      <button data-tecla="4">4</button>
-      <button data-tecla="5">5</button>
-      <button data-tecla="6">6</button>
-      <button class="op" data-abre="[">[</button>
-      <button class="op" data-fecha="]">]</button>
-
-      <button data-tecla="1">1</button>
-      <button data-tecla="2">2</button>
-      <button data-tecla="3">3</button>
-      <button class="op" data-op="×">×</button>
-      <button class="op" data-acao="apagar" aria-label="Apagar">⌫</button>
-
-      <button class="dois" data-tecla="0">0</button>
-      <button class="op" data-op="−">−</button>
-      <button class="op" data-op="+">+</button>
-      <button class="op" data-acao="limpar">C</button>
+    <!-- Teclado AVANÇADO: mais dados + operadores -->
+    <div class="teclado" id="teclado-avancado" hidden>
+      <div class="grade-dados cinco">
+        <button data-acao="d" class="dn" aria-label="Dado de qualquer tamanho">dN</button>
+        <button data-dado="100">d100</button>
+        <button data-dado="20">d20</button>
+        <button data-dado="12">d12</button>
+        <button data-dado="10">d10</button>
+      </div>
+      <div class="grade-dados seis">
+        <button data-dado="8">d8</button>
+        <button data-dado="6">d6</button>
+        <button data-dado="4">d4</button>
+        <button data-dado="3">d3</button>
+        <button data-dado="2">d2</button>
+        <button data-acao="vantagem" class="vant" aria-label="Vantagem">Vant</button>
+      </div>
+      <div class="numeros seis">
+        <button data-tecla="1">1</button><button data-tecla="2">2</button><button data-tecla="3">3</button>
+        <button data-tecla="4">4</button><button data-tecla="5">5</button><button data-tecla="6">6</button>
+        <button data-tecla="7">7</button><button data-tecla="8">8</button><button data-tecla="9">9</button>
+        <button data-tecla="0">0</button><button data-op="−">-</button><button data-op="+">+</button>
+        <button data-abre="(">(</button><button data-fecha=")">)</button><button data-abre="[">[</button>
+        <button data-fecha="]">]</button><button data-op="×">×</button><button data-acao="desvantagem" class="pequeno">Desv</button>
+        <button data-texto="kh" class="pequeno">kh</button><button data-texto="kl" class="pequeno">kl</button>
+        <button data-texto=": " class="pequeno">:</button><button data-texto="; " class="pequeno">;</button>
+        <button data-acao="limpar" class="pequeno">C</button><button data-acao="apagar" aria-label="Apagar"><i data-icone="backspace"></i></button>
+      </div>
     </div>
 
-    <button class="rolar" id="rolar">ROLAR</button>
+    <div class="barra-rolar">
+      <button class="icone" id="limpar-visor" aria-label="Limpar"><i data-icone="limpar"></i></button>
+      <button class="rolar" id="rolar">ROLAR</button>
+      <button class="icone cheio" id="salvar-favorito" aria-label="Salvar nos favoritos"><i data-icone="coracao"></i></button>
+    </div>
+  </main>
+
+  <!-- ===== ABA FAVORITOS: agrupados (por personagem, por exemplo) ===== -->
+  <main class="tela" id="tela-favoritos" hidden>
+    <div class="lista-cartoes" id="lista-favoritos"></div>
+    <button class="fab" id="novo-favorito" aria-label="Novo favorito"><i data-icone="mais"></i></button>
+  </main>
+
+  <!-- ===== ABA HISTÓRICO ===== -->
+  <main class="tela" id="tela-historico" hidden>
+    <div class="lista-cartoes" id="lista-historico"></div>
   </main>
 
   <!-- ===== ABA FICHAS: personagens e monstros ===== -->
   <main class="tela" id="tela-fichas" hidden>
     <div class="barra">
       <input id="busca" type="search" placeholder="Buscar ficha…" aria-label="Buscar ficha">
-      <button class="botao destaque" id="nova-ficha">+ Nova</button>
     </div>
     <div class="filtros" id="filtros">
       <button data-filtro="todos" class="ativo">Todos</button>
@@ -99,6 +126,7 @@
       <button data-filtro="monstro">Monstros</button>
     </div>
     <div class="lista-fichas" id="lista-fichas"></div>
+    <button class="fab" id="nova-ficha" aria-label="Nova ficha"><i data-icone="mais"></i></button>
   </main>
 
   <!-- ===== ABA COMBATE: ordem de iniciativa, turnos e PV de cada um ===== -->
@@ -118,6 +146,23 @@
       <button class="rolar" id="proximo-turno">PRÓXIMO TURNO</button>
     </div>
   </main>
+</div>
+
+<!-- ===== MENU LATERAL (☰) ===== -->
+<div class="gaveta-fundo" id="gaveta" hidden>
+  <nav class="gaveta" aria-label="Menu">
+    <div class="gaveta-cabeca">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1.8l9 5.1v10.2l-9 5.1-9-5.1V6.9z"/></svg><b>20</b></span>
+      <span>Rolador de Dados</span>
+    </div>
+    <button data-menu="config"><i data-icone="engrenagem"></i>Configurações</button>
+    <button data-menu="vibrar"><i data-icone="celular"></i>Vibração<span class="estado-menu" id="estado-vibrar"></span></button>
+    <button data-menu="exportar"><i data-icone="baixar"></i>Exportar backup</button>
+    <button data-menu="importar"><i data-icone="enviar"></i>Importar backup</button>
+    <button data-menu="compartilhar"><i data-icone="compartilhar"></i>Compartilhar</button>
+    <button data-menu="ajuda"><i data-icone="ajuda"></i>Ajuda</button>
+    <button data-menu="sobre"><i data-icone="info"></i>Sobre</button>
+  </nav>
 </div>
 
 <!-- ===== FICHA ABERTA (tela cheia) ===== -->
@@ -194,7 +239,7 @@
   </form>
 </section>
 
-<!-- ===== PAINEL (folha que sobe): Histórico, Favoritos, Configurações ===== -->
+<!-- ===== PAINEL (folha que sobe): Configurações, favorito, ajuda, adicionar ao combate ===== -->
 <div class="painel" id="painel" hidden>
   <div class="folha">
     <header class="topo">
@@ -208,9 +253,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=10"></script>
-<script src="js/monstros.js?v=10"></script>
-<script src="js/logica.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/temas.js?v=11"></script>
+<script src="js/monstros.js?v=11"></script>
+<script src="js/logica.js?v=11"></script>
+<script src="js/app.js?v=11"></script>
 </body>
 </html>

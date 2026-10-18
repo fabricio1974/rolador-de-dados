@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '10';
+const VERSAO = '11';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -42,6 +42,17 @@ const ICONES = {
   espadas: ['M4 4l12 12', 'M20 4L8 16', 'M13 19l6-6', 'M5 13l6 6', 'M16 16l4 4', 'M8 16l-4 4'],
   mais: ['M12 5v14', 'M5 12h14'],
   subir: ['M12 20V5', 'M5 11l7-7 7 7'],
+  // Barra de cima (versão 11)
+  menu: ['M3 6h18', 'M3 12h18', 'M3 18h18'],
+  hexagono: ['M12 2.5l8.5 4.9v9.2L12 21.5l-8.5-4.9V7.4z'],
+  avancado: ['M12 2.5l8.5 4.9v9.2L12 21.5l-8.5-4.9V7.4z', 'M12 7.5v6', 'M12 16v.5'],
+  historico: ['M3.5 12a8.5 8.5 0 1 0 2.5-6', 'M3 3.5V8h4.5', 'M12 7.5V12l3 2.5'],
+  compartilhar: ['M18 3a3 3 0 1 0 0 6a3 3 0 1 0 0-6z', 'M6 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z', 'M18 15a3 3 0 1 0 0 6a3 3 0 1 0 0-6z', 'M8.6 10.7l6.8-3.4', 'M8.6 13.3l6.8 3.4'],
+  ajuda: ['M12 2.5a9.5 9.5 0 1 0 0 19a9.5 9.5 0 1 0 0-19z', 'M9.3 9.2a2.8 2.8 0 1 1 3.9 2.6c-.8.4-1.2 1-1.2 1.9v.6', 'M12 16.8v.6'],
+  info: ['M12 2.5a9.5 9.5 0 1 0 0 19a9.5 9.5 0 1 0 0-19z', 'M12 10.5v6', 'M12 7.2v.6'],
+  backspace: ['M8 5h13v14H8l-6-7z', 'M11.5 9.5l5 5', 'M16.5 9.5l-5 5'],
+  limpar: ['M12 2.5a9.5 9.5 0 1 0 0 19a9.5 9.5 0 1 0 0-19z', 'M8.5 8.5l7 7', 'M15.5 8.5l-7 7'],
+  triangulo: ['M6 9.5h12l-6 6z'],
 };
 function icone(nome) {
   const ns = 'http://www.w3.org/2000/svg';
@@ -84,9 +95,23 @@ const num = (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 const semAcento = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 // ---------- 2. Estado (o que fica salvo) ----------
-const CONFIG_PADRAO = { tema: 'espectro', fundo: 'carvao', vibrar: true, stats: true, critico: true, agitar: false, aba: 'dados', recolhido: false };
+const CONFIG_PADRAO = { tema: 'material', fundo: 'ardosia', vibrar: true, stats: true, critico: true, agitar: false,
+  aba: 'dados', recolhido: false, gruposFechados: [], visual: 0 };
+const ABAS = ['dados', 'avancado', 'favoritos', 'historico', 'fichas', 'combate'];
+const VISUAL_ATUAL = 11;  // versão do visual; ao mudar o visual de novo, aumente
 // Tudo passa por uma conferência: dado estragado (ou de versão antiga) não quebra a tela.
 let config = limparConfig(ler('rolador.config', {}), CONFIG_PADRAO);
+if (!Array.isArray(config.gruposFechados)) config.gruposFechados = [];
+config.gruposFechados = config.gruposFechados.filter(g => typeof g === 'string');
+if (!ABAS.includes(config.aba)) config.aba = 'dados';
+// Visual novo (versão 11): quem vem de uma versão anterior passa uma vez para o tema e o
+// fundo novos; depois disso, o que a pessoa escolher em Configurações fica valendo.
+if (config.visual < VISUAL_ATUAL) {
+  config.tema = CONFIG_PADRAO.tema;
+  config.fundo = CONFIG_PADRAO.fundo;
+  config.visual = VISUAL_ATUAL;
+  gravar('rolador.config', config);
+}
 let historico = limparHistorico(ler('rolador.historico', []));
 let favoritos = limparFavoritos(ler('rolador.favoritos', []));
 let fichas = ler('rolador.fichas', null);
@@ -117,19 +142,25 @@ function aplicarTema() {
     config.tema = TEMAS_ANTIGOS[config.tema] || TEMAS[0].id;
     salvarConfig();
   }
-  if (!FUNDOS.some(f => f.id === config.fundo)) { config.fundo = FUNDOS[1].id; salvarConfig(); }
+  if (!FUNDOS.some(f => f.id === config.fundo)) { config.fundo = FUNDOS[0].id; salvarConfig(); }
   const tema = TEMAS.find(t => t.id === config.tema);
   const fundo = FUNDOS.find(f => f.id === config.fundo);
   const raiz = document.documentElement.style;
-  ['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'].forEach((nome, i) => {
+  ['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100', 'd3', 'd2'].forEach((nome, i) => {
     raiz.setProperty(`--${nome}`, tema.dados[i]);
-    raiz.setProperty(`--${nome}-txt`, corDoTexto(tema.dados[i]));
+    // Tema Material: texto branco em todos os blocos (como no app de referência); nos outros,
+    // preto ou branco, o que for mais legível na cor do bloco.
+    raiz.setProperty(`--${nome}-txt`, tema.textoBrancoNosDados ? '#ffffff' : corDoTexto(tema.dados[i]));
   });
+  document.documentElement.dataset.textoDados = tema.textoBrancoNosDados ? 'branco' : '';
   raiz.setProperty('--acento', tema.acento);
-  raiz.setProperty('--acento-txt', corDoTexto(tema.acento));
+  raiz.setProperty('--acento-txt', tema.acentoTxt || corDoTexto(tema.acento));
   for (const prop of ['fundo', 'superficie', 'tecla', 'borda']) raiz.setProperty(`--${prop}`, fundo[prop]);
   raiz.setProperty('--tecla-op', fundo.teclaOp);
-  document.querySelector('meta[name="theme-color"]').content = fundo.fundo;
+  // Barra de cima e barra ROLAR: cor própria no fundo Ardósia; nos outros, derivada.
+  raiz.setProperty('--barra', fundo.barra || fundo.superficie);
+  raiz.setProperty('--barra-rolar', fundo.rolar || fundo.borda);
+  document.querySelector('meta[name="theme-color"]').content = fundo.barra || fundo.fundo;
 }
 
 // ---------- 4. Navegação: abas e o botão "voltar" do celular ----------
@@ -155,13 +186,24 @@ window.addEventListener('popstate', (ev) => {
 // voltar deixaria de fechar as próximas camadas abertas.
 if (history.state && history.state.camada > 0) history.go(-history.state.camada);
 
+// Simples e Avançado usam a mesma tela (mesmo visor e resultado); só o teclado muda.
+let ultimaCalc = 'dados';
 function mostrarAba(aba) {
+  if (!ABAS.includes(aba)) aba = 'dados';
   config.aba = aba;
   salvarConfig();
-  document.querySelectorAll('.abas button').forEach(b => b.classList.toggle('ativa', b.dataset.aba === aba));
-  $('tela-dados').hidden = aba !== 'dados';
-  $('tela-fichas').hidden = aba !== 'fichas';
-  $('tela-combate').hidden = aba !== 'combate';
+  const calc = aba === 'dados' || aba === 'avancado';
+  if (calc) ultimaCalc = aba;
+  document.querySelectorAll('.abas button').forEach(b => {
+    b.classList.toggle('ativa', b.dataset.aba === aba);
+    b.setAttribute('aria-selected', String(b.dataset.aba === aba));
+  });
+  $('tela-dados').hidden = !calc;
+  $('teclado-simples').hidden = aba !== 'dados';
+  $('teclado-avancado').hidden = aba !== 'avancado';
+  for (const nome of ['favoritos', 'historico', 'fichas', 'combate']) $('tela-' + nome).hidden = aba !== nome;
+  if (aba === 'favoritos') desenharFavoritosAba();
+  if (aba === 'historico') desenharHistoricoAba();
   if (aba === 'fichas') desenharListaFichas();
   if (aba === 'combate') desenharCombate();
 }
@@ -380,23 +422,11 @@ function mostrarErro(alvo, msg) {
   animar(alvo);
 }
 
-// Barra de atalhos: favoritos (★) e rolagens recentes (↻). Um toque já rola.
+// Antes era a barra de atalhos; agora as listas ficam nas abas Favoritos e Histórico.
+// Quem chama isto depois de rolar só precisa que a aba aberta se atualize.
 function desenharAtalhos() {
-  const barra = $('atalhos');
-  barra.replaceChildren();
-  const atalhos = montarAtalhos(favoritos, historico);
-  barra.hidden = !atalhos.length;
-  for (const a of atalhos) {
-    const b = el('button', 'atalho ' + a.tipo, (a.tipo === 'favorito' ? '★ ' : '↻ ') + a.nome);
-    b.title = a.expr;
-    b.addEventListener('click', () => {
-      visor.value = a.expr;
-      tituloVisor = a.tipo === 'favorito' || a.nome !== a.expr ? a.nome : '';
-      executarRolagem();
-    });
-    barra.append(b);
-  }
-  barra.scrollLeft = 0;
+  if (!$('tela-historico').hidden) desenharHistoricoAba();
+  if (!$('tela-favoritos').hidden) desenharFavoritosAba();
 }
 
 // Expressão comprida: a letra do visor diminui para caber mais.
@@ -436,12 +466,13 @@ function executarRolagem() {
   atualizarPrevia();
 }
 
-document.querySelector('.teclado').addEventListener('click', (ev) => {
+function apertarTecla(ev) {
   const b = ev.target.closest('button');
   if (!b) return;
   const d = b.dataset;
   let v = visor.value;
   if (d.dado) v = apertarDado(v, Number(d.dado));
+  else if (d.texto) v = (d.texto === 'kh' || d.texto === 'kl') && !/d\d+$/.test(v) ? v : v + d.texto;
   else if (d.tecla) v = v + d.tecla;
   else if (d.op) v = apertarOperador(v, d.op);
   else if (d.abre) v = apertarAbre(v, d.abre);
@@ -454,9 +485,12 @@ document.querySelector('.teclado').addEventListener('click', (ev) => {
   visor.value = v;
   tituloVisor = '';
   atualizarPrevia();
-});
+}
+document.querySelectorAll('.teclado').forEach(t => t.addEventListener('click', apertarTecla));
 
 $('rolar').addEventListener('click', executarRolagem);
+$('apagar-tecla').addEventListener('click', () => { visor.value = visor.value.slice(0, -1); tituloVisor = ''; atualizarPrevia(); });
+$('limpar-visor').addEventListener('click', () => { visor.value = ''; tituloVisor = ''; atualizarPrevia(); });
 visor.addEventListener('input', () => { tituloVisor = ''; atualizarPrevia(); });
 visor.addEventListener('keydown', (ev) => {
   if (ev.key === 'Enter') { ev.preventDefault(); visor.blur(); executarRolagem(); }
@@ -475,12 +509,18 @@ window.addEventListener('devicemotion', (ev) => {
   }
 });
 
-// ---------- 7. Painel: Histórico, Favoritos, Configurações ----------
+// ---------- 7. Painel (folha que sobe), abas Favoritos e Histórico, menu ☰ ----------
 let painelAtual = null;
+let favoritoEditado = null;   // índice do favorito sendo editado (null = novo)
+let exprSugerida = null;      // expressão que já vem preenchida num favorito novo
 
+const TITULOS_PAINEL = {
+  config: 'Configurações', adicionar: 'Adicionar ao combate', favorito: 'Favorito',
+  ajuda: 'Ajuda', sobre: 'Sobre',
+};
 function abrirPainel(tipo) {
   painelAtual = tipo;
-  $('painel-titulo').textContent = { historico: 'Histórico', favoritos: 'Favoritos', config: 'Configurações', adicionar: 'Adicionar ao combate' }[tipo];
+  $('painel-titulo').textContent = TITULOS_PAINEL[tipo] || '';
   desenharPainel();
   if ($('painel').hidden) {
     $('painel').hidden = false;
@@ -491,96 +531,277 @@ function abrirPainel(tipo) {
 function desenharPainel() {
   const corpo = $('painel-corpo');
   corpo.replaceChildren();
-  if (painelAtual === 'historico') desenharHistorico(corpo);
-  else if (painelAtual === 'favoritos') desenharFavoritos(corpo);
-  else if (painelAtual === 'config') desenharConfig(corpo);
+  if (painelAtual === 'config') desenharConfig(corpo);
   else if (painelAtual === 'adicionar') desenharAdicionar(corpo);
+  else if (painelAtual === 'favorito') desenharFormFavorito(corpo);
+  else if (painelAtual === 'ajuda') desenharAjuda(corpo);
+  else if (painelAtual === 'sobre') desenharSobre(corpo);
 }
 
-// Rola algo vindo do painel: volta para a aba Dados e mostra lá.
+// Rola algo vindo de uma lista: vai para a calculadora (Simples ou Avançado) e mostra lá.
 function rolarNoVisor(expr, titulo) {
-  depoisDeVoltar = () => {
-    mostrarAba('dados');
+  const rolarAgora = () => {
+    mostrarAba(ultimaCalc);
     visor.value = expr;
     tituloVisor = titulo || '';
     executarRolagem();
   };
-  history.go(-camadas.length);
+  if (camadas.length) { depoisDeVoltar = rolarAgora; history.go(-camadas.length); }
+  else rolarAgora();
 }
 
-function itemDeLista(principal, secundario, resumo, aoAbrir, aoRemover, hora = '') {
-  const linha = el('div', 'item');
-  const abrir = el('button', 'abrir');
-  const nome = el('span', 'principal');
-  nome.append(el('span', 'nome-item', principal));
-  if (hora) nome.append(el('time', 'hora', hora));
-  abrir.append(nome);
-  if (resumo) abrir.append(el('span', 'resumo', resumo));
-  abrir.append(el('small', '', secundario));
+// Cor do quadradinho de um favorito/rolagem: a cor do primeiro dado da expressão.
+const DADOS_COM_COR = ['2', '3', '4', '6', '8', '10', '12', '20', '100'];
+function corDaExpr(expr) {
+  const m = String(expr).match(/\d*d(\d+)/);
+  return m && DADOS_COM_COR.includes(m[1]) ? `var(--d${m[1]})` : 'var(--dn)';
+}
+
+// Cartão de lista: quadradinho colorido, nome, expressão e a setinha (▾) que abre as ações.
+function cartaoLista({ titulo, sub, extra, hora, expr, aoAbrir, acoes }) {
+  const item = el('div', 'cartao');
+  const linha = el('div', 'cartao-linha');
+  const abrir = el('button', 'cartao-abrir');
+  const cor = el('span', 'cor');
+  cor.style.background = corDaExpr(expr);
+  const textos = el('span', 'cartao-textos');
+  const topo = el('span', 'cartao-titulo');
+  topo.append(el('span', 'nome-item', titulo));
+  if (hora) topo.append(el('time', 'hora', hora));
+  textos.append(topo);
+  if (extra) textos.append(el('span', 'cartao-resumo', extra));
+  textos.append(el('span', 'cartao-sub', sub));
+  abrir.append(cor, textos);
   abrir.addEventListener('click', aoAbrir);
-  const remover = el('button', 'remover');
-  remover.append(icone('fechar'));
-  remover.setAttribute('aria-label', 'Remover');
-  remover.addEventListener('click', aoRemover);
-  linha.append(abrir, remover);
-  return linha;
+  const seta = el('button', 'cartao-seta');
+  seta.setAttribute('aria-label', 'Mais opções');
+  seta.setAttribute('aria-expanded', 'false');
+  seta.append(icone('triangulo'));
+  const menu = el('div', 'cartao-acoes');
+  menu.hidden = true;
+  for (const [texto, fn, classe] of acoes) {
+    const b = el('button', classe || '', texto);
+    b.addEventListener('click', fn);
+    menu.append(b);
+  }
+  seta.addEventListener('click', () => {
+    menu.hidden = !menu.hidden;
+    seta.setAttribute('aria-expanded', String(!menu.hidden));
+    item.classList.toggle('aberto', !menu.hidden);
+  });
+  linha.append(abrir, seta);
+  item.append(linha, menu);
+  return item;
 }
 
-// Histórico agrupado por dia (Hoje, Ontem, 12/10), com a hora de cada rolagem.
-function desenharHistorico(corpo) {
-  if (!historico.length) {
-    corpo.append(el('p', 'vazio', 'Nenhuma rolagem ainda. As últimas 50 ficam guardadas aqui.'));
+// Cabeçalho de grupo que abre/fecha (▾ Lilith). Fica lembrado em config.gruposFechados.
+function cabecaGrupo(chave, titulo, quantos) {
+  const fechado = config.gruposFechados.includes(chave);
+  const b = el('button', 'grupo-cabeca' + (fechado ? ' fechado' : ''));
+  b.setAttribute('aria-expanded', String(!fechado));
+  b.append(icone('seta'), el('span', '', titulo));
+  if (quantos !== undefined) b.append(el('small', '', String(quantos)));
+  b.addEventListener('click', () => {
+    config.gruposFechados = fechado
+      ? config.gruposFechados.filter(g => g !== chave)
+      : [...config.gruposFechados, chave];
+    salvarConfig();
+    desenharAtalhos();
+  });
+  return { botao: b, fechado };
+}
+
+// ----- Aba Favoritos: agrupados (ex.: por personagem) -----
+function desenharFavoritosAba() {
+  const lista = $('lista-favoritos');
+  const rolagem = lista.scrollTop;
+  lista.replaceChildren();
+  if (!favoritos.length) {
+    lista.append(el('p', 'vazio', 'Nenhum favorito ainda. Toque em + (ou no ♥ da calculadora) para salvar uma rolagem com nome. Dê o nome do personagem em "Grupo" para juntar as rolagens dele.'));
     return;
   }
-  const barra = el('div', 'barra-painel');
-  barra.append(el('span', '', `${historico.length} ${historico.length === 1 ? 'rolagem' : 'rolagens'} · toque para rolar de novo`));
-  const limpar = el('button', 'botao perigo');
-  limpar.append(icone('lixeira'), 'Limpar');
+  const grupos = new Map();
+  favoritos.forEach((f, indice) => {
+    const g = f.grupo || '';
+    if (!grupos.has(g)) grupos.set(g, []);
+    grupos.get(g).push({ f, indice });
+  });
+  const nomes = [...grupos.keys()].sort((a, b) => (a === '') - (b === '') || a.localeCompare(b, 'pt-BR'));
+  for (const nome of nomes) {
+    const itens = grupos.get(nome);
+    const { botao, fechado } = cabecaGrupo('fav:' + nome, nome || 'Sem grupo');
+    lista.append(botao);
+    if (fechado) continue;
+    for (const { f, indice } of itens) {
+      lista.append(cartaoLista({
+        titulo: f.nome, sub: f.expr, expr: f.expr,
+        aoAbrir: () => rolarNoVisor(f.expr, f.nome),
+        acoes: [
+          ['Editar', () => { favoritoEditado = indice; abrirPainel('favorito'); }],
+          ['Copiar para a calculadora', () => { mostrarAba(ultimaCalc); visor.value = f.expr; tituloVisor = f.nome; atualizarPrevia(); }],
+          ['Apagar', () => {
+            if (!confirm(`Apagar o favorito "${f.nome}"?`)) return;
+            favoritos.splice(indice, 1); gravar('rolador.favoritos', favoritos); desenharFavoritosAba();
+          }, 'perigo'],
+        ],
+      }));
+    }
+  }
+  lista.scrollTop = rolagem;
+}
+
+// Formulário de favorito (novo ou editando): nome, expressão e grupo.
+function desenharFormFavorito(corpo) {
+  const antigo = favoritoEditado !== null ? favoritos[favoritoEditado] : null;
+  $('painel-titulo').textContent = antigo ? 'Editar favorito' : 'Novo favorito';
+  const form = el('form', 'form-favorito');
+  const campo = (rotulo, valor, dica) => {
+    const l = el('label', '', rotulo);
+    const i = el('input'); i.value = valor || ''; i.placeholder = dica;
+    i.autocapitalize = 'off'; i.spellcheck = false;
+    l.append(i); form.append(l);
+    return i;
+  };
+  const nome = campo('Nome', antigo ? antigo.nome : '', 'Ex.: Ataque de espada');
+  const expr = campo('Expressão', antigo ? antigo.expr : (exprSugerida ?? visor.value.trim()), 'Ex.: Acerto: 1d20+5; Dano: 1d8+3');
+  exprSugerida = null;
+  const grupo = campo('Grupo (personagem)', antigo ? antigo.grupo : (favoritos.length ? favoritos[favoritos.length - 1].grupo : ''), 'Ex.: Lilith');
+  // Sugestões de grupo: os que já existem
+  const existentes = [...new Set(favoritos.map(f => f.grupo).filter(Boolean))];
+  if (existentes.length) {
+    const lista = el('datalist'); lista.id = 'grupos-favoritos';
+    for (const g of existentes) { const o = el('option'); o.value = g; lista.append(o); }
+    grupo.setAttribute('list', 'grupos-favoritos');
+    form.append(lista);
+  }
+  const aviso = el('p', 'aviso');
+  const salvar = el('button', 'botao destaque', 'Salvar');
+  form.append(aviso, salvar);
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    if (!nome.value.trim()) { aviso.textContent = 'Dê um nome ao favorito.'; nome.focus(); return; }
+    try { validar(expr.value); } catch (e) { aviso.textContent = e.message; expr.focus(); return; }
+    const novo = { nome: nome.value.trim(), expr: expr.value.trim(), grupo: grupo.value.trim() };
+    if (antigo) favoritos[favoritoEditado] = novo; else favoritos.push(novo);
+    // Grupo novo (ou recolhido) aparece aberto, para o favorito salvo ficar à vista.
+    config.gruposFechados = config.gruposFechados.filter(g => g !== 'fav:' + novo.grupo);
+    salvarConfig();
+    gravar('rolador.favoritos', favoritos);
+    favoritoEditado = null;
+    depoisDeVoltar = () => mostrarAba('favoritos');
+    voltar();
+  });
+  corpo.append(form);
+  nome.focus();
+}
+
+// ----- Aba Histórico: por dia (Hoje, Ontem, 12/10), com a hora -----
+function desenharHistoricoAba() {
+  const lista = $('lista-historico');
+  const rolagem = lista.scrollTop;
+  lista.replaceChildren();
+  if (!historico.length) {
+    lista.append(el('p', 'vazio', 'Nenhuma rolagem ainda. As últimas 50 ficam guardadas aqui; um toque rola de novo.'));
+    return;
+  }
+  const barra = el('div', 'barra-lista');
+  barra.append(el('span', '', `${historico.length} ${historico.length === 1 ? 'rolagem' : 'rolagens'}`));
+  const limpar = el('button', 'botao-texto', 'Limpar tudo');
   limpar.addEventListener('click', () => {
     if (!confirm('Apagar todo o histórico de rolagens?')) return;
     historico = []; gravar('rolador.historico', historico);
-    desenharPainel(); desenharAtalhos();
+    desenharHistoricoAba();
   });
   barra.append(limpar);
-  corpo.append(barra);
+  lista.append(barra);
   for (const grupo of agruparHistorico(historico)) {
-    const titulo = el('h2', 'titulo-grupo', grupo.titulo);
-    titulo.append(el('span', '', String(grupo.itens.length)));
-    corpo.append(titulo);
+    const { botao, fechado } = cabecaGrupo('hist:' + grupo.titulo, grupo.titulo, grupo.itens.length);
+    lista.append(botao);
+    if (fechado) continue;
     for (const { item: h, indice } of grupo.itens) {
-      corpo.append(itemDeLista(h.titulo || nomeCurto(h.expr), h.detalhe || h.expr, h.resumo ?? String(h.total ?? ''),
-        () => rolarNoVisor(h.expr, h.titulo),
-        () => { historico.splice(indice, 1); gravar('rolador.historico', historico); desenharPainel(); },
-        horaCurta(h.quando)));
+      lista.append(cartaoLista({
+        titulo: h.titulo || nomeCurto(h.expr), extra: h.resumo ?? String(h.total ?? ''),
+        sub: h.detalhe || h.expr, expr: h.expr, hora: horaCurta(h.quando),
+        aoAbrir: () => rolarNoVisor(h.expr, h.titulo),
+        acoes: [
+          ['Salvar nos favoritos', () => {
+            favoritoEditado = null; exprSugerida = h.expr; abrirPainel('favorito');
+          }],
+          ['Apagar', () => { historico.splice(indice, 1); gravar('rolador.historico', historico); desenharHistoricoAba(); }, 'perigo'],
+        ],
+      }));
     }
   }
+  lista.scrollTop = rolagem;
 }
 
-function desenharFavoritos(corpo) {
-  const form = el('form', 'form-linha');
-  const nome = el('input'); nome.placeholder = 'Nome (ex.: Ataque espada)';
-  const expr = el('input'); expr.placeholder = '1d20+5'; expr.value = visor.value.trim();
-  expr.autocapitalize = 'off'; expr.spellcheck = false;
-  const salvar = el('button', 'botao destaque', 'Salvar');
-  const aviso = el('p', 'aviso');
-  form.append(nome, expr, salvar);
-  form.addEventListener('submit', (ev) => {
-    ev.preventDefault();
-    if (!nome.value.trim()) { aviso.textContent = 'Dê um nome ao favorito.'; return; }
-    try { validar(expr.value); } catch (e) { aviso.textContent = e.message; return; }
-    favoritos.push({ nome: nome.value.trim(), expr: expr.value.trim() });
-    gravar('rolador.favoritos', favoritos);
-    desenharPainel();
-  });
-  corpo.append(form, aviso);
-  if (!favoritos.length) corpo.append(el('p', 'vazio', 'Nenhum favorito ainda.'));
-  favoritos.forEach((f, i) => {
-    corpo.append(itemDeLista(f.nome, f.expr, '',
-      () => rolarNoVisor(f.expr, f.nome),
-      () => { favoritos.splice(i, 1); gravar('rolador.favoritos', favoritos); desenharPainel(); }));
-  });
-  if (!expr.value) nome.focus();
+// ----- Ajuda e Sobre -----
+function desenharAjuda(corpo) {
+  const linhas = [
+    ['2d12', 'rola 2 dados de 12 faces e soma'],
+    ['1d20+5', 'soma ou subtrai números'],
+    ['3×(3d6)', 'parênteses REPETEM: rola 3d6 três vezes'],
+    ['3×[3d6]', 'colchetes MULTIPLICAM: rola 3d6 uma vez e ×3'],
+    ['4d6×3d4', 'dado vezes dado: multiplica os dois resultados'],
+    ['4d6×(3d4)', 'o 4d6 diz quantas vezes rolar o 3d4'],
+    ['2d20kh1', 'vantagem: fica com o maior (kl = menor)'],
+    ['4d6kh3', 'descarta o menor dado'],
+    ['Acerto: 1d20+5; Dano: 1d8+3', 'várias partes com nome; 20 natural dobra os dados do dano'],
+  ];
+  const tabela = el('dl', 'ajuda-notacao');
+  for (const [expr, texto] of linhas) tabela.append(el('dt', '', expr), el('dd', '', texto));
+  corpo.append(
+    el('p', 'ajuda', 'Toque nos dados para montar a expressão: tocar no mesmo dado de novo aumenta a quantidade (d6 → 2d6 → 3d6). A aba Avançado tem parênteses, colchetes, vantagem e partes.'),
+    tabela,
+    el('p', 'ajuda', 'Favoritos: salve com o ♥ da calculadora ou com o + da aba. O "Grupo" junta as rolagens de um mesmo personagem. A cor do quadradinho é a do primeiro dado.'),
+  );
 }
+
+function desenharSobre(corpo) {
+  corpo.append(
+    el('p', 'sobre-nome', 'Rolador de Dados'),
+    el('p', 'ajuda', `Versão ${VERSAO}. Funciona offline; tudo fica salvo só neste aparelho (faça backup pelo menu).`),
+    el('p', 'ajuda', 'Monstros e regras: SRD 5.2.1 (D&D 2024). Sorteio com crypto.getRandomValues.'),
+  );
+}
+
+// ----- Menu lateral (☰) -----
+function abrirMenu() {
+  $('estado-vibrar').textContent = config.vibrar ? 'Ligada' : 'Desligada';
+  $('gaveta').hidden = false;
+  abrirCamada(() => { $('gaveta').hidden = true; });
+}
+$('abrir-menu').addEventListener('click', abrirMenu);
+$('gaveta').addEventListener('click', (ev) => { if (ev.target.id === 'gaveta') voltar(); });
+$('gaveta').querySelector('nav').addEventListener('click', (ev) => {
+  const b = ev.target.closest('button[data-menu]');
+  if (!b) return;
+  const acao = b.dataset.menu;
+  if (acao === 'vibrar') {
+    config.vibrar = !config.vibrar; salvarConfig();
+    $('estado-vibrar').textContent = config.vibrar ? 'Ligada' : 'Desligada';
+    if (config.vibrar && navigator.vibrate) navigator.vibrate(20);
+    return;
+  }
+  // As outras ações fecham o menu primeiro.
+  depoisDeVoltar = () => {
+    if (acao === 'config' || acao === 'ajuda' || acao === 'sobre') abrirPainel(acao);
+    else if (acao === 'exportar') exportarBackup();
+    else if (acao === 'importar') $('arquivo-backup').click();
+    else if (acao === 'compartilhar') compartilharApp();
+  };
+  voltar();
+});
+
+async function compartilharApp() {
+  const url = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://fabricio1974.github.io/rolador-de-dados/';
+  try {
+    if (navigator.share) await navigator.share({ title: 'Rolador de Dados', url });
+    else { await navigator.clipboard.writeText(url); alert('Endereço copiado: ' + url); }
+  } catch { /* a pessoa cancelou */ }
+}
+
+$('novo-favorito').addEventListener('click', () => { favoritoEditado = null; abrirPainel('favorito'); });
 
 function secao(corpo, titulo, nomeIcone) {
   const s = el('section', 'secao');
@@ -696,10 +917,7 @@ function desenharConfig(corpo) {
   corpo.append(el('p', 'rodape', `Rolador de Dados · versão ${VERSAO} · regras D&D 2024`));
 }
 
-$('abrir-historico').addEventListener('click', () => abrirPainel('historico'));
-$('abrir-favoritos').addEventListener('click', () => abrirPainel('favoritos'));
-$('abrir-config').addEventListener('click', () => abrirPainel('config'));
-$('salvar-favorito').addEventListener('click', () => abrirPainel('favoritos'));
+$('salvar-favorito').addEventListener('click', () => { favoritoEditado = null; abrirPainel('favorito'); });
 $('fechar-painel').addEventListener('click', voltar);
 $('painel').addEventListener('click', (ev) => { if (ev.target.id === 'painel') voltar(); });
 
@@ -1851,7 +2069,7 @@ $('encerrar-combate').addEventListener('click', () => {
 // ---------- 13. Início ----------
 aplicarTema();
 aplicarRecolhido();
-mostrarAba(['fichas', 'combate'].includes(config.aba) ? config.aba : 'dados');
+mostrarAba(config.aba);
 desenharCombate();
 desenharAtalhos();
 atualizarPrevia();

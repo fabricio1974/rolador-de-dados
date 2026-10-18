@@ -28,12 +28,21 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
 
 ## Telas
 
-- **Dados**: a calculadora. Vant/Desv trocam o último `1d20` por `2d20kh1`/`2d20kl1`;
-  `dX` serve para dados de qualquer tamanho (até 1.000.000 de faces); ROLAR com o visor vazio repete a última rolagem.
-  Acima do visor fica uma barra de **atalhos**: seus favoritos (★) e as rolagens recentes (↻);
-  um toque já rola. Cada dado do resultado tem a cor do seu tipo (d6, d20...); 20 natural
-  deixa o número e a borda verdes, 1 natural, vermelhos.
-- **Fichas**: personagens e monstros (em grupos separados), com imagem (da galeria ou câmera),
+Barra de cima com o menu **☰** e seis abas só com ícones:
+**Simples · Avançado · Favoritos · Histórico · Fichas · Combate**.
+
+- **Simples**: dados em blocos coloridos (d100, d20, d12, d10 / d8, d6, d4, d3, d2), números e − +.
+  Tocar no mesmo dado de novo aumenta a quantidade (d6 → 2d6). Embaixo, a barra **ROLAR**
+  com ⊗ (limpar) e ♥ (salvar nos favoritos). ROLAR com o visor vazio repete a última rolagem.
+- **Avançado**: dN (dado de qualquer tamanho), Vant/Desv, parênteses, colchetes, ×, kh/kl e
+  `:`/`;` para rolagens em partes.
+- **Favoritos**: agrupados por **Grupo** (ex.: o nome do personagem), cada um com um quadradinho
+  na cor do primeiro dado. Toque para rolar; a setinha ▾ abre Editar / Copiar / Apagar; o botão
+  redondo **+** cria um favorito. Os grupos abrem e fecham.
+- **Histórico**: as últimas 50 rolagens por dia (Hoje, Ontem...), com a hora e o resultado.
+- **Menu ☰**: Configurações (temas, fundo, opções), Vibração, Exportar/Importar backup,
+  Compartilhar, Ajuda (notação) e Sobre.
+- **Fichas** (botão **+** cria): personagens e monstros (em grupos separados), com imagem (da galeria ou câmera),
   CA, PV e modo Normal/Vantagem/Desvantagem para os botões de rolagem com nome.
   Já vem com 10 monstros do SRD 5.2.1 (D&D 2024), do ND 1/4 ao 21.
   - **PV**: digite a quantidade e toque em **Dano**, **Cura** ou **Temp** (PV temporários:
@@ -82,11 +91,12 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
   rolagem e do celular, e **Seus dados** (quanto está guardado e o backup).
 ## Visual
 
-Design minimalista: superfícies lisas em preto/cinza, linhas finas, cantos quadrados e cor só
-onde ela informa algo (tipo de dado, crítico, dano/cura). **10 temas** em ⚙ → Aparência:
-Espectro, Grafite, Índigo, Menta, Âmbar, Coral, Oceano, Aurora, Sakura e Areia (cada um é uma
-família de tons que combinam entre si), e **3 fundos**: Preto, Carvão e Grafite. Quem usava um
-tema da versão 8 ou anterior passa automaticamente para o tema novo mais parecido.
+Desde a versão 11, no estilo dos apps Android de dados (Material Design): barra de cima com
+abas de ícones, dados em blocos coloridos de ponta a ponta, números sem fundo, barra ROLAR
+larga, listas em cartões e menu lateral. Tema padrão **Material** com fundo **Ardósia**; os
+outros temas (Espectro, Grafite, Índigo, Menta, Âmbar, Coral, Oceano, Aurora, Sakura, Areia) e
+fundos (Preto, Carvão, Grafite) continuam em ☰ → Configurações. Quem vinha de uma versão
+anterior passa uma vez para o visual novo.
 
 ## Organização do código
 

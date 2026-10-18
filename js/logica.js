@@ -1195,11 +1195,13 @@ function lerBackup(dados) {
   };
 }
 
-// Favoritos: só { nome, expr } com texto.
+// Favoritos: { nome, expr } com texto, e o grupo (personagem) desde a versão 11.
+// Favoritos antigos ficam com grupo vazio ("Sem grupo").
 function limparFavoritos(lista) {
   if (!Array.isArray(lista)) return [];
   return lista.filter(f => f && typeof f.nome === 'string' && typeof f.expr === 'string')
-    .map(f => ({ nome: f.nome.slice(0, 80), expr: f.expr.slice(0, 300) }));
+    .map(f => ({ nome: f.nome.slice(0, 80), expr: f.expr.slice(0, 300),
+                 grupo: typeof f.grupo === 'string' ? f.grupo.trim().slice(0, 60) : '' }));
 }
 
 // Histórico: cada campo com o tipo certo (um backup estragado não quebra a tela).

@@ -14,7 +14,9 @@
   --sutil: #90909a;     /* texto terciário (rótulos discretos); ainda legível em todos os fundos */
   --acento: #e4e4e7;  --acento-txt: #111;
   --d4: #f87171;  --d6: #60a5fa;  --d8: #4ade80;  --d10: #fb923c;
-  --d12: #f472b6; --d20: #facc15; --d100: #a78bfa;
+  --d12: #f472b6; --d20: #facc15; --d100: #a78bfa; --d3: #7c4dff; --d2: #3d5afe;
+  --dn: #9e9e9e;      /* dado de tamanho livre (dN) */
+  --barra: #3d4147; --barra-rolar: #8395a3;
   --d4-txt: #111; --d6-txt: #111; --d8-txt: #111; --d10-txt: #111;
   --d12-txt: #111; --d20-txt: #111; --d100-txt: #111;
   --max: #22c55e;  --max-txt: #4ade80;
@@ -628,3 +630,221 @@ code { background: var(--tecla); padding: 1px 5px; font-size: .88em; }
 #ed-recursos { display: flex; flex-direction: column; gap: 6px; }
 #ed-recursos:empty { display: none; }
 select option { background: var(--superficie); color: var(--texto); }
+
+
+/* ======================================================================
+   VERSÃO 11: visual no estilo dos apps Android de dados (Material Design).
+   Barra de cima com abas só de ícones, dados em blocos coloridos de ponta a
+   ponta, números sem fundo, barra ROLAR larga, listas em cartões e menu ☰.
+   As regras abaixo vêm depois das antigas, então valem por cima delas.
+   ====================================================================== */
+:root {
+  --alt-dado: clamp(52px, 10.5vh, 92px);   /* altura dos blocos de dado */
+  --alt-num: clamp(44px, 8.4vh, 76px);     /* altura das linhas de números */
+  --alt-rolar: clamp(60px, 11vh, 100px);   /* altura da barra ROLAR */
+  --num-cor: #cfd8dc;                       /* números do teclado */
+}
+body { font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0; }
+.app { padding: 0; gap: 0; max-width: 560px; }
+.tela { gap: 0; position: relative; }
+
+/* ---------- Barra de cima ---------- */
+.barra-app {
+  display: flex; align-items: stretch; height: 56px; flex: none;
+  background: var(--barra); box-shadow: 0 2px 4px rgba(0,0,0,.35); position: relative; z-index: 2;
+  padding-top: env(safe-area-inset-top);
+}
+.barra-app > .icone { width: 56px; height: 56px; color: #e6e9ec; background: none; }
+.barra-app > .icone .ic { width: 26px; height: 26px; stroke-width: 2; }
+.barra-app .abas { flex: 1; display: flex; gap: 0; }
+.barra-app .abas button {
+  flex: 1; height: 56px; min-width: 0; color: #c3c9cf; box-shadow: none; padding: 0;
+  display: flex; align-items: center; justify-content: center; position: relative; font-size: 0;
+}
+.barra-app .abas button .ic { width: 26px; height: 26px; stroke-width: 1.9; }
+.barra-app .abas button.ativa { color: #ffffff; box-shadow: none; }
+/* Traço claro embaixo da aba ativa */
+.barra-app .abas button.ativa::after {
+  content: ''; position: absolute; left: 14%; right: 14%; bottom: 0; height: 3px; background: #dfe3e7;
+}
+.barra-app .abas button:active { background: rgba(255,255,255,.06); }
+.barra-app .selo-aba { position: absolute; top: 8px; right: 6px; font-size: .62rem; padding: 0 4px; line-height: 1.5;
+  background: var(--acento); color: var(--acento-txt); }
+
+/* ---------- Calculadora (Simples e Avançado) ---------- */
+.tela-calc { gap: 0; }
+.display { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 16px 4px; }
+.display .resultado { flex: 1; min-height: 0; background: transparent; padding: 0; box-shadow: none; }
+.display .resultado.tem-critico { box-shadow: inset 0 -2px 0 var(--max); }
+.display .resultado.tem-falha { box-shadow: inset 0 -2px 0 var(--min); }
+.display .resumo-topo { top: 0; margin: 0 0 6px; padding: 6px 0; background: var(--fundo); }
+.display .dica { font-size: .84rem; padding: 4px 0; }
+.display .visor { border: 0; align-items: center; min-height: 48px; }
+.display .visor input {
+  font-size: 2rem; font-weight: 400; color: #eceff1; text-align: right; padding: 4px 6px 4px 0; height: 48px;
+}
+.display .visor input.medio { font-size: 1.45rem; }
+.display .visor input.longo { font-size: 1.05rem; }
+.display .visor button { color: #aeb6bd; padding: 0 4px 0 10px; }
+.display .visor button .ic { width: 26px; height: 26px; }
+.display .previa { padding: 0 44px 2px 0; text-align: right; min-height: 1.1em; }
+
+.teclado { display: block; gap: 0; flex: none; }
+.teclado[hidden] { display: none; }
+/* Dados: blocos coloridos de ponta a ponta, sem espaço entre eles */
+.grade-dados { display: grid; gap: 0; }
+.grade-dados.quatro { grid-template-columns: repeat(4, 1fr); }
+.grade-dados.cinco { grid-template-columns: repeat(5, 1fr); }
+.grade-dados.seis { grid-template-columns: repeat(6, 1fr); }
+.grade-dados button {
+  height: var(--alt-dado); font-size: clamp(1.25rem, 4.6vh, 2.05rem); font-weight: 500;
+  color: rgba(255,255,255,.93); text-shadow: 0 1px 2px rgba(0,0,0,.28);
+  box-shadow: none; background: var(--dn); transition: filter .1s;
+}
+.grade-dados.seis button { font-size: clamp(1.1rem, 3.9vh, 1.7rem); }
+.grade-dados button:active { filter: brightness(1.18); transform: none; }
+.grade-dados [data-dado="100"] { background: var(--d100); color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="20"]  { background: var(--d20);  color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="12"]  { background: var(--d12);  color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="10"]  { background: var(--d10);  color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="8"]   { background: var(--d8);   color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="6"]   { background: var(--d6);   color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="4"]   { background: var(--d4);   color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="3"]   { background: var(--d3);   color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados [data-dado="2"]   { background: var(--d2);   color: rgba(255,255,255,.93); box-shadow: none; }
+.grade-dados .dn   { background: var(--dn); }
+.grade-dados .vant { background: #8d6e63; font-size: clamp(.95rem, 3vh, 1.3rem) !important; }
+
+/* Números: sem fundo, grandes e claros */
+.numeros { display: grid; gap: 0; }
+.numeros.tres { grid-template-columns: repeat(3, 1fr); padding: 0 12%; }
+.numeros.seis { grid-template-columns: repeat(6, 1fr); }
+.numeros button {
+  height: var(--alt-num); background: transparent; box-shadow: none; color: var(--num-cor);
+  font-size: clamp(1.4rem, 4.6vh, 2.1rem); font-weight: 400;
+}
+.numeros.seis button { height: calc(var(--alt-num) * .9); font-size: clamp(1.15rem, 3.6vh, 1.7rem); }
+.numeros button.pequeno { font-size: clamp(.95rem, 2.8vh, 1.25rem); }
+.numeros button .ic { width: 1.1em; height: 1.1em; }
+.numeros button:active { background: rgba(255,255,255,.08); transform: none; }
+
+/* Barra ROLAR: larga, cinza-azulada, com ⊗ (limpar) e ♥ (favorito) nas pontas */
+.barra-rolar {
+  display: flex; align-items: center; flex: none; height: var(--alt-rolar);
+  background: var(--barra-rolar); padding: 0 8px calc(env(safe-area-inset-bottom));
+}
+.barra-rolar .rolar {
+  flex: 1; height: 100%; background: transparent; color: #e4e9ed; letter-spacing: .02em; text-transform: uppercase;
+  font-size: clamp(1.8rem, 6vh, 2.7rem); font-weight: 500;
+}
+.barra-rolar .rolar:active { background: rgba(255,255,255,.08); transform: none; filter: none; }
+.barra-rolar .icone { width: 52px; height: 52px; color: #e4e9ed; background: none; }
+.barra-rolar .icone .ic { width: 28px; height: 28px; }
+.icone.cheio .ic { fill: currentColor; }
+
+/* ---------- Listas em cartões (Favoritos, Histórico) ---------- */
+.lista-cartoes { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 10px 96px; display: flex; flex-direction: column; gap: 6px; }
+.grupo-cabeca {
+  display: flex; align-items: center; gap: 12px; padding: 12px 4px 6px; text-align: left;
+  font-size: 1.45rem; font-weight: 400; color: #e8ebee;
+}
+.grupo-cabeca .ic { width: 26px; height: 26px; stroke-width: 2; transition: transform .15s; }
+.grupo-cabeca.fechado .ic { transform: rotate(-90deg); }
+.grupo-cabeca small { font-size: .85rem; color: var(--fraco); }
+.cartao { background: var(--superficie); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.cartao-linha { display: flex; align-items: stretch; }
+.cartao-abrir { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 8px 4px 8px 8px; text-align: left; }
+.cartao-abrir:active { background: rgba(255,255,255,.05); }
+.cor { width: 46px; height: 46px; flex: none; }
+.cartao-textos { min-width: 0; display: flex; flex-direction: column; }
+.cartao-titulo { display: flex; align-items: baseline; gap: 8px; font-size: 1.05rem; color: #eceff1; }
+.cartao-titulo .nome-item { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cartao-titulo .hora { font-size: .75rem; color: var(--fraco); }
+.cartao-resumo { font-weight: 500; color: #fff; font-variant-numeric: tabular-nums; }
+.cartao-sub { font-size: .9rem; color: #b6bec5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cartao.aberto .cartao-sub { white-space: pre-wrap; word-break: break-word; }
+.cartao-seta { width: 52px; flex: none; color: #d5dade; display: flex; align-items: center; justify-content: center; }
+.cartao-seta .ic { width: 22px; height: 22px; fill: currentColor; stroke: none; transition: transform .15s; }
+.cartao.aberto .cartao-seta .ic { transform: rotate(180deg); }
+.cartao-acoes { display: flex; flex-wrap: wrap; border-top: 1px solid var(--borda); }
+.cartao-acoes button { flex: 1; padding: 12px 8px; color: #dfe4e8; font-size: .9rem; }
+.cartao-acoes button.perigo { color: var(--min-txt); }
+.cartao-acoes button:active { background: rgba(255,255,255,.06); }
+.barra-lista { display: flex; align-items: center; justify-content: space-between; color: var(--fraco); font-size: .85rem; padding: 6px 4px 0; }
+.botao-texto { color: var(--acento); font-weight: 500; text-transform: uppercase; font-size: .82rem; letter-spacing: .04em; padding: 8px 6px; }
+
+/* Botão redondo flutuante (+) */
+.fab {
+  position: absolute; right: 18px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 3;
+  width: 58px; height: 58px; border-radius: 50%; background: var(--acento); color: var(--acento-txt);
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,.45);
+}
+.fab .ic { width: 28px; height: 28px; stroke-width: 2.4; }
+.fab:active { transform: scale(.95); }
+
+/* ---------- Menu lateral (☰) ---------- */
+.gaveta-fundo { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.5); }
+.gaveta {
+  position: absolute; top: 0; left: 0; bottom: 0; width: min(78vw, 320px); background: var(--superficie);
+  display: flex; flex-direction: column; box-shadow: 4px 0 12px rgba(0,0,0,.5); animation: gaveta .2s ease-out;
+}
+@keyframes gaveta { from { transform: translateX(-100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .gaveta { animation: none; } }
+.gaveta-cabeca {
+  display: flex; align-items: center; gap: 16px; height: 128px; padding: calc(28px + env(safe-area-inset-top)) 20px 0;
+  background: var(--acento); color: var(--acento-txt); font-size: 1.4rem; font-weight: 400; margin-bottom: 8px;
+}
+.logo { position: relative; width: 52px; height: 52px; flex: none; display: flex; align-items: center; justify-content: center; }
+.logo svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: color-mix(in srgb, var(--acento-txt) 18%, var(--acento)); }
+.logo b { position: relative; font-size: 1.15rem; font-weight: 700; color: #fff; }
+.gaveta button[data-menu] {
+  display: flex; align-items: center; gap: 28px; padding: 0 22px; height: 54px; text-align: left;
+  color: #e8ebee; font-size: 1rem;
+}
+.gaveta button[data-menu] .ic { width: 24px; height: 24px; color: #c9d0d6; }
+.gaveta button[data-menu]:active { background: rgba(255,255,255,.06); }
+.estado-menu { margin-left: auto; font-size: .78rem; color: var(--fraco); }
+
+/* ---------- Painel, formulário de favorito, ajuda ---------- */
+.folha { background: var(--superficie); border-top: 0; box-shadow: 0 -4px 16px rgba(0,0,0,.5); }
+.folha .topo h1 { font-weight: 500; font-size: 1.2rem; }
+.form-favorito { display: flex; flex-direction: column; gap: 14px; padding: 6px 0 4px; }
+.form-favorito label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--fraco); }
+.form-favorito input { background: transparent; border: 0; border-bottom: 1px solid var(--fraco); padding: 8px 2px; font-size: 1.05rem; color: #eceff1; }
+.form-favorito input:focus { border-bottom: 2px solid var(--acento); }
+.form-favorito .botao { align-self: flex-end; padding: 10px 22px; text-transform: uppercase; letter-spacing: .04em; }
+.ajuda-notacao { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 12px 0; font-size: .88rem; }
+.ajuda-notacao dt { font-family: ui-monospace, "Roboto Mono", monospace; color: #eceff1; }
+.ajuda-notacao dd { margin: 0; color: var(--fraco); }
+.sobre-nome { font-size: 1.3rem; margin: 4px 0 8px; }
+
+/* ---------- Fichas e Combate no mesmo estilo ---------- */
+#tela-fichas, #tela-combate { padding: 8px 10px 0; gap: 8px; }
+#tela-fichas .barra input { background: var(--superficie); border: 0; }
+.lista-fichas { padding-bottom: 90px; gap: 6px; }
+.cartao-ficha { background: var(--superficie); border-bottom: 0; padding: 8px 30px 8px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.combatente, .combate-cabeca > div { box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.combate-turno { padding-bottom: 8px; }
+.combate-turno .rolar { background: var(--barra-rolar); color: #eef2f5; font-size: 1.15rem; height: 58px; }
+.tela-cheia { padding: 0 12px env(safe-area-inset-bottom); }
+.tela-cheia > .topo { background: var(--barra); margin: 0 -12px 10px; padding: 0 4px; height: 56px; box-shadow: 0 2px 4px rgba(0,0,0,.35); }
+.tela-cheia > .topo .icone { color: #e6e9ec; }
+.tela-cheia > .topo h1 { font-weight: 500; font-size: 1.15rem; }
+
+/* Ajustes finos da versão 11 (regras antigas do teclado tinham prioridade maior) */
+.teclado .grade-dados button { font-size: clamp(1.25rem, 4.4vh, 2rem); font-weight: 500; color: rgba(255,255,255,.95); box-shadow: none; }
+.teclado .grade-dados.seis button { font-size: clamp(1.1rem, 3.9vh, 1.75rem); }
+.teclado .grade-dados .vant { color: rgba(255,255,255,.95); font-size: clamp(.95rem, 3vh, 1.3rem); }
+.teclado .numeros button { box-shadow: none; }
+.teclado .numeros [data-acao="desvantagem"] { background: transparent; color: var(--min-txt); }
+.display .total { font-size: clamp(2.6rem, 8vh, 3.8rem); margin: 4px 0 2px; }
+.secao .fundos { grid-template-columns: repeat(2, 1fr); }
+.ficha-resultado { margin: 0 -12px; }  /* acompanha o padding de 12px da tela cheia (não passa da borda em 320px) */
+/* Texto dos blocos de dado: branco no tema Material; nos outros, o mais legível (preto ou branco). */
+.teclado .grade-dados [data-dado="100"] { color: var(--d100-txt); } .teclado .grade-dados [data-dado="20"] { color: var(--d20-txt); }
+.teclado .grade-dados [data-dado="12"] { color: var(--d12-txt); }  .teclado .grade-dados [data-dado="10"] { color: var(--d10-txt); }
+.teclado .grade-dados [data-dado="8"] { color: var(--d8-txt); }    .teclado .grade-dados [data-dado="6"] { color: var(--d6-txt); }
+.teclado .grade-dados [data-dado="4"] { color: var(--d4-txt); }    .teclado .grade-dados [data-dado="3"] { color: var(--d3-txt); }
+.teclado .grade-dados [data-dado="2"] { color: var(--d2-txt); }
+.teclado .grade-dados [data-dado] { text-shadow: none; }
+:root[data-texto-dados="branco"] .teclado .grade-dados [data-dado] { text-shadow: 0 1px 2px rgba(0,0,0,.3); }
