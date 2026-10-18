@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '9';
+const VERSAO = '10';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -217,12 +217,24 @@ function desenharLinhas(alvo, res) {
       return;
     }
     const div = el('div', 'linha');
-    const repetida = linha.repeticoes && linha.repeticoes.length > 1;
+    // Repetição comandada por dado (4d6×(3d4)) sempre mostra a lista, mesmo com 0 ou 1 vez,
+    // para aparecer o dado que decidiu quantas vezes rolar.
+    const repetida = linha.repeticoes && (linha.repeticoes.length > 1 || !!linha.contagem);
     div.append(el('span', 'rotulo', sinal + linha.texto + (linha.grupos.length && !repetida ? ':' : '')));
     anterior = repetida ? null : div;
     if (repetida) {
       // Repetição: uma linha por vez, numerada, com o valor de cada uma.
       const lista = el('div', 'repeticoes');
+      if (linha.contagem) {
+        // Primeira linha: o dado que diz quantas vezes ("4d6 → 14 vezes").
+        const item = el('div', 'repeticao contagem');
+        item.append(el('span', 'ordem', 'nº'));
+        const dados = el('span', 'dados-rep');
+        for (const grupo of linha.contagem.grupos) dados.append(desenharGrupo(grupo, contador));
+        const vezes = linha.contagem.valor;
+        item.append(dados, el('span', 'valor-rep', `${vezes} ${vezes === 1 ? 'vez' : 'vezes'}`));
+        lista.append(item);
+      }
       linha.repeticoes.forEach((r, k) => {
         const item = el('div', 'repeticao');
         item.append(el('span', 'ordem', `${k + 1}ª`));
@@ -232,6 +244,13 @@ function desenharLinhas(alvo, res) {
         lista.append(item);
       });
       div.append(el('span', 'subtotal', '= ' + linha.subtotal), lista);
+    } else if (linha.multiplicacao) {
+      // Dado × dado: dados do primeiro (= 12) × dados do segundo (= 11) = 132
+      const m = linha.multiplicacao;
+      for (const grupo of m.gruposA) div.append(desenharGrupo(grupo, contador));
+      div.append(el('span', 'constante', `= ${m.valorA}`), el('span', 'vezes-mult', '×'));
+      for (const grupo of m.gruposB) div.append(desenharGrupo(grupo, contador));
+      div.append(el('span', 'constante', `= ${m.valorB}`), el('span', 'subtotal', '→ ' + linha.subtotal));
     } else {
       for (const grupo of linha.grupos) div.append(desenharGrupo(grupo, contador));
       if (linha.grupos.length) div.append(el('span', 'subtotal', '= ' + linha.subtotal));

@@ -14,6 +14,8 @@ e monstros com imagem e rolagens com nome, 10 temas de cores. Funciona offline.
 | `3×(3d6)` | **parênteses = repetir**: rola `3d6` três vezes, de forma independente (9 dados), e soma. O resultado mostra uma linha por repetição, com o valor de cada uma (`6×(4d6kh3)` = os 6 atributos) |
 | `3×[3d6]` | **colchetes = multiplicar**: rola `3d6` uma vez (3 dados) e multiplica o resultado por 3 |
 | `2×(1d8+2×[1d4])` | parênteses e colchetes podem ser aninhados |
+| `4d6×3d4` ou `4d6×[3d4]` | **dado vezes dado**: rola os dois e multiplica o resultado do primeiro pelo do segundo (o resultado mostra `17 × 7 → 119`) |
+| `4d6×(3d4)` | o resultado do **primeiro dado diz quantas vezes** o segundo é rolado (cada vez de forma independente) |
 | `2d20kh1` / `2d20kl1` | mantém o maior / menor dado (vantagem / desvantagem). `4d6kh3` descarta o menor |
 | `Acerto: 1d20+5; Dano: 1d8+3` | **várias partes** de uma vez, cada uma com seu nome |
 

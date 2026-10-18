@@ -131,6 +131,7 @@ code { background: var(--tecla); padding: 1px 5px; font-size: .88em; }
 .dado.max { background: color-mix(in srgb, var(--max) 18%, var(--tecla)); color: var(--max-txt); font-weight: 600; }
 .dado.min { background: color-mix(in srgb, var(--min) 18%, var(--tecla)); color: var(--min-txt); font-weight: 600; }
 .dado.fora { opacity: .3; text-decoration: line-through; background: transparent; box-shadow: inset 0 0 0 1px var(--borda); }
+.vezes-mult { color: var(--sutil); font-size: 1.1rem; padding: 0 2px; }
 .subtotal { font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .constante { font-weight: 500; white-space: nowrap; color: var(--fraco); font-variant-numeric: tabular-nums; }
 .erro { text-align: center; padding: 18px 4px; color: var(--min-txt); }
@@ -149,6 +150,8 @@ code { background: var(--tecla); padding: 1px 5px; font-size: .88em; }
 .repeticao .ordem { width: 26px; flex: none; color: var(--sutil); font-size: .75rem; font-weight: 500; }
 .repeticao .dados-rep { flex: 1; min-width: 0; }
 .repeticao .grupo { margin: 0; }
+.repeticao.contagem { border-top: 0; padding-bottom: 8px; margin-bottom: 2px; box-shadow: 0 1px 0 var(--borda); }
+.repeticao.contagem .valor-rep { font-size: .9rem; font-weight: 500; color: var(--fraco); white-space: nowrap; }
 .repeticao .valor-rep { font-size: 1.25rem; font-weight: 600; min-width: 2ch; text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Resumo compacto no topo (Acerto 25 · Dano 19): fica grudado enquanto se rola. */

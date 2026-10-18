@@ -134,12 +134,16 @@ function analisar(texto) {
 // O "×" tem dois sentidos, e quem decide é o tipo de agrupamento:
 //   3×(3d6) -> REPETIÇÃO: rola (3d6) três vezes, de forma independente, e soma.
 //   3×[3d6] -> MULTIPLICAÇÃO: rola 3d6 uma vez e multiplica o resultado por 3.
-// Um dos lados precisa ser um número fixo.
+// Com dado dos DOIS lados, o da esquerda é rolado primeiro e manda no da direita:
+//   4d6×3d4 ou 4d6×[3d4] -> rola os dois e multiplica (resultado do 4d6 × resultado do 3d4).
+//   4d6×(3d4)            -> o resultado do 4d6 diz QUANTAS VEZES o 3d4 é rolado.
+// Esses casos ficam marcados com "dinamico", porque o número só existe depois de rolar.
 function multiplicacao(esq, dir) {
   const esqTemDados = temDados(esq);
   const dirTemDados = temDados(dir);
   if (esqTemDados && dirTemDados) {
-    throw new Error('Não dá para multiplicar dado por dado. Use N×(...) para repetir ou N×[...] para multiplicar.');
+    if (dir.tipo === 'grupo') return { tipo: 'rep', vezes: esq, alvo: dir, dinamico: true };
+    return { tipo: 'mult', fator: esq, alvo: dir, dinamico: true };
   }
   const [fator, alvo, invertido] = esqTemDados ? [dir, esq, true] : [esq, dir, false];
   if (alvo.tipo === 'colchete' || !temDados(alvo)) return { tipo: 'mult', fator, alvo, invertido };
@@ -153,7 +157,7 @@ function temDados(no) {
     case 'num': return false;
     case 'neg': return temDados(no.alvo);
     case 'grupo': case 'colchete': return temDados(no.dentro);
-    case 'rep': case 'mult': return temDados(no.alvo);
+    case 'rep': case 'mult': return temDados(no.alvo) || !!no.dinamico;
     default: return temDados(no.esq) || temDados(no.dir); // mais / menos
   }
 }
@@ -179,8 +183,11 @@ function contarDados(no) {
     case 'num': return 0;
     case 'neg': return contarDados(no.alvo);
     case 'grupo': case 'colchete': return contarDados(no.dentro);
-    case 'rep': return valorConstante(no.vezes) * contarDados(no.alvo);
-    case 'mult': return contarDados(no.alvo);
+    case 'rep':
+      // Repetição comandada por dado: conta o pior caso (o maior número de vezes possível).
+      if (no.dinamico) return contarDados(no.vezes) + Math.max(0, estatisticas(no.vezes).max) * contarDados(no.alvo);
+      return valorConstante(no.vezes) * contarDados(no.alvo);
+    case 'mult': return (no.dinamico ? contarDados(no.fator) : 0) + contarDados(no.alvo);
     default: return contarDados(no.esq) + contarDados(no.dir);
   }
 }
@@ -226,15 +233,26 @@ function avaliar(no, rolarDado, grupos) {
     case 'neg': return -avaliar(no.alvo, rolarDado, grupos);
     case 'grupo': case 'colchete': return avaliar(no.dentro, rolarDado, grupos);
     case 'rep': {
-      const n = valorConstante(no.vezes);
+      const n = vezesDaRepeticao(no, rolarDado, grupos);
       let soma = 0;
       for (let k = 0; k < n; k++) soma += avaliar(no.alvo, rolarDado, grupos); // rola DE NOVO a cada vez
       return soma;
     }
-    case 'mult': return valorConstante(no.fator) * avaliar(no.alvo, rolarDado, grupos); // rola UMA vez
+    case 'mult': {
+      // Com dado à esquerda ele é rolado PRIMEIRO (a ordem aparece igual no resultado).
+      const fator = no.dinamico ? avaliar(no.fator, rolarDado, grupos) : valorConstante(no.fator);
+      return fator * avaliar(no.alvo, rolarDado, grupos); // rola UMA vez
+    }
     case 'mais': return avaliar(no.esq, rolarDado, grupos) + avaliar(no.dir, rolarDado, grupos);
     case 'menos': return avaliar(no.esq, rolarDado, grupos) - avaliar(no.dir, rolarDado, grupos);
   }
+}
+
+// Quantas vezes repetir: número fixo, ou o resultado de um dado (rolado aqui).
+// Resultado negativo vira 0 (não dá para rolar algo −2 vezes).
+function vezesDaRepeticao(no, rolarDado, grupos) {
+  if (!no.dinamico) return valorConstante(no.vezes);
+  return Math.max(0, avaliar(no.vezes, rolarDado, grupos));
 }
 
 // Separa a expressão nas parcelas de cima: "2d12+3×(3d6)" -> [2d12] [3×(3d6)].
@@ -256,15 +274,27 @@ function rolarArvore(arvore, rolarDado) {
     if (no.tipo === 'rep') {
       // Repetição (ex.: 6×(4d6kh3)): guarda cada vez separada, com o seu valor,
       // para a tela mostrar uma linha por repetição (os 6 atributos, por exemplo).
+      // Se o número de vezes vem de um dado, guarda esse dado à parte ("contagem").
+      const gruposContagem = [];
+      const n = vezesDaRepeticao(no, rolarDado, gruposContagem);
+      const contagem = no.dinamico ? { grupos: gruposContagem, valor: n } : null;
       const repeticoes = [];
-      const n = valorConstante(no.vezes);
       for (let k = 0; k < n; k++) {
         const gruposDaVez = [];
         repeticoes.push({ grupos: gruposDaVez, valor: avaliar(no.alvo, rolarDado, gruposDaVez) });
       }
-      const grupos = repeticoes.flatMap(r => r.grupos);
+      const grupos = [...gruposContagem, ...repeticoes.flatMap(r => r.grupos)];
       const subtotal = sinal * repeticoes.reduce((s, r) => s + r.valor, 0);
-      return { texto, grupos, subtotal, repeticoes };
+      return { texto, grupos, subtotal, repeticoes, contagem };
+    }
+    if (no.tipo === 'mult' && no.dinamico) {
+      // Dado × dado (4d6×3d4): guarda o valor de cada lado, para a tela mostrar "12 × 11".
+      const gruposA = [];
+      const valorA = avaliar(no.fator, rolarDado, gruposA);
+      const gruposB = [];
+      const valorB = avaliar(no.alvo, rolarDado, gruposB);
+      const multiplicacao = { gruposA, valorA, gruposB, valorB };
+      return { texto, grupos: [...gruposA, ...gruposB], subtotal: sinal * valorA * valorB, multiplicacao };
     }
     const grupos = [];
     const subtotal = sinal * avaliar(no, rolarDado, grupos);
@@ -280,6 +310,7 @@ function descrever(resultado) {
     if (l.grupos.length === 0) return `${l.texto}`;
     const grupos = l.grupos
       .map(g => `[${g.map(d => d.descartado ? `~${d.valor}~` : d.valor).join(', ')}]`).join(' ');
+    if (l.multiplicacao) return `${l.texto}: ${grupos} = ${l.multiplicacao.valorA} × ${l.multiplicacao.valorB} = ${l.subtotal}`;
     return `${l.texto}: ${grupos} = ${l.subtotal}`;
   });
   linhas.push(`Total: ${resultado.total}`);
@@ -306,11 +337,30 @@ function estatisticas(no) {
     }
     case 'neg': return inverter(estatisticas(no.alvo));
     case 'grupo': case 'colchete': return estatisticas(no.dentro);
-    case 'rep': return escalar(estatisticas(no.alvo), valorConstante(no.vezes));
-    case 'mult': return escalar(estatisticas(no.alvo), valorConstante(no.fator));
+    case 'rep':
+      if (no.dinamico) return produtoAleatorio(estatisticas(no.vezes), estatisticas(no.alvo), true);
+      return escalar(estatisticas(no.alvo), valorConstante(no.vezes));
+    case 'mult':
+      if (no.dinamico) return produtoAleatorio(estatisticas(no.fator), estatisticas(no.alvo), false);
+      return escalar(estatisticas(no.alvo), valorConstante(no.fator));
     case 'mais': return somar(estatisticas(no.esq), estatisticas(no.dir));
     case 'menos': return somar(estatisticas(no.esq), inverter(estatisticas(no.dir)));
   }
+}
+
+// Faixa e média de A×B quando os dois são rolados (independentes).
+// O menor e o maior estão sempre num dos "cantos" (mín×mín, mín×máx, máx×mín, máx×máx).
+// A média de um produto de coisas independentes é o produto das médias; numa repetição
+// de N vezes (N rolado), a média também é média(N) × média(o que se repete).
+// Repetição: N negativo conta como 0 vezes.
+function produtoAleatorio(a, b, repeticao) {
+  const na = repeticao ? { min: Math.max(0, a.min), max: Math.max(0, a.max) } : a;
+  const cantos = [na.min * b.min, na.min * b.max, na.max * b.min, na.max * b.max];
+  const mediaA = repeticao && a.min < 0 ? null : a.media;
+  return {
+    min: Math.min(...cantos), max: Math.max(...cantos),
+    media: mediaA === null || b.media === null ? null : mediaA * b.media,
+  };
 }
 
 // Média ao rolar "qtd" dados de "faces" e manter os "n" maiores (alto) ou menores.
@@ -448,7 +498,8 @@ function temD20(no) {
     case 'num': return false;
     case 'neg': return temD20(no.alvo);
     case 'grupo': case 'colchete': return temD20(no.dentro);
-    case 'rep': case 'mult': return temD20(no.alvo);
+    case 'rep': return temD20(no.alvo) || (!!no.dinamico && temD20(no.vezes));
+    case 'mult': return temD20(no.alvo) || (!!no.dinamico && temD20(no.fator));
     default: return temD20(no.esq) || temD20(no.dir);
   }
 }

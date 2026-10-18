@@ -269,19 +269,61 @@ teste('10 temas com 7 cores de dados cada, e cor de texto legível', () => {
   assert.strictEqual(L.corDoTexto('#023e8a'), '#ffffff');
 });
 
+console.log('Dado vezes dado');
+
+teste('4d6×3d4: rola os dois e multiplica (primeiro × segundo)', () => {
+  const d = dadoFalso([1, 2, 3, 4, 2, 2, 3]);
+  const r = L.rolar('4d6×3d4', d);
+  assert.deepStrictEqual(d.chamadas, [6, 6, 6, 6, 4, 4, 4]);   // o 4d6 rola primeiro
+  assert.strictEqual(r.total, 10 * 7);
+  assert.strictEqual(L.descrever(r), '4d6×3d4: [1, 2, 3, 4] [2, 2, 3] = 10 × 7 = 70\nTotal: 70');
+  assert.strictEqual(L.rolar('4d6×[3d4]', dadoFalso([1, 2, 3, 4, 2, 2, 3])).total, 70);
+});
+
+teste('4d6×(3d4): o resultado do 4d6 diz quantas vezes o 3d4 é rolado', () => {
+  // 1d6 tira 3 → o 2d4 rola 3 vezes, cada vez de novo
+  const d = dadoFalso([3, 1, 2, 3, 4, 1, 1]);
+  const r = L.rolar('1d6×(2d4)', d);
+  assert.deepStrictEqual(d.chamadas, [6, 4, 4, 4, 4, 4, 4]);
+  assert.strictEqual(r.total, 3 + 7 + 2);
+  const linha = r.linhas[0];
+  assert.strictEqual(linha.contagem.valor, 3);
+  assert.strictEqual(linha.repeticoes.length, 3);
+  assert.deepStrictEqual(linha.repeticoes.map(x => x.valor), [3, 7, 2]);
+});
+
+teste('dado vezes dado: mín/média/máx, limite de dados e parcelas', () => {
+  const e = (x) => L.estatisticas(L.analisar(x));
+  assert.deepStrictEqual({ ...e('4d6×3d4') }, { min: 12, max: 288, media: 105 });
+  assert.deepStrictEqual({ ...e('1d6×(2d4)') }, { min: 2, max: 48, media: 17.5 });
+  assert.strictEqual(L.contarDados(L.analisar('4d6×(3d4)')), 4 + 24 * 3);
+  assert.throws(() => L.analisar('100d100×(100d100)'), /Dados demais/);
+  // Continua sendo só uma parcela de uma soma maior
+  assert.strictEqual(L.rolar('1d4×1d4+2', dadoFalso([3, 2])).total, 8);
+  // Número fixo continua com a regra de antes
+  assert.strictEqual(L.rolar('3×(1d6)', dadoFalso([1, 2, 3])).total, 6);
+  assert.strictEqual(L.rolar('3×[1d6]', dadoFalso([2])).total, 6);
+});
+
+teste('repetição comandada por dado com resultado negativo vira 0 vezes', () => {
+  const r = L.rolar('(1d4−5)×(1d6)', dadoFalso([1]));
+  assert.strictEqual(r.total, 0);
+  assert.strictEqual(L.estatisticas(L.analisar('(1d4−5)×(1d6)')).min, 0);
+});
+
 console.log('Erros');
 
 teste('expressões inválidas dão erro com mensagem', () => {
-  for (const e of ['', '2d', '(1d6', '1d6)', '()', '1d6+', '1d6×1d4', 'abc', '0d6', '1d1',
+  for (const e of ['', '2d', '(1d6', '1d6)', '()', '1d6+', 'abc', '0d6', '1d1',
                    '3×(3d6', '(1d6)(1d4)', '1000×(1000d6)', '-2×(1d6)',
-                   '[1d6)', '(1d6]', '2×[1d6', '1d6]', '2d20kh3', '1d6kh0', '5kh1', '1d6×[1d4]']) {
+                   '[1d6)', '(1d6]', '2×[1d6', '1d6]', '2d20kh3', '1d6kh0', '5kh1', '1d6×', '×1d6']) {
     deveFalhar(e);
   }
 });
 
 teste('mensagem de erro é legível', () => {
   assert.throws(() => L.analisar('(1d6'), /Falta fechar com "\)"/);
-  assert.throws(() => L.analisar('1d6×1d4'), /dado por dado/);
+  assert.throws(() => L.analisar('1d6×'), /terminou no meio/);
 });
 
 console.log('Teclado');
