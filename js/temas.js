@@ -1,35 +1,43 @@
 // ===== TEMAS DE CORES =====
-// Cada tema muda só as cores "de destaque": os 7 dados, o botão ROLAR e Vant/Desv.
-// O fundo é sempre em tons de preto/cinza (escolhido à parte em Configurações).
+// Cada tema muda só as cores "de destaque": os 7 dados, o botão ROLAR e detalhes.
+// As cores de cada tema têm brilho parecido entre si (família de tons), por isso
+// combinam sem "brigar". O fundo é sempre preto/cinza (escolhido à parte).
 // Ordem das cores dos dados: d4, d6, d8, d10, d12, d20, d100.
 const TEMAS = [
-  { id: 'classico', nome: 'Clássico', acento: '#f5c84b',
-    dados: ['#ef5a4c', '#2f97b8', '#3fa65a', '#e08a1e', '#d9579a', '#f5c84b', '#4c6fe0'] },
-  { id: 'neon', nome: 'Neon', acento: '#00e5ff',
-    dados: ['#ff2e88', '#00e5ff', '#39ff14', '#ff9f1c', '#b026ff', '#faff00', '#2979ff'] },
-  { id: 'pastel', nome: 'Pastel', acento: '#f8c8dc',
-    dados: ['#f4a6a6', '#a6d8f4', '#b5e8b0', '#f8d49b', '#d7b5f0', '#fff1a8', '#a9b8f5'] },
-  { id: 'nord', nome: 'Nord', acento: '#88c0d0',
-    dados: ['#bf616a', '#88c0d0', '#a3be8c', '#d08770', '#b48ead', '#ebcb8b', '#5e81ac'] },
-  { id: 'dracula', nome: 'Drácula', acento: '#bd93f9',
-    dados: ['#ff5555', '#8be9fd', '#50fa7b', '#ffb86c', '#ff79c6', '#f1fa8c', '#bd93f9'] },
-  { id: 'gruvbox', nome: 'Gruvbox', acento: '#fabd2f',
-    dados: ['#fb4934', '#83a598', '#b8bb26', '#fe8019', '#d3869b', '#fabd2f', '#8ec07c'] },
-  { id: 'solarized', nome: 'Solarized', acento: '#2aa198',
-    dados: ['#dc322f', '#268bd2', '#859900', '#cb4b16', '#d33682', '#b58900', '#6c71c4'] },
-  { id: 'oceano', nome: 'Oceano', acento: '#00b4d8',
-    dados: ['#023e8a', '#0077b6', '#0096c7', '#00b4d8', '#48cae4', '#90e0ef', '#ade8f4'] },
-  { id: 'vulcao', nome: 'Vulcão', acento: '#e85d04',
-    dados: ['#9d0208', '#d00000', '#dc2f02', '#e85d04', '#f48c06', '#faa307', '#ffba08'] },
-  { id: 'floresta', nome: 'Floresta', acento: '#52b788',
-    dados: ['#bc6c25', '#dda15e', '#606c38', '#52b788', '#a3b18a', '#e9c46a', '#2a9d8f'] },
+  { id: 'espectro', nome: 'Espectro', acento: '#e4e4e7',
+    dados: ['#f87171', '#60a5fa', '#4ade80', '#fb923c', '#f472b6', '#facc15', '#a78bfa'] },
+  { id: 'grafite', nome: 'Grafite', acento: '#fafafa',
+    dados: ['#a1a1aa', '#b4b4bb', '#c4c4cc', '#d4d4d8', '#e4e4e7', '#ffffff', '#8e8e96'] },
+  { id: 'indigo', nome: 'Índigo', acento: '#818cf8',
+    dados: ['#c4b5fd', '#a5b4fc', '#818cf8', '#a78bfa', '#93c5fd', '#e0e7ff', '#7dd3fc'] },
+  { id: 'menta', nome: 'Menta', acento: '#34d399',
+    dados: ['#a7f3d0', '#6ee7b7', '#34d399', '#2dd4bf', '#5eead4', '#d1fae5', '#67e8f9'] },
+  { id: 'ambar', nome: 'Âmbar', acento: '#fbbf24',
+    dados: ['#fdba74', '#fcd34d', '#fbbf24', '#fb923c', '#fde68a', '#fef3c7', '#f59e0b'] },
+  { id: 'coral', nome: 'Coral', acento: '#fb7185',
+    dados: ['#fda4af', '#fb7185', '#fdba74', '#f472b6', '#fecdd3', '#ffe4e6', '#f9a8d4'] },
+  { id: 'oceano', nome: 'Oceano', acento: '#38bdf8',
+    dados: ['#93c5fd', '#7dd3fc', '#38bdf8', '#60a5fa', '#67e8f9', '#e0f2fe', '#a5b4fc'] },
+  { id: 'aurora', nome: 'Aurora', acento: '#2dd4bf',
+    dados: ['#5eead4', '#7dd3fc', '#a5b4fc', '#c4b5fd', '#f0abfc', '#99f6e4', '#86efac'] },
+  { id: 'sakura', nome: 'Sakura', acento: '#f9a8d4',
+    dados: ['#fbcfe8', '#f9a8d4', '#f0abfc', '#e9d5ff', '#fda4af', '#fdf2f8', '#d8b4fe'] },
+  { id: 'areia', nome: 'Areia', acento: '#d6c3a5',
+    dados: ['#c8a97e', '#d6c3a5', '#b9a688', '#e2c799', '#a8a29e', '#f5ecdf', '#cbb89d'] },
 ];
 
-// Tons de fundo (sempre preto/cinza).
+// Temas da versão 8 e anteriores → o tema novo mais parecido (quem já tinha um
+// tema escolhido continua com algo próximo, em vez de cair no padrão).
+const TEMAS_ANTIGOS = {
+  classico: 'espectro', neon: 'espectro', pastel: 'sakura', nord: 'oceano', dracula: 'indigo',
+  gruvbox: 'ambar', solarized: 'oceano', vulcao: 'coral', floresta: 'menta',
+};
+
+// Tons de fundo (sempre preto/cinza, levemente frios para parecer mais "limpo").
 const FUNDOS = [
-  { id: 'oled', nome: 'Preto', fundo: '#000000', superficie: '#141414', tecla: '#242424', teclaOp: '#0d0d0d', borda: '#2e2e2e' },
-  { id: 'carvao', nome: 'Carvão', fundo: '#121212', superficie: '#1e1e1e', tecla: '#2c2c2c', teclaOp: '#191919', borda: '#383838' },
-  { id: 'grafite', nome: 'Grafite', fundo: '#202124', superficie: '#2b2c30', tecla: '#3a3b40', teclaOp: '#26272a', borda: '#46474c' },
+  { id: 'oled', nome: 'Preto', fundo: '#000000', superficie: '#0e0e10', tecla: '#17171a', teclaOp: '#0a0a0b', borda: '#232327' },
+  { id: 'carvao', nome: 'Carvão', fundo: '#0b0b0c', superficie: '#141416', tecla: '#1c1c1f', teclaOp: '#111113', borda: '#29292d' },
+  { id: 'grafite', nome: 'Grafite', fundo: '#18181b', superficie: '#1f1f23', tecla: '#27272a', teclaOp: '#1c1c1f', borda: '#36363b' },
 ];
 
-if (typeof module !== 'undefined') module.exports = { TEMAS, FUNDOS };
+if (typeof module !== 'undefined') module.exports = { TEMAS, FUNDOS, TEMAS_ANTIGOS };

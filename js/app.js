@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '8';
+const VERSAO = '9';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -84,7 +84,7 @@ const num = (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 const semAcento = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 // ---------- 2. Estado (o que fica salvo) ----------
-const CONFIG_PADRAO = { tema: 'classico', fundo: 'carvao', vibrar: true, stats: true, critico: true, agitar: false, aba: 'dados', recolhido: false };
+const CONFIG_PADRAO = { tema: 'espectro', fundo: 'carvao', vibrar: true, stats: true, critico: true, agitar: false, aba: 'dados', recolhido: false };
 // Tudo passa por uma conferência: dado estragado (ou de versão antiga) não quebra a tela.
 let config = limparConfig(ler('rolador.config', {}), CONFIG_PADRAO);
 let historico = limparHistorico(ler('rolador.historico', []));
@@ -111,8 +111,15 @@ const salvarCombate = () => gravar('rolador.combate', combate);
 
 // ---------- 3. Tema ----------
 function aplicarTema() {
-  const tema = TEMAS.find(t => t.id === config.tema) || TEMAS[0];
-  const fundo = FUNDOS.find(f => f.id === config.fundo) || FUNDOS[1];
+  // Tema de versão antiga ou desconhecido: troca pelo equivalente novo e salva,
+  // para o tema certo aparecer marcado em Configurações.
+  if (!TEMAS.some(t => t.id === config.tema)) {
+    config.tema = TEMAS_ANTIGOS[config.tema] || TEMAS[0].id;
+    salvarConfig();
+  }
+  if (!FUNDOS.some(f => f.id === config.fundo)) { config.fundo = FUNDOS[1].id; salvarConfig(); }
+  const tema = TEMAS.find(t => t.id === config.tema);
+  const fundo = FUNDOS.find(f => f.id === config.fundo);
   const raiz = document.documentElement.style;
   ['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'].forEach((nome, i) => {
     raiz.setProperty(`--${nome}`, tema.dados[i]);

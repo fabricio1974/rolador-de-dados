@@ -2,7 +2,7 @@
 // Carrega os arquivos de js/ (que não dependem de tela) e testa as funções.
 const assert = require('assert');
 const L = require('./js/logica.js');
-const { TEMAS, FUNDOS } = require('./js/temas.js');
+const { TEMAS, FUNDOS, TEMAS_ANTIGOS } = require('./js/temas.js');
 const { MONSTROS_PADRAO } = require('./js/monstros.js');
 
 // Dado "falso" que devolve uma sequência conhecida e anota cada rolagem.
@@ -246,6 +246,14 @@ teste('limparFicha aceita só campos conhecidos e imagens data:', () => {
   assert.strictEqual(f.imagem, null);
   assert.strictEqual(f.extra, undefined);
   assert.strictEqual(f.rolagens.length, 1);
+});
+
+teste('temas antigos (até a versão 8) apontam para um tema novo que existe', () => {
+  const ids = new Set(TEMAS.map(t => t.id));
+  for (const antigo of ['classico', 'neon', 'pastel', 'nord', 'dracula', 'gruvbox', 'solarized', 'vulcao', 'floresta']) {
+    assert.ok(ids.has(TEMAS_ANTIGOS[antigo]), antigo);
+  }
+  assert.strictEqual(ids.size, TEMAS.length, 'ids de tema repetidos');
 });
 
 teste('10 temas com 7 cores de dados cada, e cor de texto legível', () => {

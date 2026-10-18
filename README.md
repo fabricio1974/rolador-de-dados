@@ -78,6 +78,14 @@ Rolagens em partes mostram no topo um **resumo** que fica sempre à vista
   hora; um toque rola de novo, o ✕ tira uma, **Limpar** apaga tudo.
 - **Favoritos** (estrela) e **Configurações** (engrenagem): aparência (tema e fundo), opções de
   rolagem e do celular, e **Seus dados** (quanto está guardado e o backup).
+## Visual
+
+Design minimalista: superfícies lisas em preto/cinza, linhas finas, cantos quadrados e cor só
+onde ela informa algo (tipo de dado, crítico, dano/cura). **10 temas** em ⚙ → Aparência:
+Espectro, Grafite, Índigo, Menta, Âmbar, Coral, Oceano, Aurora, Sakura e Areia (cada um é uma
+família de tons que combinam entre si), e **3 fundos**: Preto, Carvão e Grafite. Quem usava um
+tema da versão 8 ou anterior passa automaticamente para o tema novo mais parecido.
+
 ## Organização do código
 
 ```
