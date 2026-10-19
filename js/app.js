@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '12';
+const VERSAO = '13';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -617,7 +617,7 @@ function cartaoLista({ titulo, sub, extra, hora, expr, aoAbrir, acoes }) {
 }
 
 // Cabeçalho de grupo que abre/fecha (▾ Lilith). Fica lembrado em config.gruposFechados.
-function cabecaGrupo(chave, titulo, quantos) {
+function cabecaGrupo(chave, titulo, quantos, redesenhar = desenharAtalhos) {
   const fechado = config.gruposFechados.includes(chave);
   const b = el('button', 'grupo-cabeca' + (fechado ? ' fechado' : ''));
   b.setAttribute('aria-expanded', String(!fechado));
@@ -628,7 +628,7 @@ function cabecaGrupo(chave, titulo, quantos) {
       ? config.gruposFechados.filter(g => g !== chave)
       : [...config.gruposFechados, chave];
     salvarConfig();
-    desenharAtalhos();
+    redesenhar();
   });
   return { botao: b, fechado };
 }
@@ -993,7 +993,6 @@ $('arquivo-backup').addEventListener('change', async (ev) => {
 });
 
 // ---------- 9. Aba Fichas: lista ----------
-let filtro = 'todos';
 
 function retrato(f, grande) {
   const r = el('div', 'retrato' + (grande ? ' grande' : ''));
@@ -1033,7 +1032,6 @@ function cartaoFicha(f) {
     numeros.append(el('span', 'num-pv', `PV ${f.pv}/${f.pvMax}`));
     if (f.pvTemp) numeros.append(el('span', 'num-temp', `+${f.pvTemp} temp`));
   }
-  numeros.append(el('span', 'num-rol', `${f.rolagens.length} rolagens`));
   info.append(numeros);
   if (f.pvMax) info.append(barraPV(f));
   const condicoes = nomesDasCondicoes(f);
@@ -1049,41 +1047,31 @@ function cartaoFicha(f) {
 
 function desenharListaFichas() {
   const lista = $('lista-fichas');
+  const rolagem = lista.scrollTop;
   lista.replaceChildren();
+  // Busca só com muitas fichas (com poucas, os grupos bastam).
+  const comBusca = fichas.length > 12;
+  $('barra-busca').hidden = !comBusca;
+  if (!comBusca) $('busca').value = '';
   const busca = semAcento($('busca').value.trim());
-  const visiveis = fichas.filter(f =>
-    (filtro === 'todos' || f.tipo === filtro) &&
-    (!busca || semAcento(f.nome + ' ' + (f.subtitulo || '')).includes(busca)));
+  const visiveis = fichas.filter(f => !busca || semAcento(f.nome + ' ' + (f.subtitulo || '')).includes(busca));
   if (!visiveis.length) {
-    lista.append(el('p', 'vazio', fichas.length
-      ? 'Nenhuma ficha encontrada.'
-      : 'Nenhuma ficha ainda. Toque em "+ Nova" para criar seu personagem.'));
-    if (filtro === 'personagem' && !busca) lista.lastChild.textContent = 'Nenhum personagem ainda. Toque em "+ Nova" para criar o seu, com imagem e rolagens.';
+    lista.append(el('p', 'vazio', fichas.length ? 'Nada encontrado' : 'Nenhuma ficha'));
     return;
   }
-  // Em "Todos", personagens e monstros ficam em grupos separados, com título.
-  const grupos = filtro === 'todos'
-    ? [['Personagens', visiveis.filter(f => f.tipo === 'personagem')], ['Monstros', visiveis.filter(f => f.tipo === 'monstro')]]
-    : [['', visiveis]];
-  for (const [titulo, doGrupo] of grupos) {
+  // Personagens e monstros em grupos que abrem e fecham (como em Favoritos).
+  for (const [tipo, titulo] of [['personagem', 'Personagens'], ['monstro', 'Monstros']]) {
+    const doGrupo = visiveis.filter(f => f.tipo === tipo);
     if (!doGrupo.length) continue;
-    if (titulo) {
-      const cabeca = el('h2', 'titulo-grupo', titulo);
-      cabeca.append(el('span', '', String(doGrupo.length)));
-      lista.append(cabeca);
-    }
+    const { botao, fechado } = cabecaGrupo('fichas:' + tipo, titulo, doGrupo.length, desenharListaFichas);
+    lista.append(botao);
+    if (fechado && !busca) continue;
     for (const f of doGrupo) lista.append(cartaoFicha(f));
   }
+  lista.scrollTop = rolagem;
 }
 
 $('busca').addEventListener('input', desenharListaFichas);
-$('filtros').addEventListener('click', (ev) => {
-  const b = ev.target.closest('button');
-  if (!b) return;
-  filtro = b.dataset.filtro;
-  document.querySelectorAll('#filtros button').forEach(x => x.classList.toggle('ativo', x === b));
-  desenharListaFichas();
-});
 $('nova-ficha').addEventListener('click', () => abrirEditor(null));
 
 // ---------- 10. Ficha aberta ----------
@@ -2014,7 +2002,9 @@ function desenharCombate(rolarAteAVez = false) {
   $('turno-anterior').disabled = !combate.vez;
   $('rolar-iniciativas').disabled = vazio;
   $('encerrar-combate').disabled = vazio;
-  $('add-combatente').classList.toggle('destaque', vazio);  // lista vazia: o primeiro passo fica em destaque
+  // Lista vazia: só a mensagem e o + (sem cabeçalho nem botões desativados).
+  $('combate-cabeca').hidden = vazio;
+  $('combate-turno').hidden = vazio;
 
   if (vazio) {
     lista.append(el('p', 'vazio', 'Nenhum combatente'));

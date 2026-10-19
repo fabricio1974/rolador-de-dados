@@ -866,3 +866,14 @@ body { font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; le
 .selos-linha .selo { margin: 0 3px; }
 .rodape-dados { color: var(--fraco); font-size: .8rem; margin: 0 0 10px; }
 .display .linha:first-of-type { border-top: 0; }
+
+/* ---------- Rodada 2 (versão 13): Fichas e Combate no padrão das outras abas ---------- */
+#tela-fichas .lista-fichas { gap: 6px; }
+#tela-fichas .grupo-cabeca:first-child { padding-top: 6px; }
+.combate-cabeca { align-items: stretch; }
+.combate-cabeca > .icone { width: 52px; height: auto; background: var(--superficie); color: #d5dade; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.combate-cabeca > .icone .ic { width: 24px; height: 24px; }
+#tela-combate .lista-combate { padding-bottom: 84px; }
+#tela-combate .fab { bottom: calc(58px + 8px + 18px + env(safe-area-inset-bottom)); }
+#tela-combate .combate-turno[hidden] + * { display: none; }
+#tela-combate:has(#combate-turno[hidden]) .fab { bottom: calc(20px + env(safe-area-inset-bottom)); }

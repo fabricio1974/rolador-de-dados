@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#3a3e44">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=12">
+<link rel="stylesheet" href="css/estilo.css?v=13">
 </head>
 <body>
 <div class="app">
@@ -108,13 +108,9 @@
 
   <!-- ===== ABA FICHAS: personagens e monstros ===== -->
   <main class="tela" id="tela-fichas" hidden>
-    <div class="barra">
-      <input id="busca" type="search" placeholder="Buscar ficha…" aria-label="Buscar ficha">
-    </div>
-    <div class="filtros" id="filtros">
-      <button data-filtro="todos" class="ativo">Todos</button>
-      <button data-filtro="personagem">Personagens</button>
-      <button data-filtro="monstro">Monstros</button>
+    <!-- A busca só aparece quando há muitas fichas -->
+    <div class="barra" id="barra-busca" hidden>
+      <input id="busca" type="search" placeholder="Buscar ficha" aria-label="Buscar ficha">
     </div>
     <div class="lista-fichas" id="lista-fichas"></div>
     <button class="fab" id="nova-ficha" aria-label="Nova ficha"><i data-icone="mais"></i></button>
@@ -122,17 +118,15 @@
 
   <!-- ===== ABA COMBATE: ordem de iniciativa, turnos e PV de cada um ===== -->
   <main class="tela" id="tela-combate" hidden>
-    <div class="combate-cabeca">
+    <div class="combate-cabeca" id="combate-cabeca">
       <div class="rodada"><small>Rodada</small><b id="rodada-num">—</b></div>
       <div class="vez-de"><small id="vez-rotulo">Vez de</small><b id="vez-nome"></b></div>
-    </div>
-    <div class="combate-ferramentas">
-      <button class="botao" id="add-combatente"><i data-icone="mais"></i>Adicionar</button>
-      <button class="botao" id="rolar-iniciativas"><i data-icone="dado"></i>Iniciativa</button>
-      <button class="botao" id="encerrar-combate"><i data-icone="fechar"></i>Encerrar</button>
+      <button class="icone" id="rolar-iniciativas" aria-label="Rolar iniciativa" title="Rolar iniciativa"><i data-icone="dado"></i></button>
+      <button class="icone" id="encerrar-combate" aria-label="Encerrar combate" title="Encerrar combate"><i data-icone="lixeira"></i></button>
     </div>
     <div class="lista-combate" id="lista-combate"></div>
-    <div class="combate-turno">
+    <button class="fab" id="add-combatente" aria-label="Adicionar ao combate"><i data-icone="mais"></i></button>
+    <div class="combate-turno" id="combate-turno">
       <button class="icone" id="turno-anterior" aria-label="Voltar um turno"><i data-icone="voltar"></i></button>
       <button class="rolar" id="proximo-turno">PRÓXIMO TURNO</button>
     </div>
@@ -234,9 +228,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=12"></script>
-<script src="js/monstros.js?v=12"></script>
-<script src="js/logica.js?v=12"></script>
-<script src="js/app.js?v=12"></script>
+<script src="js/temas.js?v=13"></script>
+<script src="js/monstros.js?v=13"></script>
+<script src="js/logica.js?v=13"></script>
+<script src="js/app.js?v=13"></script>
 </body>
 </html>
