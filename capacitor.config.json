@@ -1,0 +1,19 @@
+{
+  "appId": "io.github.fabricio1974.rolador",
+  "appName": "Rolador de Dados",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#2d3136"
+  },
+  "plugins": {
+    "StatusBar": {
+      "backgroundColor": "#3d4147",
+      "style": "DARK",
+      "overlaysWebView": false
+    },
+    "SystemBars": {
+      "style": "DARK",
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}

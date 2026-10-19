@@ -113,6 +113,23 @@ testes.js         testes da lógica e dos dados (node testes.js)
 `logica.js`, `temas.js` e `monstros.js` não mexem na tela, por isso o `testes.js` consegue
 testá-los no Node. O GitHub roda os testes a cada push (aba **Actions**).
 
+## APK (Android)
+
+O app vira APK com o [Capacitor](https://capacitorjs.com): o mesmo HTML/CSS/JS dentro de um
+aplicativo Android, com vibração, compartilhar e backup usando os recursos do celular.
+
+```
+npm install
+npm run build                 # copia index.html, css/, js/ e icones/ para www/
+npx cap sync android          # leva www/ e os plugins para o projeto android/
+cd android && gradle assembleRelease
+```
+
+Para assinar, defina `ROLADOR_KEYSTORE` (caminho do `.jks`) e `ROLADOR_KEYSTORE_SENHA`. Use
+**sempre a mesma chave**: o Android só instala uma atualização assinada com a chave da versão
+instalada. A chave **não** vai para o repositório. A cada APK novo, aumente `versionCode` e
+`versionName` em `android/app/build.gradle` (igual à `VERSAO` de `js/app.js`).
+
 ## Dados salvos
 
 Tudo fica no `localStorage` do navegador, só no aparelho (`rolador.config`, `.historico`,

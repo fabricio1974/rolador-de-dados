@@ -2154,6 +2154,15 @@ $('encerrar-combate').addEventListener('click', () => {
 });
 
 // ---------- 13. Início ----------
+// No APK: o botão voltar do Android fecha a tela aberta (ficha, menu, formulário...);
+// na tela principal, minimiza o app (como os outros apps do Android).
+if (nativo() && nativo().App) {
+  nativo().App.addListener('backButton', () => {
+    if (camadas.length) history.back();
+    else nativo().App.minimizeApp();
+  });
+}
+
 aplicarTema();
 aplicarRecolhido();
 mostrarAba(config.aba);
