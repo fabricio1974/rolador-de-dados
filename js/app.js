@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '11';
+const VERSAO = '12';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -93,6 +93,24 @@ function gravar(chave, valor, avisar = true) {
 
 const num = (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 const semAcento = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+// Mensagem rápida no rodapé (snackbar do Android): some sozinha; pode ter uma ação
+// (ex.: DESFAZER). Uma nova mensagem substitui a anterior.
+let snackTimer = null;
+function avisar(texto, acao = null, aoAgir = null, ms = 3500) {
+  let barra = $('snackbar');
+  if (!barra) { barra = el('div', 'snackbar'); barra.id = 'snackbar'; barra.setAttribute('role', 'status'); document.body.append(barra); }
+  barra.replaceChildren(el('span', '', texto));
+  if (acao) {
+    const b = el('button', '', acao);
+    b.addEventListener('click', () => { esconderAviso(); aoAgir(); });
+    barra.append(b);
+  }
+  barra.classList.add('visivel');
+  clearTimeout(snackTimer);
+  snackTimer = setTimeout(esconderAviso, ms);
+}
+function esconderAviso() { const b = $('snackbar'); if (b) b.classList.remove('visivel'); }
 
 // ---------- 2. Estado (o que fica salvo) ----------
 const CONFIG_PADRAO = { tema: 'material', fundo: 'ardosia', vibrar: true, stats: true, critico: true, agitar: false,
@@ -341,6 +359,9 @@ function desenharResumo(rolagem, vereditos) {
 
 // "valorAlvo" (opcional) é a CA ou CD do alvo: mostra se acertou/passou.
 function desenharRolagem(alvo, rolagem, titulo, valorAlvo = null) {
+  // Na calculadora o visor já mostra a expressão e a prévia já mostra mín/média/máx:
+  // o resultado fica só com o total e os dados (sem repetir informação).
+  const compacto = alvo === areaResultado;
   alvo.replaceChildren();
   if (titulo) alvo.append(el('div', 'titulo-rolagem', titulo));
   const partes = rolagem.partes;
@@ -356,8 +377,9 @@ function desenharRolagem(alvo, rolagem, titulo, valorAlvo = null) {
       alvo.append(el('div', 'veredito ' + (v.sucesso ? 'sucesso' : 'fracasso'),
         `${textoVeredito(v)} · ${v.tipo === 'ataque' ? 'CA' : 'CD'} ${valorAlvo}`));
     }
-    alvo.append(exp);
-    if (config.stats) alvo.append(el('div', 'stats', textoStats(p.res.stats)));
+    if (!compacto) alvo.append(exp);
+    else if (exp.querySelector('.selo')) { const s2 = el('div', 'selos-linha'); s2.append(...exp.querySelectorAll('.selo')); alvo.append(s2); }
+    if (config.stats && !compacto) alvo.append(el('div', 'stats', textoStats(p.res.stats)));
     desenharLinhas(alvo, p.res);
   } else {
     // Várias partes: primeiro um resumo compacto ("Acerto 25 · Dano 19"), que fica
@@ -372,7 +394,7 @@ function desenharRolagem(alvo, rolagem, titulo, valorAlvo = null) {
       if (v) nome.append(el('span', 'selo ' + (v.sucesso ? 'acerto' : 'erro'), `${textoVeredito(v)} ${v.tipo === 'ataque' ? 'CA' : 'CD'} ${valorAlvo}`));
       const cabeca = el('div', 'parte-cabeca');
       cabeca.append(nome, el('span', 'valor' + classeNatural(p), String(p.res.total)));
-      const stats = config.stats ? textoStats(p.res.stats) : '';
+      const stats = config.stats && !compacto ? textoStats(p.res.stats) : '';
       bloco.append(cabeca, el('div', 'expr-rolada', p.res.expressao + (stats ? '  ·  ' + stats : '')));
       desenharLinhas(bloco, p.res);
       alvo.append(bloco);
@@ -617,7 +639,7 @@ function desenharFavoritosAba() {
   const rolagem = lista.scrollTop;
   lista.replaceChildren();
   if (!favoritos.length) {
-    lista.append(el('p', 'vazio', 'Nenhum favorito ainda. Toque em + (ou no ♥ da calculadora) para salvar uma rolagem com nome. Dê o nome do personagem em "Grupo" para juntar as rolagens dele.'));
+    lista.append(el('p', 'vazio', 'Nenhum favorito'));
     return;
   }
   const grupos = new Map();
@@ -640,8 +662,10 @@ function desenharFavoritosAba() {
           ['Editar', () => { favoritoEditado = indice; abrirPainel('favorito'); }],
           ['Copiar para a calculadora', () => { mostrarAba(ultimaCalc); visor.value = f.expr; tituloVisor = f.nome; atualizarPrevia(); }],
           ['Apagar', () => {
-            if (!confirm(`Apagar o favorito "${f.nome}"?`)) return;
             favoritos.splice(indice, 1); gravar('rolador.favoritos', favoritos); desenharFavoritosAba();
+            avisar('Favorito apagado', 'DESFAZER', () => {
+              favoritos.splice(indice, 0, f); gravar('rolador.favoritos', favoritos); desenharFavoritosAba();
+            });
           }, 'perigo'],
         ],
       }));
@@ -688,7 +712,7 @@ function desenharFormFavorito(corpo) {
     salvarConfig();
     gravar('rolador.favoritos', favoritos);
     favoritoEditado = null;
-    depoisDeVoltar = () => mostrarAba('favoritos');
+    depoisDeVoltar = () => { mostrarAba('favoritos'); avisar(antigo ? 'Favorito atualizado' : 'Favorito salvo'); };
     voltar();
   });
   corpo.append(form);
@@ -701,16 +725,17 @@ function desenharHistoricoAba() {
   const rolagem = lista.scrollTop;
   lista.replaceChildren();
   if (!historico.length) {
-    lista.append(el('p', 'vazio', 'Nenhuma rolagem ainda. As últimas 50 ficam guardadas aqui; um toque rola de novo.'));
+    lista.append(el('p', 'vazio', 'Nenhuma rolagem'));
     return;
   }
   const barra = el('div', 'barra-lista');
   barra.append(el('span', '', `${historico.length} ${historico.length === 1 ? 'rolagem' : 'rolagens'}`));
   const limpar = el('button', 'botao-texto', 'Limpar tudo');
   limpar.addEventListener('click', () => {
-    if (!confirm('Apagar todo o histórico de rolagens?')) return;
+    const antes = historico;
     historico = []; gravar('rolador.historico', historico);
     desenharHistoricoAba();
+    avisar('Histórico limpo', 'DESFAZER', () => { historico = antes; gravar('rolador.historico', historico); desenharHistoricoAba(); });
   });
   barra.append(limpar);
   lista.append(barra);
@@ -727,7 +752,10 @@ function desenharHistoricoAba() {
           ['Salvar nos favoritos', () => {
             favoritoEditado = null; exprSugerida = h.expr; abrirPainel('favorito');
           }],
-          ['Apagar', () => { historico.splice(indice, 1); gravar('rolador.historico', historico); desenharHistoricoAba(); }, 'perigo'],
+          ['Apagar', () => {
+            historico.splice(indice, 1); gravar('rolador.historico', historico); desenharHistoricoAba();
+            avisar('Rolagem apagada', 'DESFAZER', () => { historico.splice(indice, 0, h); gravar('rolador.historico', historico); desenharHistoricoAba(); });
+          }, 'perigo'],
         ],
       }));
     }
@@ -754,6 +782,8 @@ function desenharAjuda(corpo) {
     el('p', 'ajuda', 'Toque nos dados para montar a expressão: tocar no mesmo dado de novo aumenta a quantidade (d6 → 2d6 → 3d6). A aba Avançado tem parênteses, colchetes, vantagem e partes.'),
     tabela,
     el('p', 'ajuda', 'Favoritos: salve com o ♥ da calculadora ou com o + da aba. O "Grupo" junta as rolagens de um mesmo personagem. A cor do quadradinho é a do primeiro dado.'),
+    el('p', 'ajuda', 'Fichas: em cada rolagem, separe partes com ";" e dê nome com ":" (Acerto: 1d20+5; Dano: 1d8+3). Usos e recargas (espaços de magia, Fúria, Recarga 5–6) viram quadradinhos; os descansos devolvem.'),
+    el('p', 'ajuda', 'Combate: o + adiciona personagens e monstros (o mesmo monstro pode entrar várias vezes, cada um com seus PV). Começar combate rola a iniciativa de quem falta.'),
   );
 }
 
@@ -797,7 +827,7 @@ async function compartilharApp() {
   const url = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://fabricio1974.github.io/rolador-de-dados/';
   try {
     if (navigator.share) await navigator.share({ title: 'Rolador de Dados', url });
-    else { await navigator.clipboard.writeText(url); alert('Endereço copiado: ' + url); }
+    else { await navigator.clipboard.writeText(url); avisar('Endereço copiado'); }
   } catch { /* a pessoa cancelou */ }
 }
 
@@ -900,20 +930,17 @@ function desenharConfig(corpo) {
     b.addEventListener('click', fn);
     acoes.append(b);
   };
-  botao('baixar', 'Exportar backup', exportarBackup, 'destaque');
-  botao('enviar', 'Importar backup', () => $('arquivo-backup').click());
-  botao('restaurar', 'Restaurar monstros', () => {
+  // Exportar/importar ficam no menu ☰ (sem botões repetidos aqui).
+  botao('restaurar', 'Restaurar monstros padrão', () => {
     if (!confirm('Restaurar os 10 monstros padrão? Mudanças feitas neles serão perdidas. Suas outras fichas continuam.')) return;
     for (const m of MONSTROS_PADRAO.map(limparFicha)) {
       const i = fichas.findIndex(f => f.id === m.id);
       if (i >= 0) fichas[i] = m; else fichas.push(m);
     }
     salvarFichas();
-    aviso.className = 'aviso ok'; aviso.textContent = 'Monstros restaurados.';
+    avisar('Monstros restaurados');
   });
-  dados.append(resumo,
-    el('p', 'ajuda', `Tudo fica salvo só neste aparelho (${espacoUsado()} usados). O backup leva fichas, favoritos, histórico, configurações e o combate em andamento. Faça de vez em quando, principalmente das fichas com imagens.`),
-    acoes, aviso);
+  dados.append(resumo, el('p', 'rodape-dados', `${espacoUsado()} usados neste aparelho`), acoes, aviso);
   corpo.append(el('p', 'rodape', `Rolador de Dados · versão ${VERSAO} · regras D&D 2024`));
 }
 
@@ -946,7 +973,7 @@ $('arquivo-backup').addEventListener('change', async (ev) => {
   try {
     lido = lerBackup(JSON.parse(await arquivo.text()));  // confere tudo (backups antigos não têm combate)
   } catch {
-    alert('Esse arquivo não é um backup válido do Rolador.');
+    avisar('Esse arquivo não é um backup do Rolador.');
     return;
   }
   const n = lido.combate.participantes.length;
@@ -962,7 +989,7 @@ $('arquivo-backup').addEventListener('change', async (ev) => {
   salvarFichas(); gravar('rolador.favoritos', favoritos); gravar('rolador.historico', historico);
   salvarCombate(); salvarConfig();
   aplicarTema(); aplicarRecolhido(); desenharPainel(); desenharListaFichas(); desenharAtalhos(); desenharCombate();
-  alert('Backup importado!');
+  avisar('Backup importado');
 });
 
 // ---------- 9. Aba Fichas: lista ----------
@@ -1464,7 +1491,6 @@ function desenharFicha() {
   if (f.recursos.length) corpo.append(blocoRecursos(f, estado, aoMudar));
   corpo.append(blocoDescanso(f, estado, aoMudar));
   if (avisoUsos) corpo.append(el('p', 'aviso-pv', avisoUsos));
-  if (!f.recursos.length) corpo.append(el('p', 'ajuda', 'Espaços de magia, Fúria, Dados de Vida, "Recarga 5–6"... entram pelo lápis, em "Usos e recargas".'));
 
   if (f.notas) corpo.append(el('h2', 'titulo-secao', 'Notas'), el('div', 'notas', f.notas));
 }
@@ -1777,7 +1803,8 @@ function proximoTurno() {
   if (!combate.vez) {
     // Começar: rola quem falta e abre a rodada 1 no primeiro da ordem.
     const textos = rolarIniciativasQueFaltam();
-    avisoCombate = textos.length ? 'Iniciativa: ' + textos.join(' · ') : '';
+    avisoCombate = '';
+    if (textos.length) avisar('Iniciativa rolada');
   } else {
     avisoCombate = '';
   }
@@ -1990,10 +2017,7 @@ function desenharCombate(rolarAteAVez = false) {
   $('add-combatente').classList.toggle('destaque', vazio);  // lista vazia: o primeiro passo fica em destaque
 
   if (vazio) {
-    const ajuda = el('div', 'vazio');
-    ajuda.append(el('p', '', 'Nenhum combatente ainda.'),
-      el('p', '', 'Toque em Adicionar para pôr personagens e monstros (o mesmo monstro pode entrar várias vezes, cada um com seus PV). Depois, Começar combate rola a iniciativa de quem falta.'));
-    lista.append(ajuda);
+    lista.append(el('p', 'vazio', 'Nenhum combatente'));
     return;
   }
   combate.participantes.forEach((c, i) => {
@@ -2011,7 +2035,6 @@ function desenharCombate(rolarAteAVez = false) {
 
 // Painel "Adicionar ao combate": um toque põe a ficha na lista.
 function desenharAdicionar(corpo) {
-  corpo.append(el('p', 'ajuda', 'Toque para pôr no combate. Monstros podem entrar várias vezes, cada um com seus PV; personagens entram uma vez e usam os PV da ficha.'));
   if (!fichas.length) { corpo.append(el('p', 'vazio', 'Nenhuma ficha ainda. Crie na aba Fichas.')); }
   for (const [titulo, tipo] of [['Personagens', 'personagem'], ['Monstros', 'monstro']]) {
     const doTipo = fichas.filter(f => f.tipo === tipo);
@@ -2053,7 +2076,8 @@ $('rolar-iniciativas').addEventListener('click', () => {
     for (const c of combate.participantes) c.iniciativa = null;
   }
   const textos = rolarIniciativasQueFaltam();
-  avisoCombate = textos.length ? 'Iniciativa: ' + textos.join(' · ') : '';
+  avisoCombate = '';
+  if (textos.length) avisar('Iniciativa rolada');
   combatenteAberto = null;
   salvarCombate();
   desenharCombate();

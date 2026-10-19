@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#3a3e44">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=11">
+<link rel="stylesheet" href="css/estilo.css?v=12">
 </head>
 <body>
 <div class="app">
@@ -26,15 +26,6 @@
   <main class="tela tela-calc" id="tela-dados">
     <section class="display">
       <div class="resultado" id="resultado" aria-live="polite">
-        <div class="dica">
-          <p>Toque nos dados e em <b>ROLAR</b>.</p>
-          <dl>
-            <dt><code>3×(3d6)</code></dt><dd>rola 3d6 três vezes</dd>
-            <dt><code>3×[3d6]</code></dt><dd>rola 3d6 uma vez e multiplica por 3</dd>
-            <dt><code>4d6×(3d4)</code></dt><dd>o 4d6 diz quantas vezes rolar o 3d4</dd>
-            <dt><code>Acerto: 1d20+5; Dano: 1d8+3</code></dt><dd>rola as duas partes juntas (aba Avançado)</dd>
-          </dl>
-        </div>
       </div>
       <div class="visor">
         <input id="expr" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
@@ -214,20 +205,10 @@
     <label>Notas <textarea id="ed-notas" rows="3"></textarea></label>
 
     <h2>Rolagens</h2>
-    <p class="ajuda">
-      Dê um nome e a expressão. Para rolar várias coisas de uma vez, separe com <b>;</b>
-      e dê nome a cada parte com <b>:</b>. Ex.: <code>Acerto: 1d20+5; Dano: 1d8+3</code>.
-      Se o Acerto tirar 20 natural, os dados do Dano dobram sozinhos.
-    </p>
     <div id="ed-rolagens"></div>
     <button type="button" class="botao" id="ed-adicionar">+ Adicionar rolagem</button>
 
     <h2>Usos e recargas</h2>
-    <p class="ajuda">
-      O que acaba e volta: espaços de magia (um por nível), Fúria, Dados de Vida, Resistência
-      Lendária, o Sopro do dragão (<b>Recarga 5–6</b>)... Na ficha cada uso vira um quadradinho;
-      os descansos e o início do turno devolvem sozinhos.
-    </p>
     <div id="ed-recursos"></div>
     <button type="button" class="botao" id="ed-adicionar-recurso">+ Adicionar uso</button>
 
@@ -253,9 +234,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=11"></script>
-<script src="js/monstros.js?v=11"></script>
-<script src="js/logica.js?v=11"></script>
-<script src="js/app.js?v=11"></script>
+<script src="js/temas.js?v=12"></script>
+<script src="js/monstros.js?v=12"></script>
+<script src="js/logica.js?v=12"></script>
+<script src="js/app.js?v=12"></script>
 </body>
 </html>
