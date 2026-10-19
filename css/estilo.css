@@ -877,3 +877,26 @@ body { font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; le
 #tela-combate .fab { bottom: calc(58px + 8px + 18px + env(safe-area-inset-bottom)); }
 #tela-combate .combate-turno[hidden] + * { display: none; }
 #tela-combate:has(#combate-turno[hidden]) .fab { bottom: calc(20px + env(safe-area-inset-bottom)); }
+
+/* ---------- Rodada 3 (versão 14): ficha e editor ---------- */
+/* Expressões longas no botão de rolagem: no máximo 2 linhas */
+.botao-rolagem small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.botao-rolagem { min-height: 64px; }
+/* Editor: campos com sublinhado (mesmo estilo do formulário de favorito) */
+.editor-corpo input, .editor-corpo select, .editor-corpo textarea {
+  background: transparent; border: 0; border-bottom: 1px solid var(--fraco); padding: 8px 2px; font-size: 1rem; color: #eceff1;
+}
+.editor-corpo textarea { border: 1px solid var(--borda); padding: 8px; }
+.editor-corpo input:focus, .editor-corpo select:focus { border-bottom: 2px solid var(--acento); }
+.editor-corpo select option { background: var(--superficie); }
+.linha-rolagem input, .linha-recurso input, .linha-recurso select { border-bottom: 1px solid transparent; }
+.linha-rolagem input:focus, .linha-recurso input:focus { border-bottom-color: var(--acento); }
+.retrato-escolher { position: relative; cursor: pointer; flex: none; }
+.retrato-escolher .selo-camera {
+  position: absolute; right: -6px; bottom: -6px; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--acento); color: var(--acento-txt); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,.4);
+}
+.retrato-escolher .selo-camera .ic { width: 18px; height: 18px; }
+.editor-imagem .coluna { align-items: flex-start; }
+.editor-imagem .botao-texto { padding-left: 0; }

@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '13';
+const VERSAO = '14';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -491,6 +491,7 @@ function executarRolagem() {
 function apertarTecla(ev) {
   const b = ev.target.closest('button');
   if (!b) return;
+  if (config.vibrar && navigator.vibrate) navigator.vibrate(6);  // "clique" curtinho, como teclado do Android
   const d = b.dataset;
   let v = visor.value;
   if (d.dado) v = apertarDado(v, Number(d.dado));
@@ -1131,6 +1132,7 @@ function caixa(rotulo, valor, classe) {
 
 // PV: caixas de CA / PV / temporários e, embaixo, a quantidade com Dano, Cura e Temp.
 function desenharPV(f, corpo) {
+  if (f.ca === null && !f.pvMax) return;   // sem CA nem PV: nada de caixas vazias
   const caixas = el('div', 'caixas');
   caixas.append(caixa('CA', f.ca !== null ? String(f.ca) : '—', 'caixa-ca'));
   if (!f.pvMax) {
@@ -1469,16 +1471,19 @@ function desenharFicha() {
     b.addEventListener('click', () => rolarDaFicha(f, r, estado));
     botoes.append(b);
   }
-  if (!f.rolagens.length) botoes.append(el('p', 'vazio', 'Sem rolagens. Toque no lápis para adicionar.'));
+  if (!f.rolagens.length) botoes.append(el('p', 'vazio', 'Sem rolagens'));
   corpo.append(botoes);
 
-  // Usos (espaços de magia, Fúria, Sopro...) e os descansos.
-  corpo.append(el('h2', 'titulo-secao', f.recursos.length ? 'Usos e descanso' : 'Descanso'));
-  // O recado aparece logo embaixo dos botões (e não lá em cima, perto dos PV).
-  const aoMudar = (recado) => { avisoUsos = recado; avisoPV = ''; mudouFicha(); };
-  if (f.recursos.length) corpo.append(blocoRecursos(f, estado, aoMudar));
-  corpo.append(blocoDescanso(f, estado, aoMudar));
-  if (avisoUsos) corpo.append(el('p', 'aviso-pv', avisoUsos));
+  // Usos (espaços de magia, Fúria, Sopro...) e os descansos. Sem PV nem usos, descansar
+  // não muda nada, então a seção nem aparece.
+  if (f.recursos.length || f.pvMax || f.exaustao) {
+    corpo.append(el('h2', 'titulo-secao', f.recursos.length ? 'Usos e descanso' : 'Descanso'));
+    // O recado aparece logo embaixo dos botões (e não lá em cima, perto dos PV).
+    const aoMudar = (recado) => { avisoUsos = recado; avisoPV = ''; mudouFicha(); };
+    if (f.recursos.length) corpo.append(blocoRecursos(f, estado, aoMudar));
+    corpo.append(blocoDescanso(f, estado, aoMudar));
+    if (avisoUsos) corpo.append(el('p', 'aviso-pv', avisoUsos));
+  }
 
   if (f.notas) corpo.append(el('h2', 'titulo-secao', 'Notas'), el('div', 'notas', f.notas));
 }
@@ -1556,6 +1561,7 @@ function abrirEditor(id) {
 function desenharRetratoEditor() {
   const caixa = $('ed-retrato');
   caixa.replaceWith(Object.assign(retrato({ ...edFicha, emoji: $('ed-emoji').value }, true), { id: 'ed-retrato' }));
+  $('ed-remover-imagem').hidden = !edFicha.imagem;   // só aparece quando há imagem
 }
 
 function desenharLinhasRolagem() {

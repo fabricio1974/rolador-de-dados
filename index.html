@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#3a3e44">
 <title>Rolador de Dados</title>
-<link rel="stylesheet" href="css/estilo.css?v=13">
+<link rel="stylesheet" href="css/estilo.css?v=14">
 </head>
 <body>
 <div class="app">
@@ -175,13 +175,16 @@
     <button class="botao destaque" id="editor-salvar">Salvar</button>
   </header>
   <form class="editor-corpo" id="editor-form" autocomplete="off">
+    <!-- Toque na imagem para escolher outra (galeria ou câmera) -->
     <div class="editor-imagem">
-      <div class="retrato grande" id="ed-retrato"></div>
+      <label class="retrato-escolher" for="ed-arquivo" aria-label="Escolher imagem">
+        <div class="retrato grande" id="ed-retrato"></div>
+        <span class="selo-camera"><i data-icone="camera"></i></span>
+      </label>
+      <input id="ed-arquivo" type="file" accept="image/*" hidden>
       <div class="coluna">
-        <label class="botao" for="ed-arquivo"><i data-icone="camera"></i>Escolher imagem</label>
-        <input id="ed-arquivo" type="file" accept="image/*" hidden>
-        <button type="button" class="botao" id="ed-remover-imagem">Remover imagem</button>
-        <label class="campo-mini">Emoji (sem imagem) <input id="ed-emoji" maxlength="4"></label>
+        <label class="campo-mini">Emoji (opcional) <input id="ed-emoji" maxlength="4"></label>
+        <button type="button" class="botao-texto" id="ed-remover-imagem">Remover imagem</button>
       </div>
     </div>
     <label>Nome <input id="ed-nome" required></label>
@@ -228,9 +231,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=13"></script>
-<script src="js/monstros.js?v=13"></script>
-<script src="js/logica.js?v=13"></script>
-<script src="js/app.js?v=13"></script>
+<script src="js/temas.js?v=14"></script>
+<script src="js/monstros.js?v=14"></script>
+<script src="js/logica.js?v=14"></script>
+<script src="js/app.js?v=14"></script>
 </body>
 </html>
