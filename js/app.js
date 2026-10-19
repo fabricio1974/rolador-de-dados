@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '14';
+const VERSAO = '15';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -107,10 +107,15 @@ function avisar(texto, acao = null, aoAgir = null, ms = 3500) {
     barra.append(b);
   }
   barra.classList.add('visivel');
+  document.body.classList.add('com-aviso');   // o botão + sobe para não ficar embaixo da mensagem
   clearTimeout(snackTimer);
   snackTimer = setTimeout(esconderAviso, ms);
 }
-function esconderAviso() { const b = $('snackbar'); if (b) b.classList.remove('visivel'); }
+function esconderAviso() {
+  const b = $('snackbar');
+  if (b) b.classList.remove('visivel');
+  document.body.classList.remove('com-aviso');
+}
 
 // ---------- 2. Estado (o que fica salvo) ----------
 const CONFIG_PADRAO = { tema: 'material', fundo: 'ardosia', vibrar: true, stats: true, critico: true, agitar: false,
@@ -188,6 +193,7 @@ const camadas = [];
 let depoisDeVoltar = null;
 
 function abrirCamada(fechar) {
+  esconderAviso();   // a mensagem rápida some ao abrir outra tela (como no Android)
   camadas.push(fechar);
   history.pushState({ camada: camadas.length }, '');
 }
@@ -208,6 +214,7 @@ if (history.state && history.state.camada > 0) history.go(-history.state.camada)
 let ultimaCalc = 'dados';
 function mostrarAba(aba) {
   if (!ABAS.includes(aba)) aba = 'dados';
+  if (aba !== config.aba) esconderAviso();
   config.aba = aba;
   salvarConfig();
   const calc = aba === 'dados' || aba === 'avancado';
@@ -219,6 +226,8 @@ function mostrarAba(aba) {
   $('tela-dados').hidden = !calc;
   $('teclado-simples').hidden = aba !== 'dados';
   $('teclado-avancado').hidden = aba !== 'avancado';
+  // Simples: o visor não abre o teclado do celular (como uma calculadora). Avançado: dá para digitar.
+  visor.inputMode = aba === 'avancado' ? 'text' : 'none';
   for (const nome of ['favoritos', 'historico', 'fichas', 'combate']) $('tela-' + nome).hidden = aba !== nome;
   if (aba === 'favoritos') desenharFavoritosAba();
   if (aba === 'historico') desenharHistoricoAba();
@@ -766,26 +775,39 @@ function desenharHistoricoAba() {
 
 // ----- Ajuda e Sobre -----
 function desenharAjuda(corpo) {
-  const linhas = [
+  const secaoAjuda = (titulo, ...itens) => {
+    corpo.append(el('h2', 'ajuda-titulo', titulo));
+    for (const item of itens) corpo.append(typeof item === 'string' ? el('p', 'ajuda', item) : item);
+  };
+  const tabela = (linhas) => {
+    const dl = el('dl', 'ajuda-notacao');
+    for (const [expr, texto] of linhas) dl.append(el('dt', '', expr), el('dd', '', texto));
+    return dl;
+  };
+  secaoAjuda('Dados',
+    'Toque nos blocos para montar a rolagem; tocar no mesmo dado de novo aumenta a quantidade (d6 → 2d6 → 3d6). Os números somam ou subtraem. ROLAR com o visor vazio repete a última rolagem.',
+    '⊗ limpa o visor e ♥ salva a rolagem nos favoritos. Na aba Avançado dá para digitar.');
+  secaoAjuda('Notação', tabela([
     ['2d12', 'rola 2 dados de 12 faces e soma'],
     ['1d20+5', 'soma ou subtrai números'],
-    ['3×(3d6)', 'parênteses REPETEM: rola 3d6 três vezes'],
-    ['3×[3d6]', 'colchetes MULTIPLICAM: rola 3d6 uma vez e ×3'],
-    ['4d6×3d4', 'dado vezes dado: multiplica os dois resultados'],
+    ['3×(3d6)', 'parênteses repetem: rola 3d6 três vezes'],
+    ['3×[3d6]', 'colchetes multiplicam: rola 3d6 uma vez e ×3'],
+    ['4d6×3d4', 'multiplica os dois resultados'],
     ['4d6×(3d4)', 'o 4d6 diz quantas vezes rolar o 3d4'],
     ['2d20kh1', 'vantagem: fica com o maior (kl = menor)'],
     ['4d6kh3', 'descarta o menor dado'],
-    ['Acerto: 1d20+5; Dano: 1d8+3', 'várias partes com nome; 20 natural dobra os dados do dano'],
-  ];
-  const tabela = el('dl', 'ajuda-notacao');
-  for (const [expr, texto] of linhas) tabela.append(el('dt', '', expr), el('dd', '', texto));
-  corpo.append(
-    el('p', 'ajuda', 'Toque nos dados para montar a expressão: tocar no mesmo dado de novo aumenta a quantidade (d6 → 2d6 → 3d6). A aba Avançado tem parênteses, colchetes, vantagem e partes.'),
-    tabela,
-    el('p', 'ajuda', 'Favoritos: salve com o ♥ da calculadora ou com o + da aba. O "Grupo" junta as rolagens de um mesmo personagem. A cor do quadradinho é a do primeiro dado.'),
-    el('p', 'ajuda', 'Fichas: em cada rolagem, separe partes com ";" e dê nome com ":" (Acerto: 1d20+5; Dano: 1d8+3). Usos e recargas (espaços de magia, Fúria, Recarga 5–6) viram quadradinhos; os descansos devolvem.'),
-    el('p', 'ajuda', 'Combate: o + adiciona personagens e monstros (o mesmo monstro pode entrar várias vezes, cada um com seus PV). Começar combate rola a iniciativa de quem falta.'),
-  );
+    ['dN', 'dado de qualquer tamanho: dN, 7 → d7'],
+    ['A: 1d20+5; D: 1d8+3', 'partes com nome; 20 natural dobra os dados do dano'],
+  ]));
+  secaoAjuda('Favoritos',
+    'Salve com o ♥ da calculadora ou com o + da aba. O Grupo junta as rolagens de um mesmo personagem; a cor do quadradinho é a do primeiro dado. A setinha ▾ abre Editar e Apagar.');
+  secaoAjuda('Fichas',
+    'Personagens e monstros com imagem, CA, PV, condições e rolagens com nome. Toque na rolagem para rolar; Vantagem/Desvantagem valem para os d20 da ficha.',
+    'Usos e recargas (espaços de magia, Fúria, Recarga 5–6) viram quadradinhos; os descansos devolvem. Com 0 PV aparecem as salvaguardas contra a morte.');
+  secaoAjuda('Combate',
+    'O + adiciona personagens e monstros (o mesmo monstro pode entrar várias vezes, cada um com seus PV). Começar combate rola a iniciativa de quem falta; Próximo turno passa a vez e conta as rodadas.');
+  secaoAjuda('Seus dados',
+    'Tudo fica salvo só neste aparelho. Faça backup pelo menu ☰ (Exportar backup) de vez em quando.');
 }
 
 function desenharSobre(corpo) {

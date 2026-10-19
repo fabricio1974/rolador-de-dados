@@ -900,3 +900,13 @@ body { font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; le
 .retrato-escolher .selo-camera .ic { width: 18px; height: 18px; }
 .editor-imagem .coluna { align-items: flex-start; }
 .editor-imagem .botao-texto { padding-left: 0; }
+
+/* ---------- Rodada 4 (versão 15): Ajuda em seções ---------- */
+.ajuda-titulo { font-size: 1.05rem; font-weight: 500; color: #eceff1; margin: 18px 0 6px; }
+.ajuda-titulo:first-child { margin-top: 4px; }
+.folha-corpo .ajuda { color: #b9c1c8; font-size: .9rem; line-height: 1.5; margin: 0 0 8px; }
+.ajuda-notacao { margin: 4px 0 8px; }
+/* Mensagem rápida visível: o botão + sobe junto (como no Android) */
+.fab { transition: transform .18s; }
+body.com-aviso .fab { transform: translateY(-64px); }
+@media (prefers-reduced-motion: reduce) { .fab { transition: none; } }
