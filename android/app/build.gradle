@@ -1,5 +1,13 @@
 apply plugin: 'com.android.application'
 
+// Lê "const VERSAO = '17';" de js/app.js.
+def versaoDoApp() {
+    def texto = new File(rootDir, '../js/app.js').text
+    def achou = (texto =~ /const VERSAO = '(\d+)'/)
+    if (!achou.find()) throw new GradleException('Não achei a VERSAO em js/app.js')
+    return achou.group(1).toInteger()
+}
+
 android {
     namespace = "io.github.fabricio1974.rolador"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,9 +15,10 @@ android {
         applicationId "io.github.fabricio1974.rolador"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // Igual à VERSAO do app (js/app.js). Aumente a cada APK novo, senão o Android não atualiza.
-        versionCode 16
-        versionName "16"
+        // A versão vem da VERSAO de js/app.js (um lugar só para mudar). Cada APK novo precisa
+        // de um número maior, senão o Android não instala por cima.
+        versionCode versaoDoApp()
+        versionName String.valueOf(versaoDoApp())
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

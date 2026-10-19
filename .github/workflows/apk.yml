@@ -1,0 +1,95 @@
+# Gera o APK assinado a cada push na main e publica na página Releases do repositório
+# (o app instalado confere lá se há versão nova). Também dá para rodar à mão na aba
+# Actions → "APK" → Run workflow.
+#
+# Precisa de 2 segredos (Settings → Secrets and variables → Actions):
+#   ROLADOR_KEYSTORE_BASE64  o arquivo rolador.jks em base64
+#   ROLADOR_KEYSTORE_SENHA   a senha da chave
+name: APK
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'css/**', 'js/**', 'icones/**', 'android/**', 'package.json', 'package-lock.json', 'capacitor.config.json', '.github/workflows/apk.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write   # para criar a Release
+
+concurrency:
+  group: apk
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Testes
+        run: node testes.js
+
+      - name: Versão do app (de js/app.js)
+        id: versao
+        run: echo "numero=$(grep -oP "const VERSAO = '\K\d+" js/app.js)" >> "$GITHUB_OUTPUT"
+
+      - name: Segredos da chave existem?
+        id: chave
+        env:
+          KEYSTORE: ${{ secrets.ROLADOR_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE" ]; then
+            echo "::warning::Sem os segredos ROLADOR_KEYSTORE_BASE64/ROLADOR_KEYSTORE_SENHA: o APK não será assinado nem publicado."
+            echo "tem=nao" >> "$GITHUB_OUTPUT"
+          else
+            echo "tem=sim" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Android SDK 36
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36" "build-tools;36.0.0" > /dev/null
+
+      - name: Montar o app (www) e sincronizar com o Android
+        run: |
+          npm ci
+          npm run build
+          npx cap sync android
+
+      - name: Compilar o APK assinado
+        if: steps.chave.outputs.tem == 'sim'
+        env:
+          KEYSTORE: ${{ secrets.ROLADOR_KEYSTORE_BASE64 }}
+          ROLADOR_KEYSTORE_SENHA: ${{ secrets.ROLADOR_KEYSTORE_SENHA }}
+        run: |
+          echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/rolador.jks"
+          export ROLADOR_KEYSTORE="$RUNNER_TEMP/rolador.jks"
+          cd android && chmod +x gradlew && ./gradlew assembleRelease --no-daemon -q
+          mkdir -p ../dist && cp app/build/outputs/apk/release/app-release.apk ../dist/rolador-de-dados.apk
+          rm -f "$RUNNER_TEMP/rolador.jks"
+
+      - name: Guardar o APK na execução (aba Actions)
+        if: steps.chave.outputs.tem == 'sim'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rolador-de-dados-v${{ steps.versao.outputs.numero }}
+          path: dist/rolador-de-dados.apk
+
+      - name: Publicar na Release v${{ steps.versao.outputs.numero }}
+        if: steps.chave.outputs.tem == 'sim'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.versao.outputs.numero }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/rolador-de-dados.apk --clobber
+          else
+            gh release create "$TAG" dist/rolador-de-dados.apk --title "Rolador de Dados $TAG" --notes "APK da versão ${TAG#v}. Para instalar: baixe rolador-de-dados.apk no celular e abra." --latest
+          fi

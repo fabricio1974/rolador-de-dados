@@ -312,6 +312,20 @@ teste('repetição comandada por dado com resultado negativo vira 0 vezes', () =
   assert.strictEqual(L.estatisticas(L.analisar('(1d4−5)×(1d6)')).min, 0);
 });
 
+console.log('Atualização do APK');
+
+teste('novaVersao: avisa só quando a Release é mais nova, e usa o .apk dela', () => {
+  const rel = (tag, assets) => ({ tag_name: tag, html_url: 'https://github.com/x/y/releases/tag/' + tag, assets });
+  const apk = [{ name: 'rolador-de-dados.apk', browser_download_url: 'https://github.com/x/y/releases/download/v17/rolador-de-dados.apk' }];
+  assert.deepStrictEqual(L.novaVersao(rel('v17', apk), '16'), { versao: 17, url: apk[0].browser_download_url });
+  assert.strictEqual(L.novaVersao(rel('v16', apk), '16'), null);   // mesma versão
+  assert.strictEqual(L.novaVersao(rel('v9', apk), '16'), null);    // mais velha (9 < 16, não compara como texto)
+  assert.strictEqual(L.novaVersao(rel('v17', []), '16').url, 'https://github.com/x/y/releases/tag/v17');  // sem .apk: página da Release
+  assert.strictEqual(L.novaVersao(rel('beta', apk), '16'), null);
+  assert.strictEqual(L.novaVersao(null, '16'), null);
+  assert.strictEqual(L.novaVersao({ tag_name: 'v20', assets: [{ name: 'a.apk', browser_download_url: 'javascript:alert(1)' }] }, '16'), null);
+});
+
 console.log('Erros');
 
 teste('expressões inválidas dão erro com mensagem', () => {

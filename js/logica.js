@@ -1230,6 +1230,21 @@ function limparConfig(c, padrao) {
   return limpa;
 }
 
+// Atualização do APK: lê a última versão publicada nas Releases do GitHub e diz se ela é
+// mais nova que a instalada. Devolve { versao, url } ou null (nada novo ou resposta estranha).
+function novaVersao(release, versaoAtual) {
+  if (!release || typeof release.tag_name !== 'string') return null;
+  const m = release.tag_name.match(/^v?(\d+)$/);
+  if (!m) return null;
+  const versao = Number(m[1]);
+  if (!(versao > Number(versaoAtual))) return null;
+  const apk = Array.isArray(release.assets)
+    ? release.assets.find(a => a && typeof a.name === 'string' && a.name.endsWith('.apk') && typeof a.browser_download_url === 'string')
+    : null;
+  const url = apk ? apk.browser_download_url : (typeof release.html_url === 'string' ? release.html_url : null);
+  return url && url.startsWith('https://') ? { versao, url } : null;
+}
+
 // No Node (testes) exporta as funções; no navegador elas já ficam globais.
 if (typeof module !== 'undefined') {
   module.exports = {
@@ -1242,6 +1257,6 @@ if (typeof module !== 'undefined') {
     RECARGAS, limparRecursos, limparGastos, usosRestantes, definirRestantes, recarregou, inicioDoTurno, descansar,
     limparMorte, salvaguardaMorte, falhaPorDano, tituloDoDia, agruparHistorico, horaCurta, lerBackup,
     migrarFicha, pvMaximo, classeArmadura, mudancaDeGastos, desfazerGastos, podarGastos,
-    limparFavoritos, limparHistorico, limparConfig,
+    limparFavoritos, limparHistorico, limparConfig, novaVersao,
   };
 }

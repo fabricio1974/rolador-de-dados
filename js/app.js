@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '16';
+const VERSAO = '17';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -137,7 +137,7 @@ function esconderAviso() {
 
 // ---------- 2. Estado (o que fica salvo) ----------
 const CONFIG_PADRAO = { tema: 'material', fundo: 'ardosia', vibrar: true, stats: true, critico: true, agitar: false,
-  aba: 'dados', recolhido: false, gruposFechados: [], visual: 0 };
+  aba: 'dados', recolhido: false, gruposFechados: [], visual: 0, ultimaVerificacao: 0 };
 const ABAS = ['dados', 'avancado', 'favoritos', 'historico', 'fichas', 'combate'];
 const VISUAL_ATUAL = 11;  // versão do visual; ao mudar o visual de novo, aumente
 // Tudo passa por uma conferência: dado estragado (ou de versão antiga) não quebra a tela.
@@ -873,6 +873,7 @@ $('gaveta').querySelector('nav').addEventListener('click', (ev) => {
     else if (acao === 'exportar') exportarBackup();
     else if (acao === 'importar') $('arquivo-backup').click();
     else if (acao === 'compartilhar') compartilharApp();
+    else if (acao === 'atualizar') verificarAtualizacao(true);
   };
   voltar();
 });
@@ -2153,7 +2154,32 @@ $('encerrar-combate').addEventListener('click', () => {
   desenharCombate();
 });
 
+// ---------- 12b. Atualização do APK ----------
+// O APK confere nas Releases do GitHub se existe versão nova (o GitHub Actions publica uma a
+// cada mudança). Sozinho, no máximo a cada 12 horas; pelo menu ☰, na hora.
+const RELEASES = 'https://api.github.com/repos/fabricio1974/rolador-de-dados/releases/latest';
+async function verificarAtualizacao(manual = false) {
+  if (!nativo()) return;
+  const agora = Date.now();
+  if (!manual && agora - config.ultimaVerificacao < 12 * 3600 * 1000) return;
+  config.ultimaVerificacao = agora; salvarConfig();
+  try {
+    const resposta = await fetch(RELEASES, { headers: { Accept: 'application/vnd.github+json' } });
+    const nova = resposta.ok ? novaVersao(await resposta.json(), VERSAO) : null;
+    // Endereço externo: o Capacitor abre no navegador do celular (o app continua aberto).
+    if (nova) avisar(`Versão ${nova.versao} disponível`, 'BAIXAR', () => { location.href = nova.url; }, 12000);
+    // 404 = ainda não há nenhuma versão publicada: para quem usa, é o mesmo que estar em dia.
+    else if (manual) avisar(resposta.ok || resposta.status === 404 ? 'Você já tem a versão mais nova' : 'Não consegui verificar agora');
+  } catch {
+    if (manual) avisar('Sem internet para verificar');
+  }
+}
+
 // ---------- 13. Início ----------
+// O item "Verificar atualização" do menu só existe no APK (o site se atualiza sozinho).
+$('menu-atualizar').hidden = !nativo();
+setTimeout(() => verificarAtualizacao(), 2500);   // depois que a tela já abriu
+
 // No APK: o botão voltar do Android fecha a tela aberta (ficha, menu, formulário...);
 // na tela principal, minimiza o app (como os outros apps do Android).
 if (nativo() && nativo().App) {

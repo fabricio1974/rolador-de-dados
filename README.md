@@ -130,6 +130,18 @@ Para assinar, defina `ROLADOR_KEYSTORE` (caminho do `.jks`) e `ROLADOR_KEYSTORE_
 instalada. A chave **não** vai para o repositório. A cada APK novo, aumente `versionCode` e
 `versionName` em `android/app/build.gradle` (igual à `VERSAO` de `js/app.js`).
 
+### APK automático (GitHub Actions)
+
+A cada push na `main` que mexe no app, o fluxo **APK** (`.github/workflows/apk.yml`) roda os
+testes, compila o APK assinado e publica em **Releases** como `vNN` (o número vem da `VERSAO`
+de `js/app.js`; o `versionCode` do Android também). O app instalado confere essa página ao
+abrir (no máximo a cada 12 h) e mostra **"Versão NN disponível · BAIXAR"**; também dá para
+conferir em ☰ → Verificar atualização.
+
+Precisa de dois segredos em **Settings → Secrets and variables → Actions**:
+`ROLADOR_KEYSTORE_BASE64` (o `rolador.jks` em base64) e `ROLADOR_KEYSTORE_SENHA`.
+Sem eles o fluxo passa, mas não assina nem publica.
+
 ## Dados salvos
 
 Tudo fica no `localStorage` do navegador, só no aparelho (`rolador.config`, `.historico`,
