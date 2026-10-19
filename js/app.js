@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '15';
+const VERSAO = '16';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -94,6 +94,24 @@ function gravar(chave, valor, avisar = true) {
 const num = (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 const semAcento = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
+// Recursos nativos quando o app roda instalado (APK feito com Capacitor). No navegador
+// isto devolve null e o app usa os recursos da web.
+function nativo() {
+  const C = window.Capacitor;
+  return C && C.isNativePlatform && C.isNativePlatform() ? C.Plugins : null;
+}
+// Vibração: no APK usa o motor do celular (Haptics); no navegador, navigator.vibrate.
+function vibrar(padrao) {
+  if (!config.vibrar) return;
+  const p = nativo();
+  if (p && p.Haptics) {
+    if (padrao === 'clique') p.Haptics.impact({ style: 'LIGHT' }).catch(() => {});
+    else p.Haptics.vibrate({ duration: Array.isArray(padrao) ? padrao.reduce((a, b) => a + b, 0) : padrao }).catch(() => {});
+    return;
+  }
+  if (navigator.vibrate) navigator.vibrate(padrao === 'clique' ? 6 : padrao);
+}
+
 // Mensagem rápida no rodapé (snackbar do Android): some sozinha; pode ter uma ação
 // (ex.: DESFAZER). Uma nova mensagem substitui a anterior.
 let snackTimer = null;
@@ -125,7 +143,7 @@ const VISUAL_ATUAL = 11;  // versão do visual; ao mudar o visual de novo, aumen
 // Tudo passa por uma conferência: dado estragado (ou de versão antiga) não quebra a tela.
 let config = limparConfig(ler('rolador.config', {}), CONFIG_PADRAO);
 if (!Array.isArray(config.gruposFechados)) config.gruposFechados = [];
-config.gruposFechados = config.gruposFechados.filter(g => typeof g === 'string');
+config.gruposFechados = config.gruposFechados.filter(g => typeof g === 'string' && !g.startsWith('hist:'));
 if (!ABAS.includes(config.aba)) config.aba = 'dados';
 // Visual novo (versão 11): quem vem de uma versão anterior passa uma vez para o tema e o
 // fundo novos; depois disso, o que a pessoa escolher em Configurações fica valendo.
@@ -435,10 +453,8 @@ function registrar(titulo, expr, rolagem) {
   historico.unshift({ titulo, expr, resumo: resumir(rolagem), detalhe, quando: Date.now() });
   historico = historico.slice(0, 50);
   gravar('rolador.historico', historico);
-  if (config.vibrar && navigator.vibrate) {
-    const critico = rolagem.partes.some(p => p.natural === 20);
-    navigator.vibrate(critico ? [40, 60, 40, 60, 80] : 15);
-  }
+  const critico = rolagem.partes.some(p => p.natural === 20);
+  vibrar(critico ? [40, 60, 40, 60, 80] : 15);
 }
 
 // ---------- 6. Aba Dados ----------
@@ -486,6 +502,7 @@ function executarRolagem() {
     tituloVisor = historico[0].titulo || '';
   }
   const expr = visor.value.trim();
+  if (!expr) return;   // nada para rolar (sem mensagem de erro)
   try {
     const rolagem = fazerRolagem(expr);
     desenharRolagem(areaResultado, rolagem, tituloVisor);
@@ -500,7 +517,7 @@ function executarRolagem() {
 function apertarTecla(ev) {
   const b = ev.target.closest('button');
   if (!b) return;
-  if (config.vibrar && navigator.vibrate) navigator.vibrate(6);  // "clique" curtinho, como teclado do Android
+  vibrar('clique');  // "clique" curtinho, como teclado do Android
   const d = b.dataset;
   let v = visor.value;
   if (d.dado) v = apertarDado(v, Number(d.dado));
@@ -627,17 +644,27 @@ function cartaoLista({ titulo, sub, extra, hora, expr, aoAbrir, acoes }) {
 }
 
 // Cabeçalho de grupo que abre/fecha (▾ Lilith). Fica lembrado em config.gruposFechados.
+// Grupos do histórico (por dia) ficam fechados só enquanto o app está aberto: guardar
+// "Hoje" ou "17/10" não faz sentido no dia seguinte e a lista cresceria para sempre.
+const gruposFechadosAgora = new Set();
+function grupoFechado(chave) {
+  return chave.startsWith('hist:') ? gruposFechadosAgora.has(chave) : config.gruposFechados.includes(chave);
+}
 function cabecaGrupo(chave, titulo, quantos, redesenhar = desenharAtalhos) {
-  const fechado = config.gruposFechados.includes(chave);
+  const fechado = grupoFechado(chave);
   const b = el('button', 'grupo-cabeca' + (fechado ? ' fechado' : ''));
   b.setAttribute('aria-expanded', String(!fechado));
   b.append(icone('seta'), el('span', '', titulo));
   if (quantos !== undefined) b.append(el('small', '', String(quantos)));
   b.addEventListener('click', () => {
-    config.gruposFechados = fechado
-      ? config.gruposFechados.filter(g => g !== chave)
-      : [...config.gruposFechados, chave];
-    salvarConfig();
+    if (chave.startsWith('hist:')) {
+      if (fechado) gruposFechadosAgora.delete(chave); else gruposFechadosAgora.add(chave);
+    } else {
+      config.gruposFechados = fechado
+        ? config.gruposFechados.filter(g => g !== chave)
+        : [...config.gruposFechados, chave];
+      salvarConfig();
+    }
     redesenhar();
   });
   return { botao: b, fechado };
@@ -659,6 +686,9 @@ function desenharFavoritosAba() {
     grupos.get(g).push({ f, indice });
   });
   const nomes = [...grupos.keys()].sort((a, b) => (a === '') - (b === '') || a.localeCompare(b, 'pt-BR'));
+  const existentes = new Set(nomes.map(n => 'fav:' + n));
+  const podados = config.gruposFechados.filter(g => !g.startsWith('fav:') || existentes.has(g));
+  if (podados.length !== config.gruposFechados.length) { config.gruposFechados = podados; salvarConfig(); }
   for (const nome of nomes) {
     const itens = grupos.get(nome);
     const { botao, fechado } = cabecaGrupo('fav:' + nome, nome || 'Sem grupo');
@@ -745,7 +775,8 @@ function desenharHistoricoAba() {
     const antes = historico;
     historico = []; gravar('rolador.historico', historico);
     desenharHistoricoAba();
-    avisar('Histórico limpo', 'DESFAZER', () => { historico = antes; gravar('rolador.historico', historico); desenharHistoricoAba(); });
+    // Desfazer devolve o que foi limpo SEM apagar rolagens feitas depois (elas ficam na frente).
+    avisar('Histórico limpo', 'DESFAZER', () => { historico = [...historico, ...antes].slice(0, 50); gravar('rolador.historico', historico); desenharHistoricoAba(); });
   });
   barra.append(limpar);
   lista.append(barra);
@@ -833,7 +864,7 @@ $('gaveta').querySelector('nav').addEventListener('click', (ev) => {
   if (acao === 'vibrar') {
     config.vibrar = !config.vibrar; salvarConfig();
     $('estado-vibrar').textContent = config.vibrar ? 'Ligada' : 'Desligada';
-    if (config.vibrar && navigator.vibrate) navigator.vibrate(20);
+    vibrar(20);
     return;
   }
   // As outras ações fecham o menu primeiro.
@@ -847,9 +878,13 @@ $('gaveta').querySelector('nav').addEventListener('click', (ev) => {
 });
 
 async function compartilharApp() {
-  const url = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://fabricio1974.github.io/rolador-de-dados/';
+  const SITE = 'https://fabricio1974.github.io/rolador-de-dados/';
+  // No APK (ou abrindo o arquivo direto) o endereço local não serve para outra pessoa: manda o site.
+  const url = location.protocol.startsWith('http') && location.hostname !== 'localhost' ? location.origin + location.pathname : SITE;
   try {
-    if (navigator.share) await navigator.share({ title: 'Rolador de Dados', url });
+    const p = nativo();
+    if (p && p.Share) await p.Share.share({ title: 'Rolador de Dados', text: 'Rolador de dados para RPG', url });
+    else if (navigator.share) await navigator.share({ title: 'Rolador de Dados', url });
     else { await navigator.clipboard.writeText(url); avisar('Endereço copiado'); }
   } catch { /* a pessoa cancelou */ }
 }
@@ -976,12 +1011,22 @@ function exportarBackup() {
   // Versão 2 do backup (app 7): passa a levar o combate em andamento.
   const dados = { app: 'rolador-de-dados', versao: 2, versaoApp: VERSAO, criadoEm: new Date().toISOString(),
     config, favoritos, fichas, historico, combate };
+  const hoje = new Date();
+  const data = [hoje.getFullYear(), hoje.getMonth() + 1, hoje.getDate()].map(n => String(n).padStart(2, '0')).join('-');
+  const nome = `rolador-backup-${data}.json`;
+  const p = nativo();
+  if (p && p.Filesystem && p.Share) {
+    // No APK não existe "baixar arquivo": grava o backup e abre o Compartilhar do Android
+    // (dá para salvar no Drive, nos Arquivos, mandar no WhatsApp...).
+    p.Filesystem.writeFile({ path: nome, data: JSON.stringify(dados), directory: 'CACHE', encoding: 'utf8' })
+      .then(({ uri }) => p.Share.share({ title: 'Backup do Rolador', url: uri, dialogTitle: 'Salvar backup' }))
+      .catch(() => avisar('Não consegui exportar o backup'));
+    return;
+  }
   const blob = new Blob([JSON.stringify(dados)], { type: 'application/json' });
   const a = el('a');
   a.href = URL.createObjectURL(blob);
-  const hoje = new Date();
-  const data = [hoje.getFullYear(), hoje.getMonth() + 1, hoje.getDate()].map(n => String(n).padStart(2, '0')).join('-');
-  a.download = `rolador-backup-${data}.json`;
+  a.download = nome;
   document.body.append(a);
   a.click();
   a.remove();
@@ -1832,7 +1877,7 @@ function proximoTurno() {
   if (lembretes) avisoCombate = avisoCombate ? avisoCombate + ' · ' + lembretes : lembretes;
   salvarFichas();
   salvarCombate();
-  if (config.vibrar && navigator.vibrate) navigator.vibrate(15);
+  vibrar(15);
   desenharCombate(true);
 }
 
