@@ -42,7 +42,8 @@ Barra de cima com o menu **☰** e seis abas só com ícones:
 - **Histórico**: as últimas 50 rolagens por dia (Hoje, Ontem...), com a hora e o resultado.
 - **Menu ☰**: Configurações (temas, fundo, opções), Vibração, Exportar/Importar backup,
   Compartilhar, Ajuda (notação) e Sobre.
-- **Fichas** (botão **+** cria): personagens e monstros (em grupos separados), com imagem (da galeria ou câmera),
+- **Fichas** (botão **+** cria): personagens e monstros (em grupos separados), com imagem (da galeria ou câmera,
+  recortada na hora: arraste, aproxime com dois dedos ou a barra, gire; **Ajustar** refaz o recorte),
   CA, PV e modo Normal/Vantagem/Desvantagem para os botões de rolagem com nome.
   Já vem com 10 monstros do SRD 5.2.1 (D&D 2024), do ND 1/4 ao 21.
   - **PV**: digite a quantidade e toque em **Dano**, **Cura** ou **Temp** (PV temporários:

@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '18';
+const VERSAO = '19';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -53,6 +53,8 @@ const ICONES = {
   backspace: ['M8 5h13v14H8l-6-7z', 'M11.5 9.5l5 5', 'M16.5 9.5l-5 5'],
   limpar: ['M12 2.5a9.5 9.5 0 1 0 0 19a9.5 9.5 0 1 0 0-19z', 'M8.5 8.5l7 7', 'M15.5 8.5l-7 7'],
   triangulo: ['M6 9.5h12l-6 6z'],
+  girar: ['M20 12a8 8 0 1 1-2.3-5.7', 'M20 3v5h-5'],
+  centro: ['M12 2.5v4', 'M12 17.5v4', 'M2.5 12h4', 'M17.5 12h4', 'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z'],
 };
 function icone(nome) {
   const ns = 'http://www.w3.org/2000/svg';
@@ -834,6 +836,7 @@ function desenharAjuda(corpo) {
     'Salve com o ♥ da calculadora ou com o + da aba. O Grupo junta as rolagens de um mesmo personagem; a cor do quadradinho é a do primeiro dado. A setinha ▾ abre Editar e Apagar.');
   secaoAjuda('Fichas',
     'Personagens e monstros com imagem, CA, PV, condições e rolagens com nome. Toque na rolagem para rolar; Vantagem/Desvantagem valem para os d20 da ficha.',
+    'Imagem: no lápis, toque no retrato e escolha a foto. Arraste para enquadrar, use dois dedos (ou a barra) para aproximar e ↻ para girar; o quadrado claro é o que fica. Ajustar refaz o recorte.',
     'Usos e recargas (espaços de magia, Fúria, Recarga 5–6) viram quadradinhos; os descansos devolvem. Com 0 PV aparecem as salvaguardas contra a morte.');
   secaoAjuda('Combate',
     'O + adiciona personagens e monstros (o mesmo monstro pode entrar várias vezes, cada um com seus PV). Começar combate rola a iniciativa de quem falta; Próximo turno passa a vez e conta as rodadas.');
@@ -1623,13 +1626,13 @@ function abrirEditor(id) {
   desenharLinhasRecurso();
   $('editor').hidden = false;
   $('editor').querySelector('.editor-corpo').scrollTop = 0;
-  abrirCamada(() => { $('editor').hidden = true; edFicha = null; });
+  abrirCamada(() => { $('editor').hidden = true; edFicha = null; esquecerOriginal(); });
 }
 
 function desenharRetratoEditor() {
   const caixa = $('ed-retrato');
   caixa.replaceWith(Object.assign(retrato({ ...edFicha, emoji: $('ed-emoji').value }, true), { id: 'ed-retrato' }));
-  $('ed-remover-imagem').hidden = !edFicha.imagem;   // só aparece quando há imagem
+  $('ed-remover-imagem').hidden = $('ed-ajustar-imagem').hidden = !edFicha.imagem;   // só com imagem
 }
 
 function desenharLinhasRolagem() {
@@ -1692,38 +1695,181 @@ $('ed-adicionar').addEventListener('click', () => {
 });
 $('ed-emoji').addEventListener('input', desenharRetratoEditor);
 
-// Imagem: corta no meio em quadrado e reduz para 256×256 (JPEG), para caber no armazenamento.
-function lerImagem(arquivo) {
-  return new Promise((ok, erro) => {
-    const url = URL.createObjectURL(arquivo);
-    const img = new Image();
-    img.onload = () => {
-      const lado = 256;
-      const menor = Math.min(img.naturalWidth, img.naturalHeight);
-      const tela = document.createElement('canvas');
-      tela.width = tela.height = lado;
-      tela.getContext('2d').drawImage(img,
-        (img.naturalWidth - menor) / 2, (img.naturalHeight - menor) / 2, menor, menor, 0, 0, lado, lado);
-      URL.revokeObjectURL(url);
-      ok(tela.toDataURL('image/jpeg', 0.8));
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); erro(new Error('Não consegui abrir essa imagem.')); };
-    img.src = url;
-  });
+// Imagem: a foto escolhida abre na tela de recorte. O que fica dentro do quadrado vira
+// um retrato de 256×256 (JPEG), pequeno o bastante para o armazenamento do celular.
+// A foto original fica guardada só enquanto o editor está aberto (para "Ajustar" de novo
+// com qualidade); depois de salvar, "Ajustar" usa o próprio retrato.
+let edOriginal = null;   // { url, ajuste } da última foto escolhida
+function esquecerOriginal() {
+  if (edOriginal) URL.revokeObjectURL(edOriginal.url);
+  edOriginal = null;
 }
 
-$('ed-arquivo').addEventListener('change', async (ev) => {
+$('ed-arquivo').addEventListener('change', (ev) => {
   const arquivo = ev.target.files[0];
   ev.target.value = '';
   if (!arquivo) return;
-  try {
-    edFicha.imagem = await lerImagem(arquivo);
+  esquecerOriginal();
+  edOriginal = { url: URL.createObjectURL(arquivo), ajuste: null };
+  abrirRecorte(edOriginal.url, null, (imagem, ajuste) => {
+    edOriginal.ajuste = ajuste;
+    edFicha.imagem = imagem;
     desenharRetratoEditor();
-  } catch (e) {
-    $('ed-aviso').textContent = e.message;
-  }
+  });
 });
-$('ed-remover-imagem').addEventListener('click', () => { edFicha.imagem = null; desenharRetratoEditor(); });
+$('ed-ajustar-imagem').addEventListener('click', () => {
+  // A foto original (se ainda está aqui) dá mais qualidade; senão, ajusta o retrato salvo.
+  const fonte = edOriginal || { url: edFicha.imagem, ajuste: null };
+  abrirRecorte(fonte.url, fonte.ajuste, (imagem, ajuste) => {
+    if (edOriginal) edOriginal.ajuste = ajuste;
+    edFicha.imagem = imagem;
+    desenharRetratoEditor();
+  });
+});
+$('ed-remover-imagem').addEventListener('click', () => { edFicha.imagem = null; esquecerOriginal(); desenharRetratoEditor(); });
+
+// ---------- Tela de recorte ----------
+// Estado: escala (1 = a foto cobre o quadrado exatamente), giro (0/90/180/270 graus) e
+// deslocamento (dx, dy) do centro da foto em relação ao centro do quadrado, em pixels da tela.
+const rec = { img: $('recorte-img'), largura: 0, altura: 0, lado: 0, escala: 1, giro: 0, dx: 0, dy: 0, pronto: null, dedos: new Map() };
+
+function abrirRecorte(url, ajuste, aoUsar) {
+  rec.pronto = aoUsar;
+  rec.largura = 0;   // até a foto nova carregar, "Usar" não faz nada (nunca usa a anterior)
+  rec.img.onload = () => {
+    rec.largura = rec.img.naturalWidth; rec.altura = rec.img.naturalHeight;
+    Object.assign(rec, { lado: 0, escala: 1, giro: 0, dx: 0, dy: 0 });
+    if (ajuste) Object.assign(rec, { escala: ajuste.escala, giro: ajuste.giro });
+    medirRecorte();
+    // O deslocamento foi guardado como fração do quadrado: volta para pixels desta tela.
+    if (ajuste) { rec.dx = ajuste.dx * rec.lado; rec.dy = ajuste.dy * rec.lado; desenharRecorte(); }
+  };
+  rec.img.onerror = () => { voltar(); $('ed-aviso').textContent = 'Não consegui abrir essa imagem.'; };
+  rec.img.src = url;
+  $('recorte').hidden = false;
+  abrirCamada(() => { $('recorte').hidden = true; rec.dedos.clear(); });
+}
+
+// Tamanho da foto na tela, já girada: w × h (antes de girar) e o que ela ocupa (larg × alt).
+function medidasRecorte() {
+  const deitada = rec.giro % 180 !== 0;
+  const larg0 = deitada ? rec.altura : rec.largura, alt0 = deitada ? rec.largura : rec.altura;
+  const base = rec.lado / Math.min(larg0, alt0);   // escala que faz a foto cobrir o quadrado
+  const k = base * rec.escala;
+  return { w: rec.largura * k, h: rec.altura * k, larg: larg0 * k, alt: alt0 * k };
+}
+
+// A foto nunca deixa buraco dentro do quadrado: limita o zoom e o deslocamento.
+function limitarRecorte() {
+  rec.escala = Math.min(5, Math.max(1, rec.escala));
+  const m = medidasRecorte();
+  const folgaX = (m.larg - rec.lado) / 2, folgaY = (m.alt - rec.lado) / 2;
+  rec.dx = Math.min(folgaX, Math.max(-folgaX, rec.dx));
+  rec.dy = Math.min(folgaY, Math.max(-folgaY, rec.dy));
+}
+
+function medirRecorte() {
+  if (!rec.largura || $('recorte').hidden) return;
+  const area = $('recorte-area');
+  const novoLado = Math.max(80, Math.min(area.clientWidth, area.clientHeight) - 32);
+  // Girou a tela ou mudou o tamanho: mantém o mesmo enquadramento, proporcionalmente.
+  if (rec.lado) { rec.dx *= novoLado / rec.lado; rec.dy *= novoLado / rec.lado; }
+  rec.lado = novoLado;
+  const moldura = $('recorte-moldura');
+  moldura.style.width = moldura.style.height = rec.lado + 'px';
+  desenharRecorte();
+}
+
+function desenharRecorte() {
+  limitarRecorte();
+  const area = $('recorte-area');
+  const m = medidasRecorte();
+  const s = rec.img.style;
+  s.width = m.w + 'px'; s.height = m.h + 'px';
+  s.left = (area.clientWidth / 2 + rec.dx - m.w / 2) + 'px';
+  s.top = (area.clientHeight / 2 + rec.dy - m.h / 2) + 'px';
+  s.transform = `rotate(${rec.giro}deg)`;
+  $('recorte-zoom').value = rec.escala;
+}
+
+// Aproxima mantendo parado o ponto (px, py) da tela (relativo ao centro do quadrado).
+function zoomRecorte(nova, px = 0, py = 0) {
+  const antes = rec.escala;
+  rec.escala = Math.min(5, Math.max(1, nova));
+  const r = rec.escala / antes;
+  rec.dx = px + (rec.dx - px) * r;
+  rec.dy = py + (rec.dy - py) * r;
+  desenharRecorte();
+}
+
+function pontoNoQuadrado(x, y) {
+  const caixa = $('recorte-area').getBoundingClientRect();
+  return [x - caixa.left - caixa.width / 2, y - caixa.top - caixa.height / 2];
+}
+
+const areaRecorte = $('recorte-area');
+areaRecorte.addEventListener('pointerdown', (ev) => {
+  areaRecorte.setPointerCapture(ev.pointerId);
+  rec.dedos.set(ev.pointerId, [ev.clientX, ev.clientY]);
+});
+areaRecorte.addEventListener('pointermove', (ev) => {
+  const antes = rec.dedos.get(ev.pointerId);
+  if (!antes) return;
+  const agora = [ev.clientX, ev.clientY];
+  if (rec.dedos.size === 1) {
+    // Um dedo: arrasta a foto.
+    rec.dx += agora[0] - antes[0]; rec.dy += agora[1] - antes[1];
+    rec.dedos.set(ev.pointerId, agora);
+    desenharRecorte();
+    return;
+  }
+  // Dois dedos: a distância entre eles muda o zoom; o meio deles também arrasta.
+  const outro = [...rec.dedos].find(([id]) => id !== ev.pointerId)[1];
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]) || 1;
+  const meioAntes = pontoNoQuadrado((antes[0] + outro[0]) / 2, (antes[1] + outro[1]) / 2);
+  const meioAgora = pontoNoQuadrado((agora[0] + outro[0]) / 2, (agora[1] + outro[1]) / 2);
+  rec.dx += meioAgora[0] - meioAntes[0]; rec.dy += meioAgora[1] - meioAntes[1];
+  rec.dedos.set(ev.pointerId, agora);
+  zoomRecorte(rec.escala * dist(agora, outro) / dist(antes, outro), meioAgora[0], meioAgora[1]);
+});
+const soltarDedo = (ev) => rec.dedos.delete(ev.pointerId);
+areaRecorte.addEventListener('pointerup', soltarDedo);
+areaRecorte.addEventListener('pointercancel', soltarDedo);
+// Rodinha do mouse (no computador) também aproxima.
+areaRecorte.addEventListener('wheel', (ev) => {
+  ev.preventDefault();
+  zoomRecorte(rec.escala * Math.exp(-ev.deltaY / 400), ...pontoNoQuadrado(ev.clientX, ev.clientY));
+}, { passive: false });
+
+$('recorte-zoom').addEventListener('input', (ev) => zoomRecorte(Number(ev.target.value)));
+$('recorte-girar').addEventListener('click', () => {
+  // Gira 90° no sentido horário levando junto o enquadramento.
+  [rec.dx, rec.dy] = [-rec.dy, rec.dx];
+  rec.giro = (rec.giro + 90) % 360;
+  desenharRecorte();
+});
+$('recorte-centro').addEventListener('click', () => { Object.assign(rec, { escala: 1, dx: 0, dy: 0 }); desenharRecorte(); });
+$('recorte-cancelar').addEventListener('click', voltar);
+$('recorte-usar').addEventListener('click', () => {
+  if (!rec.largura) return;
+  // Desenha num quadrado de 256 px exatamente o que está dentro da moldura.
+  const lado = 256, k = lado / rec.lado;
+  const m = medidasRecorte();
+  const tela = document.createElement('canvas');
+  tela.width = tela.height = lado;
+  const ctx = tela.getContext('2d');
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, lado, lado);
+  ctx.imageSmoothingQuality = 'high';
+  ctx.translate(lado / 2 + rec.dx * k, lado / 2 + rec.dy * k);
+  ctx.rotate(rec.giro * Math.PI / 180);
+  ctx.drawImage(rec.img, -m.w * k / 2, -m.h * k / 2, m.w * k, m.h * k);
+  // O ajuste é guardado relativo ao tamanho do quadrado, para servir em outra tela.
+  const ajuste = { escala: rec.escala, giro: rec.giro, dx: rec.dx / rec.lado, dy: rec.dy / rec.lado };
+  const pronto = rec.pronto;
+  pronto(tela.toDataURL('image/jpeg', 0.85), ajuste);
+  voltar();
+});
+window.addEventListener('resize', medirRecorte);
 
 function salvarEditor() {
   const aviso = $('ed-aviso');

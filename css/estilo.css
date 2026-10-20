@@ -918,3 +918,26 @@ body { font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; le
 .fab { transition: transform .18s; }
 body.com-aviso .fab { transform: translateY(-64px); }
 @media (prefers-reduced-motion: reduce) { .fab { transition: none; } }
+
+/* ---------- Versão 19: recorte da imagem da ficha ---------- */
+.editor-imagem .botoes-imagem { display: flex; gap: 14px; }
+#recorte { z-index: 12; padding: 0 0 var(--seg-baixo); background: #111315; }
+#recorte > .topo { margin: 0; }
+.recorte-area {
+  flex: 1; min-height: 0; position: relative; overflow: hidden;
+  touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab;
+}
+.recorte-area:active { cursor: grabbing; }
+.recorte-area img { position: absolute; max-width: none; pointer-events: none; transform-origin: center; }
+/* O quadrado claro é o que vira o retrato; o resto fica escurecido. */
+.recorte-moldura {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none;
+  box-shadow: 0 0 0 100vmax rgba(0,0,0,.62); outline: 2px solid rgba(255,255,255,.9);
+}
+.recorte-controles {
+  flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: var(--barra);
+}
+.recorte-controles .icone { color: #e6e9ec; width: 48px; height: 48px; }
+.recorte-controles .icone .ic { width: 26px; height: 26px; }
+.recorte-controles input[type="range"] { flex: 1; accent-color: var(--acento); height: 40px; }
