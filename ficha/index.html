@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#212121">
 <title>Ficha de Personagem</title>
 <link rel="icon" href="icone.svg">
-<link rel="stylesheet" href="ficha.css?v=1">
+<link rel="stylesheet" href="ficha.css?v=2">
 </head>
 <body>
 <!-- ===== BARRA DE CIMA: nome do personagem, pasta (trocar), lixeira e menu ⋮ ===== -->
@@ -38,6 +38,7 @@
   <section class="pagina" id="pg-ataques" aria-label="Ataques"></section>
   <section class="pagina" id="pg-magias" aria-label="Magias"></section>
   <section class="pagina" id="pg-detalhes" aria-label="Detalhes"></section>
+  <section class="pagina" id="pg-galeria" aria-label="Galeria"></section>
 </main>
 <nav class="pontos" id="pontos" aria-label="Páginas"></nav>
 
@@ -56,10 +57,17 @@
 </div>
 
 <input type="file" id="arquivo-importar" accept="application/json,.json" hidden>
+<input type="file" id="arquivo-fotos" accept="image/*" multiple hidden>
 
 <!-- O parser de dados é o mesmo do Rolador (../js/logica.js) -->
 <script src="../js/logica.js?v=19"></script>
-<script src="regras.js?v=1"></script>
-<script src="app.js?v=1"></script>
+<script src="regras.js?v=2"></script>
+<!-- Regras e opções do SRD 5.2.1 em português (classes, magias, armas...) -->
+<script src="dados5e.js?v=2"></script>
+<script src="app.js?v=2"></script>
+<script src="listas.js?v=2"></script>
+<script src="subir.js?v=2"></script>
+<script src="galeria.js?v=2"></script>
+<script src="inicio.js?v=2"></script>
 </body>
 </html>

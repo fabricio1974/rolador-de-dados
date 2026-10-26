@@ -93,7 +93,12 @@ const ataqueMagia = (p) => profDe(p) + modDe(p, p.conjuracao.atributo);
 const cdMagia = (p) => 8 + ataqueMagia(p);
 // O que rolar ao tocar em "Rolar" numa magia (vazio = nada para rolar).
 function exprMagia(p, m) {
-  const r = m.rolagem.trim();
+  let r = m.rolagem.trim();
+  if (m.nivel === 0 && m.escala) r = escalarDados(r, escalaTruque(p.nivel));
+  if (m.somarMod && r) {
+    const mod = modDe(p, p.conjuracao.atributo);
+    r = r.split(';').map((parte, i) => (i === 0 ? parte + comSinal(mod) : parte)).join(';');
+  }
   if (!m.ataque) return r;
   const atq = 'Ataque: 1d20' + comSinal(ataqueMagia(p));
   if (!r) return atq;
@@ -107,17 +112,96 @@ function sofrerDano(p, dano) {
 }
 const curar = (p, cura) => Math.min(p.pvMax, p.pv + cura);
 
-const dadosDeVidaRestantes = (p) => Math.max(0, p.nivel - p.dadosVidaGastos);
+// ---------- Classes (multiclasse: cada classe com seu nível e seu Dado de Vida) ----------
+const nivelTotal = (classes) => Math.min(20, classes.reduce((s, c) => s + c.nivel, 0));
+const dadosDeVidaRestantes = (p) => p.classes.reduce((s, c) => s + Math.max(0, c.nivel - c.gastos), 0);
+// "2d6" ou, com multiclasse, "2d6+1d10" (os que ainda restam).
+function textoDadosDeVida(p) {
+  const por = {};
+  for (const c of p.classes) por[c.dadoVida] = (por[c.dadoVida] || 0) + Math.max(0, c.nivel - c.gastos);
+  const partes = Object.entries(por).filter(([, n]) => n).sort((a, b) => b[0] - a[0]).map(([d, n]) => `${n}d${d}`);
+  return partes.join('+') || `0d${p.classes[0].dadoVida}`;
+}
+const classeENivelDe = (p) => p.classes.map(c => `${c.nome || 'Classe'} ${c.nivel}`).join(' / ');
+
+// Acha a classe do SRD pelo nome escrito (em português ou inglês, masculino ou feminino).
+const PREFIXOS_CLASSE = [
+  ['barb', 'barbaro'], ['bard', 'bardo'], ['cler', 'clerigo'], ['drui', 'druida'], ['guer', 'guerreiro'], ['figh', 'guerreiro'],
+  ['mon', 'monge'], ['pala', 'paladino'], ['patr', 'patrulheiro'], ['rang', 'patrulheiro'], ['ladi', 'ladino'], ['rogu', 'ladino'],
+  ['feit', 'feiticeiro'], ['sorc', 'feiticeiro'], ['brux', 'bruxo'], ['warl', 'bruxo'], ['mag', 'mago'], ['wiza', 'mago'],
+];
+function acharClasse(nome) {
+  const n = String(nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const achado = PREFIXOS_CLASSE.find(([pre]) => n.startsWith(pre));
+  return achado ? achado[1] : '';
+}
+
+// Espaços de magia de um conjurador completo pelo nível de conjurador (1–20).
+const ESPACOS_COMPLETO = [
+  [], [2], [3], [4, 2], [4, 3], [4, 3, 2], [4, 3, 3], [4, 3, 3, 1], [4, 3, 3, 2], [4, 3, 3, 3, 1], [4, 3, 3, 3, 2],
+  [4, 3, 3, 3, 2, 1], [4, 3, 3, 3, 2, 1], [4, 3, 3, 3, 2, 1, 1], [4, 3, 3, 3, 2, 1, 1], [4, 3, 3, 3, 2, 1, 1, 1],
+  [4, 3, 3, 3, 2, 1, 1, 1], [4, 3, 3, 3, 2, 1, 1, 1, 1], [4, 3, 3, 3, 3, 1, 1, 1, 1], [4, 3, 3, 3, 3, 2, 1, 1, 1], [4, 3, 3, 3, 3, 2, 2, 1, 1],
+];
+// Nível de conjurador somado (regra de multiclasse 2024): completo conta inteiro, meio
+// conjurador (Paladino, Patrulheiro) conta metade arredondada para cima. Bruxo (Magia de
+// Pacto) é à parte e soma os espaços dele no nível do pacto.
+// Devolve { 1: max, 2: max, ... } ou null se nenhuma classe conjura.
+function espacosDasClasses(classes, dados) {
+  let nivelConj = 0, conjura = false;
+  const pacto = {};
+  for (const c of classes) {
+    const d = dados && dados.classes.find(x => x.id === c.id);
+    const conj = d && d.conjuracao;
+    if (!conj) continue;
+    conjura = true;
+    if (conj.tipo === 'completa') nivelConj += c.nivel;
+    else if (conj.tipo === 'meia') nivelConj += Math.ceil(c.nivel / 2);
+    else if (conj.tipo === 'pacto' && conj.espacosPacto) {
+      const i = Math.min(20, c.nivel) - 1;
+      const n = conj.nivelPacto[i];
+      if (n) pacto[n] = (pacto[n] || 0) + conj.espacosPacto[i];
+    }
+  }
+  if (!conjura) return null;
+  const espacos = {};
+  (ESPACOS_COMPLETO[Math.min(20, nivelConj)] || []).forEach((q, i) => { espacos[i + 1] = q; });
+  for (const [n, q] of Object.entries(pacto)) espacos[n] = (espacos[n] || 0) + q;
+  return espacos;
+}
+// Troca os máximos de espaços mantendo os já gastos (sem passar do novo máximo).
+function aplicarEspacos(atuais, novos) {
+  const r = {};
+  for (const [n, max] of Object.entries(novos)) if (max) r[n] = { max, usados: Math.min(max, (atuais[n] || {}).usados || 0) };
+  return r;
+}
+// A classe ganha Aumento no Valor de Atributo (ou Dádiva Épica) neste nível?
+function ganhaAumento(classeDados, nivel) {
+  const n = classeDados && classeDados.niveis.find(x => x.nivel === nivel);
+  return !!n && n.caracteristicas.some(c => /Aumento no Valor de Atributo|Dádiva Épica/i.test(c.nome));
+}
+// Aumento de atributos: um atributo +2 ou dois +1 (sem passar de "max", 20 normalmente).
+function aplicarAumento(atributos, escolhidos, max = 20) {
+  const novo = { ...atributos };
+  const qtd = escolhidos.length === 1 ? 2 : 1;
+  for (const a of escolhidos.slice(0, 2)) novo[a] = Math.min(max, novo[a] + qtd);
+  return novo;
+}
+// Truques ficam mais fortes nos níveis 5, 11 e 17 do personagem (mais dados).
+const escalaTruque = (nivel) => 1 + (nivel >= 5) + (nivel >= 11) + (nivel >= 17);
+function escalarDados(expr, vezes) {
+  if (vezes <= 1) return expr;
+  return expr.split(';').map(parte => parte.replace(/(\d*)d(\d+)/, (m, q, f) => `${(Number(q) || 1) * vezes}d${f}`)).join(';');
+}
 // Descanso longo (2024): PV cheios, PV temporários acabam, espaços de magia voltam e
 // recupera todos os Dados de Vida gastos.
 function descansoLongo(p) {
   const espacos = {};
   for (const [n, e] of Object.entries(p.espacos)) espacos[n] = { ...e, usados: 0 };
-  return { ...p, pv: p.pvMax, pvTemp: 0, dadosVidaGastos: 0, espacos };
+  return { ...p, pv: p.pvMax, pvTemp: 0, classes: p.classes.map(c => ({ ...c, gastos: 0 })), espacos };
 }
 // Ganho de PV ao subir de nível: média do dado de vida (arredondada para cima) + CON.
 const mediaDadoVida = (d) => d / 2 + 1;
-const ganhoDeNivel = (p, rolado = null) => Math.max(1, (rolado ?? mediaDadoVida(p.dadoVida)) + modDe(p, 'con'));
+const ganhoDeNivel = (p, rolado = null, dado = p.classes[0].dadoVida) => Math.max(1, (rolado ?? mediaDadoVida(dado)) + modDe(p, 'con'));
 
 const ORDINAIS = ['Truques', '1º Nível', '2º Nível', '3º Nível', '4º Nível', '5º Nível', '6º Nível', '7º Nível', '8º Nível', '9º Nível'];
 
@@ -145,6 +229,7 @@ function limparAtaque(a) {
     dano: texto(a.dano, 60),
     somarMod: a.somarMod !== false,
     bonusDano: inteiro(a.bonusDano, 0, -20, 50),
+    notas: texto(a.notas, 400),         // propriedades e maestria (ex.: Versátil (1d10) · Maestria: Drenar)
   };
 }
 
@@ -155,6 +240,10 @@ function limparMagia(m) {
     nivel: inteiro(m.nivel, 0, 0, 9),
     preparada: m.preparada !== false,
     ataque: m.ataque === true,          // rola o Ataque Mágico (1d20 + bônus) antes do dano
+    escala: m.escala === true,          // truque que ganha dados nos níveis 5, 11 e 17
+    somarMod: m.somarMod === true,      // soma o modificador de conjuração na 1ª parte (curas)
+    salvaguarda: NOME_ATRIBUTO[m.salvaguarda] ? m.salvaguarda : '',
+    ref: texto(m.ref, 60),              // id da magia no SRD (para mostrar a descrição)
     rolagem: texto(m.rolagem, 120),
     notas: texto(m.notas, 2000),
   };
@@ -172,7 +261,26 @@ function limparPersonagem(x) {
     const n = inteiro(x.pericias && x.pericias[s.id], 0, 0, 2);
     if (n) pericias[s.id] = n;
   }
-  const nivel = inteiro(x.nivel, 1, 1, 20);
+  // Classes: lista nova; fichas antigas tinham classe/nivel/dadoVida soltos.
+  let classes = Array.isArray(x.classes) ? x.classes.filter(c => c && typeof c === 'object').slice(0, 12) : [];
+  if (!classes.length) classes = [{ id: acharClasse(x.classe), nome: x.classe, nivel: x.nivel, dadoVida: x.dadoVida, gastos: x.dadosVidaGastos }];
+  classes = classes.map(c => {
+    const nv = inteiro(c.nivel, 1, 1, 20);
+    return {
+      id: typeof c.id === 'string' ? c.id.slice(0, 30) : '',
+      nome: texto(c.nome, 40),
+      nivel: nv,
+      dadoVida: DADOS_DE_VIDA.includes(Number(c.dadoVida)) ? Number(c.dadoVida) : 8,
+      subclasse: texto(c.subclasse, 60),
+      gastos: inteiro(c.gastos, 0, 0, nv),
+    };
+  });
+  // O total não passa de 20: corta os níveis do fim.
+  while (classes.reduce((s, c) => s + c.nivel, 0) > 20) {
+    const ultima = classes[classes.length - 1];
+    if (ultima.nivel > 1) ultima.nivel -= 1; else classes.pop();
+  }
+  const nivel = nivelTotal(classes);
   const pvMax = inteiro(x.pvMax, 10, 1, 9999);
   const espacos = {};
   for (let n = 1; n <= 9; n++) {
@@ -189,10 +297,8 @@ function limparPersonagem(x) {
   return {
     id: typeof x.id === 'string' && x.id ? x.id.slice(0, 40) : novoId(),
     nome: texto(x.nome, 60) || 'Sem nome',
-    classe: texto(x.classe, 60),
+    classes,
     nivel,
-    dadoVida: DADOS_DE_VIDA.includes(Number(x.dadoVida)) ? Number(x.dadoVida) : 8,
-    dadosVidaGastos: inteiro(x.dadosVidaGastos, 0, 0, nivel),
     raca: texto(x.raca, 60),
     antecedente: texto(x.antecedente, 60),
     alinhamento: texto(x.alinhamento, 60),
@@ -214,13 +320,17 @@ function limparPersonagem(x) {
     espacos,
     magias: Array.isArray(x.magias) ? x.magias.slice(0, 300).map(limparMagia) : [],
     moedas, textos,
+    // Características ganhas (classe, espécie, antecedente, talentos), cada uma com sua descrição.
+    caracteristicas: Array.isArray(x.caracteristicas) ? x.caracteristicas.filter(c => c && typeof c === 'object').slice(0, 300).map(c => ({
+      nome: texto(c.nome, 80) || 'Característica', origem: texto(c.origem, 60), descricao: texto(c.descricao, 6000),
+    })) : [],
   };
 }
 
 // Personagem de exemplo (o que aparece na primeira vez): Pandora, Maga nível 2.
 function exemploPandora() {
   return limparPersonagem({
-    nome: 'Pandora', classe: 'Maga', nivel: 2, dadoVida: 6, raca: 'Humana', antecedente: 'Personalizado',
+    nome: 'Pandora', classes: [{ id: 'mago', nome: 'Maga', nivel: 2, dadoVida: 6 }], raca: 'Humana', antecedente: 'Personalizado',
     pvMax: 25, pv: 25, ca: 17, deslocamento: '9 m',
     atributos: { for: 8, des: 16, con: 14, int: 16, sab: 12, car: 8 },
     salvaguardas: { int: true, sab: true },
@@ -277,7 +387,9 @@ if (typeof module !== 'undefined') {
   module.exports = {
     ATRIBUTOS, NOME_ATRIBUTO, PERICIAS, COLUNAS_PERICIAS, NIVEIS_PERICIA, DADOS_DE_VIDA, MOEDAS, TEXTOS, TEXTOS_FINAIS, ORDINAIS,
     modificador, proficiencia, comSinal, modDe, profDe, salvaguarda, pericia, iniciativa, percepcaoPassiva,
-    bonusAtaque, exprDano, ataqueMagia, cdMagia, exprMagia, sofrerDano, curar, dadosDeVidaRestantes, descansoLongo,
+    bonusAtaque, exprDano, ataqueMagia, cdMagia, exprMagia,
+    nivelTotal, textoDadosDeVida, classeENivelDe, acharClasse, ESPACOS_COMPLETO, espacosDasClasses, aplicarEspacos,
+    ganhaAumento, aplicarAumento, escalaTruque, escalarDados, sofrerDano, curar, dadosDeVidaRestantes, descansoLongo,
     mediaDadoVida, ganhoDeNivel, novoPersonagem, limparPersonagem, limparAtaque, limparMagia, exemploPandora, lerImportacao,
   };
 }

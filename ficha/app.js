@@ -2,7 +2,7 @@
 // (com o parser do Rolador, ../js/logica.js) e salva tudo no localStorage.
 'use strict';
 
-const VERSAO_FICHA = '1';
+const VERSAO_FICHA = '2';
 
 // ---------- 1. Ajudantes ----------
 const $ = (id) => document.getElementById(id);
@@ -247,7 +247,7 @@ function mostrarRolagem(titulo, rolagem, modo) {
   const somas = somasDeDano(rolagem);
   partes.forEach((parte, i) => {
     const linha = el('div', 'parte' + (unica ? ' unica' : ''));
-    if (!unica) linha.append(el('span', 'rotulo', parte.rotulo || parte.res.expressao));
+    if (!unica || parte.rotulo) linha.append(el('span', 'rotulo', parte.rotulo || parte.res.expressao));
     linha.append(el('span', 'total', String(parte.res.total)));
     if (parte.natural === 20) { linha.classList.add('critico'); linha.append(el('span', 'etiqueta', '20 NATURAL')); }
     else if (parte.natural === 1) { linha.classList.add('falha'); linha.append(el('span', 'etiqueta', '1 NATURAL')); }
@@ -378,9 +378,10 @@ function desenhar(tudo = false) {
   desenharAtaques();
   desenharMagias();
   if (tudo || !$('pg-detalhes').childElementCount) desenharDetalhes();
-  else $('det-classe').textContent = classeENivel();
+  else { $('det-classe').textContent = classeENivel(); desenharCaracteristicas(); }
+  if (tudo) desenharGaleria();
 }
-const classeENivel = () => `${p.classe || 'Classe'} ${p.nivel}`;
+const classeENivel = () => classeENivelDe(p);
 
 // Caixa com rótulo e número grande; textos compridos ("9 m", "2d20+1") ficam menores.
 function caixaNumero(classe, rotulo, numero, aoTocar, aoSegurar) {
@@ -409,9 +410,10 @@ function desenharPrincipal() {
   pg.append(trio);
 
   const azul = el('div', 'grupo-azul');
-  const dv = botao('', [el('span', 'rot', 'Dados de Vida'), el('span', 'num-grande', `${dadosDeVidaRestantes(p)}d${p.dadoVida}`)],
+  const textoDV = textoDadosDeVida(p);
+  const dv = botao('', [el('span', 'rot', 'Dados de Vida'), el('span', 'num-grande' + (textoDV.length > 4 ? ' longo' : ''), textoDV)],
     folhaDadosVida, folhaDadosVida);
-  if (p.dadosVidaGastos) dv.append(el('small', '', `de ${p.nivel}`));
+  if (dadosDeVidaRestantes(p) < p.nivel) dv.append(el('small', '', `de ${p.nivel}`));
   azul.append(
     dv,
     caixaNumero('', 'Classe de Armadura', p.ca, editarCA, editarCA),
@@ -503,7 +505,7 @@ function desenharAtaques() {
     linha.append(topo, baixo, tirar);
     pg.append(linha);
   });
-  pg.append(botao('botao-novo', ['Nova'], () => editarArma(null)));
+  pg.append(botao('botao-novo', ['Nova'], escolherArma));
 }
 
 function rolarAtaque(i) {
@@ -540,7 +542,7 @@ function desenharMagias() {
       if (exprMagia(p, m)) b.append(el('span', 'dado-mini', '🎲'));
       lista.append(b);
     }
-    const nova = botao('magia nova', ['+'], () => editarMagia(null, n));
+    const nova = botao('magia nova', ['+'], () => escolherMagia(n));
     nova.setAttribute('aria-label', `Nova magia (${ORDINAIS[n]})`);
     lista.append(nova);
     pg.append(lista);
@@ -557,7 +559,14 @@ function gastarEspaco(n) {
 function desenharDetalhes() {
   const pg = $('pg-detalhes');
   pg.replaceChildren();
-  const cartao = (titulo, conteudo) => { const c = el('div', 'cartao-texto'); c.append(el('h3', '', titulo), conteudo); return c; };
+  const cartao = (titulo, conteudo, escolher = null) => {
+    const c = el('div', 'cartao-texto');
+    const h = el('h3', '', titulo);
+    // "▾" abre a lista do SRD (espécies, antecedentes); dá para escrever à mão também.
+    if (escolher) { const b = el('button', 'escolher', '▾'); b.type = 'button'; b.setAttribute('aria-label', 'Escolher ' + titulo); b.addEventListener('click', escolher); h.append(b); }
+    c.append(h, conteudo);
+    return c;
+  };
   const campoLinha = (chave, tipo = 'text') => {
     const i = entrada(p[chave], tipo);
     if (tipo === 'number') i.inputMode = 'numeric';
@@ -581,11 +590,15 @@ function desenharDetalhes() {
   classe.id = 'det-classe';
   pg.append(cartao('Classe', classe));
   const dois1 = el('div', 'dois');
-  dois1.append(cartao('Espécie', campoLinha('raca')), cartao('Antecedente', campoLinha('antecedente')));
+  dois1.append(cartao('Espécie', campoLinha('raca'), escolherEspecie), cartao('Antecedente', campoLinha('antecedente'), escolherAntecedente));
   const dois2 = el('div', 'dois');
   dois2.append(cartao('Alinhamento', campoLinha('alinhamento')), cartao('Experiência', campoLinha('xp', 'number')));
   pg.append(dois1, dois2);
-  for (const t of TEXTOS) pg.append(cartao(t.nome, campoTexto(t.id)));
+  const carac = el('div', 'cartao-texto');
+  carac.id = 'det-caracteristicas';
+  pg.append(carac);
+  desenharCaracteristicas();
+  for (const t of TEXTOS) pg.append(cartao(t.id === 'caracteristicas' ? 'Outras Características' : t.nome, campoTexto(t.id)));
   const moedas = el('div', 'moedas');
   for (const m of MOEDAS) {
     const i = entrada(p.moedas[m.id], 'number', { inputMode: 'numeric', min: 0 });
@@ -619,24 +632,6 @@ function editarNome() {
   formSimples('Nome', [campo('Nome do personagem', nome)], () => {
     if (!nome.value.trim()) return 'Escreva um nome.';
     p.nome = nome.value.trim();
-  });
-}
-
-function editarClasse() {
-  const classe = entrada(p.classe, 'text', { foco: true, maxLength: 60, placeholder: 'Ex.: Maga' });
-  const nivel = entrada(p.nivel, 'number', { min: 1, max: 20, inputMode: 'numeric' });
-  const dado = escolha(DADOS_DE_VIDA.map(d => [d, 'd' + d]), p.dadoVida);
-  const lado = el('div', 'campos-lado');
-  lado.append(campo('Classe', classe), campo('Nível', nivel));
-  formSimples('Classe e nível', [lado, campo('Dado de Vida', dado),
-    dica('O bônus de proficiência muda sozinho com o nível. Para ganhar PV ao subir, use ⋮ → Subir de nível.')], () => {
-    const n = numeroDe(nivel, 0);
-    if (n < 1 || n > 20) return 'O nível vai de 1 a 20.';
-    if (p.conjuracao.nivel === p.nivel) p.conjuracao.nivel = n;
-    p.classe = classe.value.trim();
-    p.nivel = n;
-    p.dadoVida = dado.valor;
-    p.dadosVidaGastos = Math.min(p.dadosVidaGastos, n);
   });
 }
 
@@ -703,34 +698,6 @@ function folhaPV() {
       linhaBotoes(botaoFolha('Dano', 'ruim', agir('dano')), botaoFolha('Cura', 'bom', agir('cura')), botaoFolha('Temp.', '', agir('temp'))),
       campo('PV máximo', max),
       dica('Dano gasta primeiro os PV temporários. PV temporários não se somam: fica o maior.'));
-  });
-}
-
-function folhaDadosVida() {
-  abrirFolha('Dados de Vida', (corpo) => {
-    const resta = dadosDeVidaRestantes(p);
-    const con = modDe(p, 'con');
-    corpo.append(dica(`Restam ${resta} de ${p.nivel} (d${p.dadoVida}). No descanso curto, cada dado gasto cura 1d${p.dadoVida} ${comSinal(con)} (Constituição). O descanso longo devolve todos.`));
-    const gastar = botaoFolha(`Gastar 1 dado (1d${p.dadoVida}${comSinal(con)})`, 'principal', () => {
-      const expr = `1d${p.dadoVida}${comSinal(con)}`;
-      const antes = structuredClone(p);
-      const rol = rolarExpr('Dado de Vida', expr);
-      if (!rol) return;
-      const cura = Math.max(0, rol.partes[0].res.total);
-      p.dadosVidaGastos += 1;
-      p.pv = curar(p, cura);
-      salvar();
-      desenhar();
-      avisar(`+${cura} PV (${p.pv}/${p.pvMax})`, 'Desfazer', () => {
-        const i = personagens.indexOf(p);
-        personagens[i] = antes; p = antes; salvar(); desenhar(true);
-      });
-    });
-    gastar.disabled = !resta;
-    corpo.append(linhaBotoes(gastar),
-      linhaBotoes(p.dadosVidaGastos ? botaoFolha('Devolver 1 dado', '', () => {
-        p.dadosVidaGastos -= 1; salvar(); fecharFolha(() => desenhar());
-      }) : null));
   });
 }
 
@@ -802,9 +769,9 @@ function editarAtalho() {
   });
 }
 
-function editarArma(i) {
-  const a = i === null ? limparAtaque({ nome: '', atributo: 'for', dano: '1d8' }) : structuredClone(p.ataques[i]);
-  const nome = entrada(i === null ? '' : a.nome, 'text', { foco: true, maxLength: 60, placeholder: 'Ex.: Espada Longa' });
+function editarArma(i, modelo = null) {
+  const a = i === null ? limparAtaque(modelo || { nome: '', atributo: 'for', dano: '1d8' }) : structuredClone(p.ataques[i]);
+  const nome = entrada(i === null && !modelo ? '' : a.nome, 'text', { foco: true, maxLength: 60, placeholder: 'Ex.: Espada Longa' });
   const alcance = entrada(a.alcance, 'text', { maxLength: 30, placeholder: '1,5 m' });
   const tipo = entrada(a.tipo, 'text', { maxLength: 30, placeholder: 'Cortante' });
   const atr = selecao(opcoesAtributos(true), a.atributo);
@@ -813,16 +780,18 @@ function editarArma(i) {
   const dano = entrada(a.dano, 'text', { maxLength: 60, autocapitalize: 'off', spellcheck: false, placeholder: '1d8' });
   const somar = marcar('Somar o modificador do atributo no dano', a.somarMod);
   const bonusDano = entrada(a.bonusDano, 'number');
+  const notas = entrada(a.notas, 'text', { maxLength: 400, placeholder: 'Propriedades, maestria...' });
   const previa = el('p', 'dica');
   const ler = () => Object.assign(a, {
     nome: nome.value.trim() || 'Arma', alcance: alcance.value.trim(), tipo: tipo.value.trim(), atributo: atr.value,
     prof: prof.caixa.checked, bonus: numeroDe(bonus), dano: dano.value.trim(), somarMod: somar.caixa.checked, bonusDano: numeroDe(bonusDano),
+    notas: notas.value.trim(),
   });
   const atualizar = () => { ler(); previa.textContent = `Ataque ${comSinal(bonusAtaque(p, a))} · Dano ${exprDano(p, a)}`; };
   const l1 = el('div', 'campos-lado'); l1.append(campo('Alcance', alcance), campo('Tipo de dano', tipo));
   const l2 = el('div', 'campos-lado'); l2.append(campo('Atributo', atr), campo('Bônus no ataque', bonus));
   const l3 = el('div', 'campos-lado'); l3.append(campo('Dados de dano', dano), campo('Bônus no dano', bonusDano));
-  const campos = [campo('Nome', nome), l1, l2, prof, l3, somar, previa];
+  const campos = [campo('Nome', nome), l1, l2, prof, l3, somar, campo('Propriedades', notas), previa];
   formSimples(i === null ? 'Nova arma' : 'Editar arma', campos, () => {
     ler();
     if (a.dano) { const erro = erroDaExpr(a.dano); if (erro) return 'Dano: ' + erro; }
@@ -857,7 +826,7 @@ function editarConjuracao() {
 }
 
 function editarNivelMagia(n) {
-  if (n === 0) { editarMagia(null, 0); return; }
+  if (n === 0) { escolherMagia(0); return; }
   const esp = p.espacos[n] || { max: 0, usados: 0 };
   const max = entrada(esp.max, 'number', { foco: true, min: 0, max: 20, inputMode: 'numeric' });
   const resta = entrada(esp.max - esp.usados, 'number', { min: 0, max: 20, inputMode: 'numeric' });
@@ -867,7 +836,7 @@ function editarNivelMagia(n) {
     if (m < 0 || m > 20) return 'Os espaços vão de 0 a 20.';
     const r = Math.min(m, Math.max(0, numeroDe(resta, m)));
     if (m) p.espacos[n] = { max: m, usados: m - r }; else delete p.espacos[n];
-  }, [botaoFolha('Nova magia', '', () => fecharFolha(() => editarMagia(null, n)))]);
+  }, [botaoFolha('Nova magia', '', () => escolherMagia(n))]);
 }
 
 function folhaEspacos() {
@@ -896,7 +865,10 @@ function folhaEspacos() {
 function folhaMagia(i) {
   const m = p.magias[i];
   abrirFolha(m.nome, (corpo) => {
-    corpo.append(dica(`${ORDINAIS[m.nivel] === 'Truques' ? 'Truque' : ORDINAIS[m.nivel]} · ${m.preparada ? 'Preparada' : 'Não preparada'}`));
+    corpo.append(dica(`${ORDINAIS[m.nivel] === 'Truques' ? 'Truque' : ORDINAIS[m.nivel]} · ${m.preparada ? 'Preparada' : 'Não preparada'}` +
+      (m.salvaguarda ? ` · Salvaguarda de ${NOME_ATRIBUTO[m.salvaguarda]} CD ${cdMagia(p)}` : '')));
+    const ref = m.ref && magiaDoSRD(m.ref);
+    if (ref) corpo.append(fichaDaMagia(ref));
     if (m.notas) corpo.append(el('p', 'notas-magia', m.notas));
     const expr = exprMagia(p, m);
     if (expr) corpo.append(dica('Rolagem: ' + expr));
@@ -952,7 +924,7 @@ function folhaPersonagens() {
     for (const x of personagens) {
       const b = el('button', 'item-lista' + (x === p ? ' atual' : ''));
       const t = el('span');
-      t.append(el('b', '', x.nome), el('small', '', `${x.classe || 'Sem classe'} ${x.nivel}`));
+      t.append(el('b', '', x.nome), el('small', '', classeENivelDe(x)));
       b.append(t);
       b.addEventListener('click', () => fecharFolha(() => trocarPara(x)));
       corpo.append(b);
@@ -1001,39 +973,11 @@ function folhaRestaurar() {
     lixeira.forEach((x, i) => {
       const b = el('button', 'item-lista');
       const t = el('span');
-      t.append(el('b', '', x.nome), el('small', '', `${x.classe || 'Sem classe'} ${x.nivel}`));
+      t.append(el('b', '', x.nome), el('small', '', classeENivelDe(x)));
       b.append(t);
       b.addEventListener('click', () => fecharFolha(restaurar(i)));
       corpo.append(b);
     });
-  });
-}
-
-function folhaSubirNivel() {
-  if (p.nivel >= 20) { avisar('Nível 20 é o máximo.'); return; }
-  const con = modDe(p, 'con');
-  const media = ganhoDeNivel(p);
-  abrirFolha(`Subir para o nível ${p.nivel + 1}`, (corpo) => {
-    const nova = proficiencia(p.nivel + 1);
-    corpo.append(dica(`PV a ganhar: role 1d${p.dadoVida} ${comSinal(con)} (Constituição) ou use a média (${media}).` +
-      (nova !== profDe(p) ? ` A proficiência passa a ${comSinal(nova)}.` : '')));
-    const subir = (ganho, rolagem) => {
-      const antigo = p.nivel;
-      comDesfazer(`Nível ${antigo + 1}! +${ganho} PV`, () => {
-        if (p.conjuracao.nivel === p.nivel) p.conjuracao.nivel = p.nivel + 1;
-        p.nivel += 1;
-        p.pvMax += ganho;
-        p.pv += ganho;
-      });
-      if (rolagem) mostrarRolagem(`PV do nível ${antigo + 1}`, rolagem, 'normal');
-    };
-    corpo.append(linhaBotoes(
-      botaoFolha(`Média (+${media})`, '', () => fecharFolha(() => subir(media))),
-      botaoFolha(`Rolar 1d${p.dadoVida}${comSinal(con)}`, 'principal', () => {
-        const rol = rolarPartes(`1d${p.dadoVida}`, rolarDadoCripto);
-        ultima = { titulo: 'PV', expr: `1d${p.dadoVida}`, editar: null };
-        fecharFolha(() => subir(ganhoDeNivel(p, rol.partes[0].res.total), rol));
-      })));
   });
 }
 
@@ -1071,7 +1015,7 @@ function exportar(todos) {
 }
 function folhaExportar() {
   abrirFolha('Exportar', (corpo) => {
-    corpo.append(dica('Gera um arquivo .json para guardar ou passar para outro celular (⋮ → Importar ficha).'),
+    corpo.append(dica('Gera um arquivo .json para guardar ou passar para outro celular (⋮ → Importar ficha). As fotos da Galeria não vão no arquivo.'),
       linhaBotoes(botaoFolha('Todas as fichas', '', () => fecharFolha(() => exportar(true))),
         botaoFolha(`Só ${p.nome}`, 'principal', () => fecharFolha(() => exportar(false)))));
   });
@@ -1096,11 +1040,14 @@ function folhaAjuda() {
     const ajuda = el('div', 'ajuda');
     const secao = (t, ...ps) => { ajuda.append(el('h3', '', t)); for (const x of ps) ajuda.append(el('p', '', x)); };
     secao('Tocar e segurar', 'Tocar rola os dados (atributos, salvaguardas, perícias, iniciativa, armas). Segurar meio segundo abre a edição. O lápis no resultado também abre a edição do que foi rolado.');
-    secao('Páginas', 'Arraste para o lado: Principal, Perícias, Ataques, Magias e Detalhes. As bolinhas embaixo mostram onde você está.');
+    secao('Páginas', 'Arraste para o lado: Principal, Perícias, Ataques, Magias, Detalhes e Galeria. As bolinhas embaixo mostram onde você está.');
     secao('Principal', 'Toque nos PV para Dano, Cura e PV temporários. Dados de Vida: gaste no descanso curto. Na caixa do atributo, a coluna Salv. rola a salvaguarda; o resto rola o teste.');
     secao('Perícias', 'Verde = proficiente; verde mais forte com ★ = especialista (dobro da proficiência). Segure para mudar.');
     secao('Ataques', 'Tocar na arma rola o ataque e o dano juntos; com 20 natural o dano rola o dobro de dados (regra 2024). O ✕ tira a arma (dá para desfazer). A caixa da direita é uma rolagem rápida que você escolhe (ex.: Sorte 2d20).');
     secao('Magias', 'Toque no número de espaços para gastar um. Toque na magia para ver, rolar ou lançar; o + cria uma nova. Magias cinza não estão preparadas.');
+    secao('Subir de nível', '⋮ → Subir de nível: escolha a classe (ou Multiclasse), os PV (Máx., Média ou Rolar), o aumento de atributos ou um talento nos níveis 4, 8, 12, 16 e 19, a subclasse no nível 3. As características novas, os espaços de magia e a proficiência entram sozinhos (dá para desfazer).');
+    secao('Listas do D&D 2024', 'Ao criar arma (Nova) ou magia (+), escolha da lista em português (SRD 5.2.1) ou crie uma personalizada. Em Detalhes, o ▾ de Espécie e Antecedente abre a lista; as características aparecem no cartão Características e Talentos (toque para ler).');
+    secao('Galeria', 'A última página guarda fotos e desenhos do personagem (ficam só neste aparelho e não vão no arquivo exportado). Toque numa foto para ver em tela cheia e passar para o lado.');
     secao('Rolagem', 'O resultado aparece embaixo, com os dados de cada parte. Com d20, dá para rolar de novo com Vantagem ou Desvantagem.');
     secao('Salvo no aparelho', 'Tudo fica salvo neste navegador/celular. Use ⋮ → Exportar ficha para guardar uma cópia.');
     corpo.append(ajuda);
@@ -1109,6 +1056,7 @@ function folhaAjuda() {
 function folhaSobre() {
   abrirFolha('Sobre', (corpo) => {
     corpo.append(dica(`Ficha de Personagem · versão ${VERSAO_FICHA}. Regras do D&D 2024 (5.5). Os dados usam o mesmo rolador do app Rolador de Dados, com sorteio criptográfico.`),
+      dica('Classes, magias, espécies, antecedentes, talentos, armas e armaduras: tradução para o português do System Reference Document 5.2.1 ("SRD 5.2.1"), da Wizards of the Coast LLC, disponível em https://www.dndbeyond.com/srd, sob a licença Creative Commons Atribuição 4.0 Internacional (https://creativecommons.org/licenses/by/4.0/legalcode). A tradução não é oficial.'),
       linhaBotoes(botaoFolha('Abrir o Rolador de Dados', 'principal', () => { location.href = '../index.html'; })));
   });
 }
@@ -1121,7 +1069,7 @@ $('abrir-menu').addEventListener('click', abrirMenu);
 $('menu').addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-menu]');
   const acoes = {
-    nivel: folhaSubirNivel, descanso: folhaDescanso, exportar: folhaExportar,
+    nivel: subirDeNivel, descanso: folhaDescanso, exportar: folhaExportar,
     importar: () => $('arquivo-importar').click(), restaurar: folhaRestaurar,
     rolador: () => { location.href = '../index.html'; }, ajuda: folhaAjuda, sobre: folhaSobre,
   };
@@ -1130,11 +1078,3 @@ $('menu').addEventListener('click', (ev) => {
 });
 $('abrir-personagens').addEventListener('click', folhaPersonagens);
 $('apagar-personagem').addEventListener('click', apagarPersonagem);
-
-// ---------- 11. Começo ----------
-desenhar(true);
-marcarPonto();
-const paginaSalva = Math.min(PAGINAS.length - 1, Math.max(0, Number(ler(CHAVE_PAGINA, 0)) || 0));
-paginas.scrollLeft = paginaSalva * paginas.clientWidth;
-paginaAntes = paginaSalva;
-marcarPonto();

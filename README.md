@@ -114,8 +114,30 @@ bordas coloridas e **cinco páginas que passam arrastando para o lado**:
   armas (nome, alcance, tipo, ataque e dano), com ✕ para tirar e **Nova** para criar.
 - **Magias**: nível de conjurador, Ataque Mágico e CD; truques e magias por nível, com os
   espaços (3 / 3). Cinza = não preparada.
-- **Detalhes**: classe, espécie, antecedente, alinhamento, XP, características, proficiências,
-  idiomas, equipamento, moedas (PL, PO, PE, PP, PC), personalidade, ideais, vínculos e defeitos.
+- **Detalhes**: classe, espécie e antecedente (▾ escolhe da lista), alinhamento, XP, o cartão
+  **Características e Talentos**, proficiências, idiomas, equipamento, moedas (PL, PO, PE, PP, PC),
+  personalidade, ideais, vínculos e defeitos.
+- **Galeria**: fotos e desenhos do personagem (ficam no IndexedDB do aparelho, reduzidas a 1600 px;
+  não vão no arquivo exportado). Toque para ver em tela cheia e passar arrastando.
+
+**Regras e opções do D&D 2024 em português** (`ficha/dados5e.js`, tradução não oficial do SRD 5.2.1,
+CC-BY-4.0): as 12 classes com os 20 níveis e a subclasse do SRD, 339 magias, 9 espécies,
+4 antecedentes, 19 talentos, 38 armas e 13 armaduras.
+
+- **Subir de nível** (⋮), como nas fichas de Android: escolher a classe ou **Multiclasse** → **Pontos
+  de Vida** (Atual / Próximo Nível, Máx., Média ou Rolar, Mod. CON e Bônus Extra) → nos níveis 4, 8,
+  12, 16 e 19, **um ou dois atributos** (+2 ou +1/+1) ou **Escolher Talento** → subclasse no nível 3 →
+  resumo do que mudou. Características, espaços de magia (completo, meio conjurador, Magia de Pacto
+  e multiclasse) e proficiência são atualizados sozinhos, com Desfazer.
+- **Nova arma** e **+ magia** abrem a lista (busca, filtro por classe e nível, texto completo da
+  magia) ou uma personalizada. Truques ganham dados nos níveis 5, 11 e 17.
+- **Classes**: tocar na classe edita as classes (multiclasse); num personagem novo, "Aplicar o nível 1"
+  preenche salvaguardas, PV, características, proficiências e espaços.
+
+Os JSON traduzidos ficam em `ficha/dados/`; depois de mudar algum, rode
+`node scripts/montar-dados5e.js` para gerar o `ficha/dados5e.js`.
+
+**Tocar rola** (atributo, salvaguarda, perícia, iniciativa, arma: ataque e dano juntos, com
 
 **Tocar rola** (atributo, salvaguarda, perícia, iniciativa, arma: ataque e dano juntos, com
 crítico de 2024) e **segurar abre a edição**. A barra de cima tem a pasta (trocar/criar
@@ -126,8 +148,14 @@ Rolador (`../js/logica.js`). Na primeira vez vem a Pandora (Maga nível 2) de ex
 ```
 ficha/index.html  estrutura
 ficha/ficha.css   visual
-ficha/regras.js   funções PURAS: modificadores, proficiência, perícias, ataques, magias, descansos
+ficha/regras.js   funções PURAS: modificadores, proficiência, perícias, ataques, magias, descansos,
+                  multiclasse, espaços de magia, aumento de atributos
+ficha/dados5e.js  regras e opções do SRD 5.2.1 em português (gerado de ficha/dados/*.json)
 ficha/app.js      a interface: páginas, toques, rolagens, edição; salva no localStorage (ficha.*)
+ficha/listas.js   listas para escolher: magias, armas, talentos, espécies, antecedentes
+ficha/subir.js    diálogos no estilo Android, subir de nível, classes e Dados de Vida
+ficha/galeria.js  página Galeria (fotos no IndexedDB)
+ficha/inicio.js   começa o app (carrega por último)
 ficha/testes.js   testes da lógica (node ficha/testes.js)
 ```
 

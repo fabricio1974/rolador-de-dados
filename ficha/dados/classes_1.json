@@ -1,0 +1,1939 @@
+[
+ {
+  "id": "barbaro",
+  "nome": "Bárbaro",
+  "en": "Barbarian",
+  "dadoVida": 12,
+  "atributoPrincipal": [
+   "for"
+  ],
+  "salvaguardas": [
+   "for",
+   "con"
+  ],
+  "pericias": {
+   "escolhe": 2,
+   "lista": [
+    "adestrar",
+    "atletismo",
+    "intimidacao",
+    "natureza",
+    "percepcao",
+    "sobrevivencia"
+   ]
+  },
+  "armas": "Armas simples e marciais",
+  "armaduras": "Armaduras leves e médias e escudos",
+  "ferramentas": "",
+  "equipamento": "Escolha A ou B: (A) Machado Grande, 4 Machadinhas, Pacote de Explorador e 15 PO; ou (B) 75 PO",
+  "conjuracao": null,
+  "recursos": [
+   {
+    "nome": "Fúrias",
+    "porNivel": [
+     2,
+     2,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     5,
+     5,
+     5,
+     5,
+     5,
+     6,
+     6,
+     6,
+     6
+    ]
+   },
+   {
+    "nome": "Dano da Fúria",
+    "porNivel": [
+     "+2",
+     "+2",
+     "+2",
+     "+2",
+     "+2",
+     "+2",
+     "+2",
+     "+2",
+     "+3",
+     "+3",
+     "+3",
+     "+3",
+     "+3",
+     "+3",
+     "+3",
+     "+4",
+     "+4",
+     "+4",
+     "+4",
+     "+4"
+    ]
+   },
+   {
+    "nome": "Maestria em Armas",
+    "porNivel": [
+     2,
+     2,
+     2,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4
+    ]
+   }
+  ],
+  "niveis": [
+   {
+    "nivel": 1,
+    "caracteristicas": [
+     {
+      "nome": "Fúria",
+      "descricao": "Como Ação Bônus, se não estiver usando armadura pesada, você entra em Fúria; o número de usos está na coluna Fúrias. Recupera 1 uso num Descanso Curto e todos num Descanso Longo. Enquanto ativa: Resistência a dano Concussão, Perfurante e Cortante; bônus de Dano da Fúria nos ataques que usam Força (arma ou Ataque Desarmado) e causam dano; Vantagem em testes e salvaguardas de Força; você não pode manter Concentração nem conjurar magias. Dura até o fim do seu próximo turno e termina antes se você vestir armadura pesada ou ficar Incapacitado; para estendê-la por mais uma rodada, no seu turno faça uma jogada de ataque contra um inimigo, force um inimigo a fazer uma salvaguarda ou use uma Ação Bônus. Dura no máximo 10 minutos."
+     },
+     {
+      "nome": "Defesa sem Armadura",
+      "descricao": "Sem vestir armadura, sua CA base é 10 + modificador de Destreza + modificador de Constituição. Você pode usar Escudo e manter esse benefício."
+     },
+     {
+      "nome": "Maestria em Armas",
+      "descricao": "Você pode usar as propriedades de maestria de dois tipos de armas corpo a corpo simples ou marciais à sua escolha (ex.: Machado Grande e Machadinha). Ao terminar um Descanso Longo, pode trocar uma dessas escolhas. O número de tipos aumenta conforme a coluna Maestria em Armas."
+     }
+    ]
+   },
+   {
+    "nivel": 2,
+    "caracteristicas": [
+     {
+      "nome": "Sentido de Perigo",
+      "descricao": "Você tem Vantagem em salvaguardas de Destreza, a menos que esteja Incapacitado."
+     },
+     {
+      "nome": "Ataque Imprudente",
+      "descricao": "Ao fazer sua primeira jogada de ataque no turno, você pode atacar imprudentemente: tem Vantagem nas jogadas de ataque que usam Força até o início do seu próximo turno, mas jogadas de ataque contra você também têm Vantagem nesse período."
+     }
+    ]
+   },
+   {
+    "nivel": 3,
+    "caracteristicas": [
+     {
+      "nome": "Subclasse de Bárbaro",
+      "descricao": "Você escolhe uma subclasse de Bárbaro (no SRD: Caminho do Berserker). A subclasse concede características em certos níveis de Bárbaro; daí em diante você ganha cada característica dela de nível igual ou inferior ao seu nível de Bárbaro."
+     },
+     {
+      "nome": "Conhecimento Primal",
+      "descricao": "Você ganha proficiência em mais uma perícia da lista de Bárbaro do nível 1. Além disso, com a Fúria ativa, ao fazer um teste de Acrobacia, Furtividade, Intimidação, Percepção ou Sobrevivência, você pode fazê-lo como teste de Força, mesmo que normalmente use outro atributo."
+     }
+    ]
+   },
+   {
+    "nivel": 4,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 5,
+    "caracteristicas": [
+     {
+      "nome": "Ataque Extra",
+      "descricao": "Você pode atacar duas vezes, em vez de uma, sempre que realizar a ação Atacar no seu turno."
+     },
+     {
+      "nome": "Movimento Rápido",
+      "descricao": "Seu Deslocamento aumenta em 3 m enquanto você não estiver usando armadura pesada."
+     }
+    ]
+   },
+   {
+    "nivel": 6,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 7,
+    "caracteristicas": [
+     {
+      "nome": "Instinto Feral",
+      "descricao": "Você tem Vantagem nas jogadas de Iniciativa."
+     },
+     {
+      "nome": "Bote Instintivo",
+      "descricao": "Como parte da Ação Bônus para entrar em Fúria, você pode se mover até metade do seu Deslocamento."
+     }
+    ]
+   },
+   {
+    "nivel": 8,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 9,
+    "caracteristicas": [
+     {
+      "nome": "Golpe Brutal",
+      "descricao": "Se usar Ataque Imprudente, você pode abrir mão da Vantagem em uma jogada de ataque baseada em Força à sua escolha no seu turno (ela não pode ter Desvantagem). Se acertar, o alvo sofre 1d10 de dano extra do mesmo tipo da arma ou do Ataque Desarmado, e você aplica um efeito: Golpe Vigoroso (o alvo é empurrado 4,5 m em linha reta para longe de você, e você pode se mover até metade do seu Deslocamento em linha reta na direção dele sem provocar Ataques de Oportunidade) ou Golpe no Jarrete (o Deslocamento do alvo diminui em 4,5 m até o início do seu próximo turno; só o Golpe no Jarrete mais recente afeta o alvo)."
+     }
+    ]
+   },
+   {
+    "nivel": 10,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 11,
+    "caracteristicas": [
+     {
+      "nome": "Fúria Implacável",
+      "descricao": "Se cair a 0 PV com a Fúria ativa e não morrer imediatamente, você pode fazer uma salvaguarda de Constituição CD 10. Se passar, seus PV passam a ser o dobro do seu nível de Bárbaro. A cada uso após o primeiro, a CD aumenta em 5; ela volta a 10 ao terminar um Descanso Curto ou Longo."
+     }
+    ]
+   },
+   {
+    "nivel": 12,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 13,
+    "caracteristicas": [
+     {
+      "nome": "Golpe Brutal Aprimorado",
+      "descricao": "Novos efeitos passam a fazer parte das opções do Golpe Brutal: Golpe Cambaleante (o alvo tem Desvantagem na próxima salvaguarda que fizer e não pode fazer Ataques de Oportunidade até o início do seu próximo turno) e Golpe Despedaçador (antes do início do seu próximo turno, a próxima jogada de ataque de outra criatura contra o alvo ganha +5; uma jogada só recebe esse bônus uma vez)."
+     }
+    ]
+   },
+   {
+    "nivel": 14,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 15,
+    "caracteristicas": [
+     {
+      "nome": "Fúria Persistente",
+      "descricao": "Ao rolar Iniciativa, você pode recuperar todos os usos gastos de Fúria; depois disso, só pode fazê-lo de novo após um Descanso Longo. Além disso, sua Fúria dura 10 minutos sem precisar ser estendida a cada rodada; ela só termina antes se você ficar Inconsciente (não apenas Incapacitado) ou vestir armadura pesada."
+     }
+    ]
+   },
+   {
+    "nivel": 16,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 17,
+    "caracteristicas": [
+     {
+      "nome": "Golpe Brutal Aprimorado",
+      "descricao": "O dano extra do Golpe Brutal aumenta para 2d10, e você pode aplicar dois efeitos diferentes de Golpe Brutal sempre que usar a característica."
+     }
+    ]
+   },
+   {
+    "nivel": 18,
+    "caracteristicas": [
+     {
+      "nome": "Poder Indomável",
+      "descricao": "Se o total de um teste ou salvaguarda de Força for menor que o seu valor de Força, você pode usar esse valor no lugar do total."
+     }
+    ]
+   },
+   {
+    "nivel": 19,
+    "caracteristicas": [
+     {
+      "nome": "Dádiva Épica",
+      "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Ofensiva Irresistível."
+     }
+    ]
+   },
+   {
+    "nivel": 20,
+    "caracteristicas": [
+     {
+      "nome": "Campeão Primal",
+      "descricao": "Seus valores de Força e Constituição aumentam em 4, até o máximo de 25."
+     }
+    ]
+   }
+  ],
+  "subclasse": {
+   "id": "berserker",
+   "nome": "Caminho do Berserker",
+   "en": "Path of the Berserker",
+   "caracteristicas": [
+    {
+     "nivel": 3,
+     "nome": "Frenesi",
+     "descricao": "Se usar Ataque Imprudente com a Fúria ativa, você causa dano extra ao primeiro alvo que acertar no seu turno com um ataque baseado em Força: role uma quantidade de d6 igual ao seu bônus de Dano da Fúria e some-os. O dano é do mesmo tipo da arma ou do Ataque Desarmado usado."
+    },
+    {
+     "nivel": 6,
+     "nome": "Fúria Irracional",
+     "descricao": "Você tem Imunidade às condições Enfeitiçado e Amedrontado enquanto a Fúria estiver ativa. Se estiver Enfeitiçado ou Amedrontado ao entrar em Fúria, a condição termina."
+    },
+    {
+     "nivel": 10,
+     "nome": "Retaliação",
+     "descricao": "Ao sofrer dano de uma criatura a até 1,5 m de você, você pode usar sua Reação para fazer um ataque corpo a corpo contra ela, com uma arma ou um Ataque Desarmado."
+    },
+    {
+     "nivel": 14,
+     "nome": "Presença Intimidadora",
+     "descricao": "Como Ação Bônus, cada criatura à sua escolha numa Emanação de 9 m a partir de você faz uma salvaguarda de Sabedoria (CD 8 + modificador de Força + Bônus de Proficiência). Se falhar, fica Amedrontada por 1 minuto, repetindo a salvaguarda no fim de cada turno dela e encerrando o efeito com um sucesso. Depois de usar, você só pode usar de novo após um Descanso Longo, a menos que gaste um uso de Fúria (sem ação) para restaurá-la."
+    }
+   ]
+  }
+ },
+ {
+  "id": "bardo",
+  "nome": "Bardo",
+  "en": "Bard",
+  "dadoVida": 8,
+  "atributoPrincipal": [
+   "car"
+  ],
+  "salvaguardas": [
+   "des",
+   "car"
+  ],
+  "pericias": {
+   "escolhe": 3,
+   "lista": [
+    "atletismo",
+    "acrobacia",
+    "furtividade",
+    "prestidigitacao",
+    "arcanismo",
+    "historia",
+    "investigacao",
+    "natureza",
+    "religiao",
+    "adestrar",
+    "intuicao",
+    "medicina",
+    "percepcao",
+    "sobrevivencia",
+    "atuacao",
+    "enganacao",
+    "intimidacao",
+    "persuasao"
+   ]
+  },
+  "armas": "Armas simples",
+  "armaduras": "Armaduras leves",
+  "ferramentas": "Três instrumentos musicais à sua escolha",
+  "equipamento": "Escolha A ou B: (A) Armadura de Couro, 2 Adagas, um Instrumento Musical à sua escolha, Pacote de Artista e 19 PO; ou (B) 90 PO",
+  "conjuracao": {
+   "atributo": "car",
+   "tipo": "completa",
+   "truques": [
+    2,
+    2,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4
+   ],
+   "preparadas": [
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    16,
+    17,
+    17,
+    18,
+    18,
+    19,
+    20,
+    21,
+    22
+   ]
+  },
+  "recursos": [
+   {
+    "nome": "Dado de Bardo",
+    "porNivel": [
+     "d6",
+     "d6",
+     "d6",
+     "d6",
+     "d8",
+     "d8",
+     "d8",
+     "d8",
+     "d8",
+     "d10",
+     "d10",
+     "d10",
+     "d10",
+     "d10",
+     "d12",
+     "d12",
+     "d12",
+     "d12",
+     "d12",
+     "d12"
+    ]
+   }
+  ],
+  "niveis": [
+   {
+    "nivel": 1,
+    "caracteristicas": [
+     {
+      "nome": "Inspiração de Bardo",
+      "descricao": "Como Ação Bônus, você inspira outra criatura a até 18 m que possa ver ou ouvir você, dando-lhe um dado de Inspiração de Bardo (d6); cada criatura só pode ter um por vez. Uma vez, dentro da próxima hora, quando ela falhar num Teste de D20, pode rolar o dado e somar o resultado ao d20, possivelmente transformando a falha em sucesso; o dado é gasto ao ser rolado. Você pode conceder a inspiração um número de vezes igual ao seu modificador de Carisma (mínimo 1) e recupera todos os usos num Descanso Longo. O dado vira d8 no nível 5, d10 no 10 e d12 no 15."
+     },
+     {
+      "nome": "Conjuração",
+      "descricao": "Você conjura magias de Bardo usando Carisma como atributo de conjuração e pode usar um Instrumento Musical como Foco de Conjuração. Conhece dois truques da lista de Bardo (mais um nos níveis 4 e 10) e, ao ganhar um nível de Bardo, pode trocar um truque por outro. Prepara magias de nível 1+ conforme a coluna Magias Preparadas (começa com quatro de nível 1), sempre de níveis para os quais tenha espaços; ao ganhar um nível de Bardo, pode trocar uma magia preparada por outra de Bardo. Magias sempre preparadas por outras características não contam no limite. Recupera todos os espaços de magia num Descanso Longo."
+     }
+    ]
+   },
+   {
+    "nivel": 2,
+    "caracteristicas": [
+     {
+      "nome": "Especialização",
+      "descricao": "Você ganha Especialização em duas perícias em que tenha proficiência, à sua escolha (Atuação e Persuasão são recomendadas, se tiver proficiência nelas)."
+     },
+     {
+      "nome": "Pau para Toda Obra",
+      "descricao": "Você pode somar metade do seu Bônus de Proficiência (arredondado para baixo) a qualquer teste de atributo que use uma perícia na qual não tenha proficiência e que não use seu Bônus de Proficiência de outra forma."
+     }
+    ]
+   },
+   {
+    "nivel": 3,
+    "caracteristicas": [
+     {
+      "nome": "Subclasse de Bardo",
+      "descricao": "Você escolhe uma subclasse de Bardo (no SRD: Colégio do Conhecimento). A subclasse concede características em certos níveis de Bardo; daí em diante você ganha cada característica dela de nível igual ou inferior ao seu nível de Bardo."
+     }
+    ]
+   },
+   {
+    "nivel": 4,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 5,
+    "caracteristicas": [
+     {
+      "nome": "Fonte de Inspiração",
+      "descricao": "Você passa a recuperar todos os usos gastos de Inspiração de Bardo ao terminar um Descanso Curto ou Longo. Além disso, pode gastar um espaço de magia (sem ação) para recuperar um uso gasto de Inspiração de Bardo."
+     }
+    ]
+   },
+   {
+    "nivel": 6,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 7,
+    "caracteristicas": [
+     {
+      "nome": "Contraencanto",
+      "descricao": "Se você ou uma criatura a até 9 m de você falhar numa salvaguarda contra um efeito que aplica a condição Enfeitiçado ou Amedrontado, você pode usar sua Reação para fazer a salvaguarda ser rolada de novo, com Vantagem."
+     }
+    ]
+   },
+   {
+    "nivel": 8,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 9,
+    "caracteristicas": [
+     {
+      "nome": "Especialização",
+      "descricao": "Você ganha Especialização em mais duas perícias em que tenha proficiência, à sua escolha."
+     }
+    ]
+   },
+   {
+    "nivel": 10,
+    "caracteristicas": [
+     {
+      "nome": "Segredos Mágicos",
+      "descricao": "Sempre que alcançar um nível de Bardo (incluindo este) em que o número de Magias Preparadas aumente, você pode escolher as novas magias preparadas das listas de Bardo, Clérigo, Druida e Mago; elas contam como magias de Bardo para você. Além disso, ao substituir uma magia preparada desta classe, pode escolher a nova magia dessas listas."
+     }
+    ]
+   },
+   {
+    "nivel": 11,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 12,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 13,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 14,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 15,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 16,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 17,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 18,
+    "caracteristicas": [
+     {
+      "nome": "Inspiração Superior",
+      "descricao": "Ao rolar Iniciativa, se tiver menos de dois usos de Inspiração de Bardo, você recupera usos gastos até ficar com dois."
+     }
+    ]
+   },
+   {
+    "nivel": 19,
+    "caracteristicas": [
+     {
+      "nome": "Dádiva Épica",
+      "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Recordação de Magia."
+     }
+    ]
+   },
+   {
+    "nivel": 20,
+    "caracteristicas": [
+     {
+      "nome": "Palavras da Criação",
+      "descricao": "Você domina as palavras da vida e da morte: sempre tem as magias Palavra de Poder: Curar (Power Word Heal) e Palavra de Poder: Matar (Power Word Kill) preparadas. Ao conjurar qualquer uma delas, pode escolher uma segunda criatura como alvo, se ela estiver a até 3 m do primeiro alvo."
+     }
+    ]
+   }
+  ],
+  "subclasse": {
+   "id": "conhecimento",
+   "nome": "Colégio do Conhecimento",
+   "en": "College of Lore",
+   "caracteristicas": [
+    {
+     "nivel": 3,
+     "nome": "Proficiências Adicionais",
+     "descricao": "Você ganha proficiência em três perícias à sua escolha."
+    },
+    {
+     "nivel": 3,
+     "nome": "Palavras Cortantes",
+     "descricao": "Quando uma criatura que você possa ver a até 18 m fizer uma jogada de dano ou for bem-sucedida num teste de atributo ou jogada de ataque, você pode usar sua Reação e gastar um uso de Inspiração de Bardo: role o dado de Inspiração de Bardo e subtraia o resultado da jogada da criatura, reduzindo o dano ou possivelmente transformando o sucesso em falha."
+    },
+    {
+     "nivel": 6,
+     "nome": "Descobertas Mágicas",
+     "descricao": "Você aprende duas magias à sua escolha das listas de Clérigo, Druida ou Mago, em qualquer combinação. Cada uma deve ser um truque ou de um nível para o qual você tenha espaços de magia. Você sempre as tem preparadas e, ao ganhar um nível de Bardo, pode trocar uma delas por outra que atenda aos mesmos requisitos."
+    },
+    {
+     "nivel": 14,
+     "nome": "Perícia Inigualável",
+     "descricao": "Ao fazer um teste de atributo ou jogada de ataque e falhar, você pode gastar um uso de Inspiração de Bardo: role o dado e some o resultado ao d20, possivelmente transformando a falha em sucesso. Se ainda falhar, a Inspiração de Bardo não é gasta."
+    }
+   ]
+  }
+ },
+ {
+  "id": "clerigo",
+  "nome": "Clérigo",
+  "en": "Cleric",
+  "dadoVida": 8,
+  "atributoPrincipal": [
+   "sab"
+  ],
+  "salvaguardas": [
+   "sab",
+   "car"
+  ],
+  "pericias": {
+   "escolhe": 2,
+   "lista": [
+    "historia",
+    "intuicao",
+    "medicina",
+    "persuasao",
+    "religiao"
+   ]
+  },
+  "armas": "Armas simples",
+  "armaduras": "Armaduras leves e médias e escudos",
+  "ferramentas": "",
+  "equipamento": "Escolha A ou B: (A) Camisão de Malha, Escudo, Maça, Símbolo Sagrado, Pacote de Sacerdote e 7 PO; ou (B) 110 PO",
+  "conjuracao": {
+   "atributo": "sab",
+   "tipo": "completa",
+   "truques": [
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+   ],
+   "preparadas": [
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    16,
+    17,
+    17,
+    18,
+    18,
+    19,
+    20,
+    21,
+    22
+   ]
+  },
+  "recursos": [
+   {
+    "nome": "Canalizar Divindade",
+    "porNivel": [
+     0,
+     2,
+     2,
+     2,
+     2,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4
+    ]
+   }
+  ],
+  "niveis": [
+   {
+    "nivel": 1,
+    "caracteristicas": [
+     {
+      "nome": "Conjuração",
+      "descricao": "Você conjura magias de Clérigo usando Sabedoria como atributo de conjuração e pode usar um Símbolo Sagrado como Foco de Conjuração. Conhece três truques da lista de Clérigo (mais um nos níveis 4 e 10) e, ao ganhar um nível de Clérigo, pode trocar um truque por outro. Prepara magias de nível 1+ conforme a coluna Magias Preparadas (começa com quatro de nível 1), sempre de níveis para os quais tenha espaços; ao terminar um Descanso Longo, pode trocar quaisquer magias da lista por outras de Clérigo. Magias sempre preparadas por outras características não contam no limite. Recupera todos os espaços de magia num Descanso Longo."
+     },
+     {
+      "nome": "Ordem Divina",
+      "descricao": "Escolha um papel sagrado. Protetor: proficiência com armas marciais e treinamento com armadura pesada. Taumaturgo: você conhece um truque extra da lista de Clérigo e soma seu modificador de Sabedoria (mínimo +1) aos testes de Inteligência (Arcanismo ou Religião)."
+     }
+    ]
+   },
+   {
+    "nivel": 2,
+    "caracteristicas": [
+     {
+      "nome": "Canalizar Divindade",
+      "descricao": "Você canaliza energia divina para criar efeitos; começa com Centelha Divina e Expulsar Mortos-Vivos. Usos conforme a coluna Canalizar Divindade (2 no início); recupera 1 uso num Descanso Curto e todos num Descanso Longo. A CD das salvaguardas é a CD de magia de Clérigo. Centelha Divina: como ação Magia, aponte o Símbolo Sagrado para outra criatura que você veja a até 9 m e role 1d8 + modificador de Sabedoria; ela recupera PV iguais ao total ou faz uma salvaguarda de Constituição, sofrendo dano Necrótico ou Radiante (à sua escolha) igual ao total se falhar, ou metade (arredondada para baixo) se passar; rola 2d8 no nível 7, 3d8 no 13 e 4d8 no 18. Expulsar Mortos-Vivos: como ação Magia, cada Morto-vivo à sua escolha a até 9 m faz uma salvaguarda de Sabedoria; se falhar, fica Amedrontado e Incapacitado por 1 minuto e tenta se afastar ao máximo de você em seus turnos; o efeito termina antes se ele sofrer qualquer dano, se você ficar Incapacitado ou se você morrer."
+     }
+    ]
+   },
+   {
+    "nivel": 3,
+    "caracteristicas": [
+     {
+      "nome": "Subclasse de Clérigo",
+      "descricao": "Você escolhe uma subclasse de Clérigo (no SRD: Domínio da Vida). A subclasse concede características em certos níveis de Clérigo; daí em diante você ganha cada característica dela de nível igual ou inferior ao seu nível de Clérigo."
+     }
+    ]
+   },
+   {
+    "nivel": 4,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 5,
+    "caracteristicas": [
+     {
+      "nome": "Queimar Mortos-Vivos",
+      "descricao": "Sempre que usar Expulsar Mortos-Vivos, você pode rolar uma quantidade de d8 igual ao seu modificador de Sabedoria (mínimo 1d8) e somá-los. Cada Morto-vivo que falhar na salvaguarda sofre dano Radiante igual ao total. Esse dano não encerra o efeito de expulsão."
+     }
+    ]
+   },
+   {
+    "nivel": 6,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 7,
+    "caracteristicas": [
+     {
+      "nome": "Golpes Abençoados",
+      "descricao": "Escolha uma opção. Golpe Divino: uma vez em cada um dos seus turnos, ao acertar uma criatura com uma jogada de ataque usando uma arma, você pode causar 1d8 de dano Necrótico ou Radiante extra (à sua escolha). Conjuração Potente: some seu modificador de Sabedoria ao dano de qualquer truque de Clérigo."
+     }
+    ]
+   },
+   {
+    "nivel": 8,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 9,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 10,
+    "caracteristicas": [
+     {
+      "nome": "Intervenção Divina",
+      "descricao": "Como ação Magia, escolha qualquer magia de Clérigo de nível 5 ou inferior que não exija Reação para ser conjurada e conjure-a como parte da mesma ação, sem gastar espaço de magia nem precisar de componentes Materiais. Você só pode usar esta característica de novo após um Descanso Longo."
+     }
+    ]
+   },
+   {
+    "nivel": 11,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 12,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 13,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 14,
+    "caracteristicas": [
+     {
+      "nome": "Golpes Abençoados Aprimorados",
+      "descricao": "A opção escolhida em Golpes Abençoados fica mais forte. Golpe Divino: o dano extra aumenta para 2d8. Conjuração Potente: ao conjurar um truque de Clérigo e causar dano a uma criatura com ele, você pode dar a si mesmo ou a outra criatura a até 18 m PV Temporários iguais ao dobro do seu modificador de Sabedoria."
+     }
+    ]
+   },
+   {
+    "nivel": 15,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 16,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 17,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 18,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 19,
+    "caracteristicas": [
+     {
+      "nome": "Dádiva Épica",
+      "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva do Destino."
+     }
+    ]
+   },
+   {
+    "nivel": 20,
+    "caracteristicas": [
+     {
+      "nome": "Intervenção Divina Maior",
+      "descricao": "Ao usar Intervenção Divina, você pode escolher a magia Desejo (Wish). Se fizer isso, só poderá usar Intervenção Divina de novo após terminar 2d4 Descansos Longos."
+     }
+    ]
+   }
+  ],
+  "subclasse": {
+   "id": "vida",
+   "nome": "Domínio da Vida",
+   "en": "Life Domain",
+   "caracteristicas": [
+    {
+     "nivel": 3,
+     "nome": "Discípulo da Vida",
+     "descricao": "Quando uma magia que você conjura com um espaço de magia restaura PV a uma criatura, ela recupera PV adicionais no turno da conjuração iguais a 2 + o nível do espaço."
+    },
+    {
+     "nivel": 3,
+     "nome": "Magias do Domínio da Vida",
+     "descricao": "Ao alcançar os níveis de Clérigo indicados, você passa a ter sempre preparadas: nível 3 — Auxílio (Aid), Bênção (Bless), Curar Ferimentos (Cure Wounds), Restauração Menor (Lesser Restoration); nível 5 — Palavra Curativa em Massa (Mass Healing Word), Revivificar (Revivify); nível 7 — Aura de Vida (Aura of Life), Proteção contra a Morte (Death Ward); nível 9 — Restauração Maior (Greater Restoration), Curar Ferimentos em Massa (Mass Cure Wounds)."
+    },
+    {
+     "nivel": 3,
+     "nome": "Preservar a Vida",
+     "descricao": "Como ação Magia, apresente o Símbolo Sagrado e gaste um uso de Canalizar Divindade para restaurar PV iguais a cinco vezes o seu nível de Clérigo, divididos entre criaturas Sangrando a até 9 m de você (podendo incluir você). Esta característica não leva uma criatura acima da metade dos seus PV máximos."
+    },
+    {
+     "nivel": 6,
+     "nome": "Curandeiro Abençoado",
+     "descricao": "Logo após conjurar uma magia com espaço de magia que restaure PV a uma ou mais criaturas além de você, você recupera PV iguais a 2 + o nível do espaço."
+    },
+    {
+     "nivel": 17,
+     "nome": "Cura Suprema",
+     "descricao": "Quando for rolar dados para restaurar PV a uma criatura com uma magia ou com Canalizar Divindade, não role: use o valor máximo de cada dado (por exemplo, 2d6 restauram 12 PV)."
+    }
+   ]
+  }
+ },
+ {
+  "id": "druida",
+  "nome": "Druida",
+  "en": "Druid",
+  "dadoVida": 8,
+  "atributoPrincipal": [
+   "sab"
+  ],
+  "salvaguardas": [
+   "int",
+   "sab"
+  ],
+  "pericias": {
+   "escolhe": 2,
+   "lista": [
+    "adestrar",
+    "arcanismo",
+    "intuicao",
+    "medicina",
+    "natureza",
+    "percepcao",
+    "religiao",
+    "sobrevivencia"
+   ]
+  },
+  "armas": "Armas simples",
+  "armaduras": "Armaduras leves e escudos",
+  "ferramentas": "Kit de Herbalismo",
+  "equipamento": "Escolha A ou B: (A) Armadura de Couro, Escudo, Foice Curta, Foco Druídico (Bordão), Pacote de Explorador, Kit de Herbalismo e 9 PO; ou (B) 50 PO",
+  "conjuracao": {
+   "atributo": "sab",
+   "tipo": "completa",
+   "truques": [
+    2,
+    2,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4
+   ],
+   "preparadas": [
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    16,
+    17,
+    17,
+    18,
+    18,
+    19,
+    20,
+    21,
+    22
+   ]
+  },
+  "recursos": [
+   {
+    "nome": "Forma Selvagem",
+    "porNivel": [
+     0,
+     2,
+     2,
+     2,
+     2,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4
+    ]
+   }
+  ],
+  "niveis": [
+   {
+    "nivel": 1,
+    "caracteristicas": [
+     {
+      "nome": "Conjuração",
+      "descricao": "Você conjura magias de Druida usando Sabedoria como atributo de conjuração e pode usar um Foco Druídico como Foco de Conjuração. Conhece dois truques da lista de Druida (mais um nos níveis 4 e 10) e, ao ganhar um nível de Druida, pode trocar um truque por outro. Prepara magias de nível 1+ conforme a coluna Magias Preparadas (começa com quatro de nível 1), sempre de níveis para os quais tenha espaços; ao terminar um Descanso Longo, pode trocar quaisquer magias da lista por outras de Druida. Magias sempre preparadas por outras características não contam no limite. Recupera todos os espaços de magia num Descanso Longo."
+     },
+     {
+      "nome": "Druídico",
+      "descricao": "Você conhece o Druídico, a língua secreta dos Druidas, e sempre tem a magia Falar com Animais (Speak with Animals) preparada. Pode deixar mensagens ocultas em Druídico: quem conhece a língua as percebe automaticamente; outros notam a presença da mensagem com um teste de Inteligência (Investigação) CD 15, mas não a decifram sem magia."
+     },
+     {
+      "nome": "Ordem Primal",
+      "descricao": "Escolha um papel sagrado. Mágico: você conhece um truque extra da lista de Druida e soma seu modificador de Sabedoria (mínimo +1) aos testes de Inteligência (Arcanismo ou Natureza). Guardião: proficiência com armas marciais e treinamento com armadura média."
+     }
+    ]
+   },
+   {
+    "nivel": 2,
+    "caracteristicas": [
+     {
+      "nome": "Forma Selvagem",
+      "descricao": "Como Ação Bônus, você assume a forma de uma Fera que conheça para esta característica, por um número de horas igual à metade do seu nível de Druida, ou até usar Forma Selvagem de novo, ficar Incapacitado ou morrer; pode sair antes como Ação Bônus. Usos conforme a coluna Forma Selvagem (2 no início); recupera 1 uso num Descanso Curto e todos num Descanso Longo. Formas conhecidas: 4 formas de ND máximo 1/4 e sem Deslocamento de Voo no nível 2; 6 de ND 1/2 no nível 4; 8 de ND 1, com voo permitido, no nível 8; após um Descanso Longo pode trocar uma forma conhecida. Na forma: ganha PV Temporários iguais ao seu nível de Druida; usa o bloco de estatísticas da Fera, mas mantém tipo de criatura, PV, Dados de Vida, Inteligência, Sabedoria, Carisma, características de classe, idiomas, talentos e proficiências em perícias e salvaguardas (usa o maior modificador); não pode conjurar magias, mas a transformação não quebra Concentração; o manuseio de objetos depende dos membros da forma, e você escolhe se o equipamento cai, se funde à forma (sem efeito) ou é vestido por ela, conforme o Mestre julgar viável."
+     },
+     {
+      "nome": "Companheiro Selvagem",
+      "descricao": "Como ação Magia, você pode gastar um espaço de magia ou um uso de Forma Selvagem para conjurar Encontrar Familiar (Find Familiar) sem componentes Materiais. O familiar é uma Fada e desaparece quando você termina um Descanso Longo."
+     }
+    ]
+   },
+   {
+    "nivel": 3,
+    "caracteristicas": [
+     {
+      "nome": "Subclasse de Druida",
+      "descricao": "Você escolhe uma subclasse de Druida (no SRD: Círculo da Terra). A subclasse concede características em certos níveis de Druida; daí em diante você ganha cada característica dela de nível igual ou inferior ao seu nível de Druida."
+     }
+    ]
+   },
+   {
+    "nivel": 4,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 5,
+    "caracteristicas": [
+     {
+      "nome": "Ressurgência Selvagem",
+      "descricao": "Uma vez em cada um dos seus turnos, se não tiver usos de Forma Selvagem, você pode gastar um espaço de magia (sem ação) para ganhar um uso. Além disso, pode gastar um uso de Forma Selvagem (sem ação) para ganhar um espaço de magia de nível 1, mas só pode fazer isso de novo após um Descanso Longo."
+     }
+    ]
+   },
+   {
+    "nivel": 6,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 7,
+    "caracteristicas": [
+     {
+      "nome": "Fúria Elemental",
+      "descricao": "Escolha uma opção. Conjuração Potente: some seu modificador de Sabedoria ao dano de qualquer truque de Druida. Golpe Primal: uma vez em cada um dos seus turnos, ao acertar uma criatura com uma jogada de ataque usando uma arma ou um ataque de forma de Fera na Forma Selvagem, você pode causar 1d8 de dano extra de Frio, Fogo, Elétrico ou Trovejante (escolha ao acertar)."
+     }
+    ]
+   },
+   {
+    "nivel": 8,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 9,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 10,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 11,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 12,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 13,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 14,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 15,
+    "caracteristicas": [
+     {
+      "nome": "Fúria Elemental Aprimorada",
+      "descricao": "A opção escolhida em Fúria Elemental fica mais forte. Conjuração Potente: ao conjurar um truque de Druida com alcance de 3 m ou mais, o alcance aumenta em 90 m. Golpe Primal: o dano extra aumenta para 2d8."
+     }
+    ]
+   },
+   {
+    "nivel": 16,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 17,
+    "caracteristicas": []
+   },
+   {
+    "nivel": 18,
+    "caracteristicas": [
+     {
+      "nome": "Magias Bestiais",
+      "descricao": "Enquanto usa Forma Selvagem, você pode conjurar magias na forma de Fera, exceto as que tenham componente Material com custo especificado ou que consumam o componente Material."
+     }
+    ]
+   },
+   {
+    "nivel": 19,
+    "caracteristicas": [
+     {
+      "nome": "Dádiva Épica",
+      "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Viagem Dimensional."
+     }
+    ]
+   },
+   {
+    "nivel": 20,
+    "caracteristicas": [
+     {
+      "nome": "Arquidruida",
+      "descricao": "Forma Selvagem Perene: ao rolar Iniciativa sem usos de Forma Selvagem, você recupera um uso. Mago da Natureza: você pode converter usos não gastos de Forma Selvagem num único espaço de magia (sem ação), cada uso contribuindo com 2 níveis (ex.: dois usos geram um espaço de nível 4); depois só pode fazer isso de novo após um Descanso Longo. Longevidade: para cada dez anos que passam, seu corpo envelhece só um."
+     }
+    ]
+   }
+  ],
+  "subclasse": {
+   "id": "terra",
+   "nome": "Círculo da Terra",
+   "en": "Circle of the Land",
+   "caracteristicas": [
+    {
+     "nivel": 3,
+     "nome": "Magias do Círculo da Terra",
+     "descricao": "Ao terminar um Descanso Longo, escolha um tipo de terra; você tem preparadas as magias dele do seu nível de Druida ou inferior. Árida: 3 — Nublar (Blur), Mãos Flamejantes (Burning Hands), Raio de Fogo (Fire Bolt); 5 — Bola de Fogo (Fireball); 7 — Praga (Blight); 9 — Muralha de Pedra (Wall of Stone). Polar: 3 — Névoa Obscurecente (Fog Cloud), Imobilizar Pessoa (Hold Person), Raio de Gelo (Ray of Frost); 5 — Nevasca (Sleet Storm); 7 — Tempestade de Gelo (Ice Storm); 9 — Cone de Frio (Cone of Cold). Temperada: 3 — Passo Nebuloso (Misty Step), Toque Chocante (Shocking Grasp), Sono (Sleep); 5 — Relâmpago (Lightning Bolt); 7 — Liberdade de Movimento (Freedom of Movement); 9 — Caminhar em Árvores (Tree Stride). Tropical: 3 — Respingo Ácido (Acid Splash), Raio Nauseante (Ray of Sickness), Teia (Web); 5 — Névoa Fétida (Stinking Cloud); 7 — Metamorfose (Polymorph); 9 — Praga de Insetos (Insect Plague)."
+    },
+    {
+     "nivel": 3,
+     "nome": "Auxílio da Terra",
+     "descricao": "Como ação Magia, gaste um uso de Forma Selvagem e escolha um ponto a até 18 m. Flores e espinhos surgem numa Esfera de 3 m de raio centrada nele: cada criatura à sua escolha na área faz uma salvaguarda de Constituição contra sua CD de magia, sofrendo 2d6 de dano Necrótico se falhar ou metade se passar; uma criatura à sua escolha na área recupera 2d6 PV. Dano e cura aumentam para 3d6 no nível 10 e 4d6 no nível 14."
+    },
+    {
+     "nivel": 6,
+     "nome": "Recuperação Natural",
+     "descricao": "Você pode conjurar uma magia de nível 1+ preparada pelas Magias do Círculo sem gastar espaço; só pode fazer isso de novo após um Descanso Longo. Além disso, ao terminar um Descanso Curto, pode recuperar espaços de magia gastos com nível somado igual ou menor que metade do seu nível de Druida (arredondada para cima), nenhum de nível 6+; só pode fazer isso de novo após um Descanso Longo."
+    },
+    {
+     "nivel": 10,
+     "nome": "Proteção da Natureza",
+     "descricao": "Você é imune à condição Envenenado e tem Resistência ao tipo de dano ligado à terra escolhida atualmente nas Magias do Círculo: Árida — Fogo; Polar — Frio; Temperada — Elétrico; Tropical — Veneno."
+    },
+    {
+     "nivel": 14,
+     "nome": "Santuário da Natureza",
+     "descricao": "Como ação Magia, gaste um uso de Forma Selvagem para fazer surgir árvores e trepadeiras espectrais num Cubo de 4,5 m no chão a até 36 m de você, por 1 minuto ou até você ficar Incapacitado ou morrer. Você e seus aliados têm Meia Cobertura na área, e seus aliados ganham ali a Resistência atual da sua Proteção da Natureza. Como Ação Bônus, você pode mover o Cubo até 18 m, para um chão a até 36 m de você."
+    }
+   ]
+  }
+ },
+ {
+  "id": "guerreiro",
+  "nome": "Guerreiro",
+  "en": "Fighter",
+  "dadoVida": 10,
+  "atributoPrincipal": [
+   "for",
+   "des"
+  ],
+  "salvaguardas": [
+   "for",
+   "con"
+  ],
+  "pericias": {
+   "escolhe": 2,
+   "lista": [
+    "acrobacia",
+    "adestrar",
+    "atletismo",
+    "historia",
+    "intuicao",
+    "intimidacao",
+    "persuasao",
+    "percepcao",
+    "sobrevivencia"
+   ]
+  },
+  "armas": "Armas simples e marciais",
+  "armaduras": "Armaduras leves, médias e pesadas e escudos",
+  "ferramentas": "",
+  "equipamento": "Escolha A, B ou C: (A) Cota de Malha, Espada Grande, Mangual, 8 Azagaias, Pacote de Explorador de Masmorras e 4 PO; (B) Couro Batido, Cimitarra, Espada Curta, Arco Longo, 20 Flechas, Aljava, Pacote de Explorador de Masmorras e 11 PO; ou (C) 155 PO",
+  "conjuracao": null,
+  "recursos": [
+   {
+    "nome": "Retomar o Fôlego",
+    "porNivel": [
+     2,
+     2,
+     2,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4
+    ]
+   },
+   {
+    "nome": "Maestria em Armas",
+    "porNivel": [
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     6,
+     6,
+     6,
+     6,
+     6
+    ]
+   }
+  ],
+  "niveis": [
+   {
+    "nivel": 1,
+    "caracteristicas": [
+     {
+      "nome": "Estilo de Luta",
+      "descricao": "Você ganha um talento de Estilo de Luta à sua escolha (Defesa é recomendado). Sempre que ganhar um nível de Guerreiro, pode trocá-lo por outro talento de Estilo de Luta."
+     },
+     {
+      "nome": "Retomar o Fôlego",
+      "descricao": "Como Ação Bônus, você recupera PV iguais a 1d10 + seu nível de Guerreiro. Usos conforme a coluna Retomar o Fôlego (2 no início); recupera 1 uso num Descanso Curto e todos num Descanso Longo."
+     },
+     {
+      "nome": "Maestria em Armas",
+      "descricao": "Você pode usar as propriedades de maestria de três tipos de armas simples ou marciais à sua escolha. Ao terminar um Descanso Longo, pode trocar uma dessas escolhas. O número de tipos aumenta conforme a coluna Maestria em Armas."
+     }
+    ]
+   },
+   {
+    "nivel": 2,
+    "caracteristicas": [
+     {
+      "nome": "Surto de Ação",
+      "descricao": "No seu turno, você pode realizar uma ação adicional, exceto a ação Magia. Depois de usar, só pode usar de novo após um Descanso Curto ou Longo."
+     },
+     {
+      "nome": "Mente Tática",
+      "descricao": "Ao falhar num teste de atributo, você pode gastar um uso de Retomar o Fôlego para, em vez de recuperar PV, rolar 1d10 e somar o resultado ao teste, possivelmente transformando-o em sucesso. Se o teste ainda falhar, o uso não é gasto."
+     }
+    ]
+   },
+   {
+    "nivel": 3,
+    "caracteristicas": [
+     {
+      "nome": "Subclasse de Guerreiro",
+      "descricao": "Você escolhe uma subclasse de Guerreiro (no SRD: Campeão). A subclasse concede características em certos níveis de Guerreiro; daí em diante você ganha cada característica dela de nível igual ou inferior ao seu nível de Guerreiro."
+     }
+    ]
+   },
+   {
+    "nivel": 4,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 5,
+    "caracteristicas": [
+     {
+      "nome": "Ataque Extra",
+      "descricao": "Você pode atacar duas vezes, em vez de uma, sempre que realizar a ação Atacar no seu turno."
+     },
+     {
+      "nome": "Deslocamento Tático",
+      "descricao": "Sempre que ativar Retomar o Fôlego com uma Ação Bônus, você pode se mover até metade do seu Deslocamento sem provocar Ataques de Oportunidade."
+     }
+    ]
+   },
+   {
+    "nivel": 6,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 7,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 8,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 9,
+    "caracteristicas": [
+     {
+      "nome": "Indomável",
+      "descricao": "Se falhar numa salvaguarda, você pode rolá-la de novo com bônus igual ao seu nível de Guerreiro e deve usar a nova rolagem. Depois de usar, só pode usar de novo após um Descanso Longo."
+     },
+     {
+      "nome": "Mestre Tático",
+      "descricao": "Ao atacar com uma arma cuja propriedade de maestria você possa usar, você pode substituí-la pela propriedade Empurrão, Enfraquecer ou Lentidão nesse ataque."
+     }
+    ]
+   },
+   {
+    "nivel": 10,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 11,
+    "caracteristicas": [
+     {
+      "nome": "Dois Ataques Extras",
+      "descricao": "Você pode atacar três vezes, em vez de uma, sempre que realizar a ação Atacar no seu turno."
+     }
+    ]
+   },
+   {
+    "nivel": 12,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 13,
+    "caracteristicas": [
+     {
+      "nome": "Indomável (dois usos)",
+      "descricao": "Você pode usar Indomável duas vezes antes de um Descanso Longo."
+     },
+     {
+      "nome": "Ataques Estudados",
+      "descricao": "Se você fizer uma jogada de ataque contra uma criatura e errar, tem Vantagem na próxima jogada de ataque contra ela antes do fim do seu próximo turno."
+     }
+    ]
+   },
+   {
+    "nivel": 14,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 15,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 16,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 17,
+    "caracteristicas": [
+     {
+      "nome": "Surto de Ação (dois usos)",
+      "descricao": "Você pode usar Surto de Ação duas vezes antes de um descanso, mas só uma vez por turno."
+     },
+     {
+      "nome": "Indomável (três usos)",
+      "descricao": "Você pode usar Indomável três vezes antes de um Descanso Longo."
+     }
+    ]
+   },
+   {
+    "nivel": 18,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 19,
+    "caracteristicas": [
+     {
+      "nome": "Dádiva Épica",
+      "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Proeza em Combate."
+     }
+    ]
+   },
+   {
+    "nivel": 20,
+    "caracteristicas": [
+     {
+      "nome": "Três Ataques Extras",
+      "descricao": "Você pode atacar quatro vezes, em vez de uma, sempre que realizar a ação Atacar no seu turno."
+     }
+    ]
+   }
+  ],
+  "subclasse": {
+   "id": "campeao",
+   "nome": "Campeão",
+   "en": "Champion",
+   "caracteristicas": [
+    {
+     "nivel": 3,
+     "nome": "Crítico Aprimorado",
+     "descricao": "Suas jogadas de ataque com armas e Ataques Desarmados obtêm Acerto Crítico com 19 ou 20 no d20."
+    },
+    {
+     "nivel": 3,
+     "nome": "Atleta Notável",
+     "descricao": "Você tem Vantagem nas jogadas de Iniciativa e nos testes de Força (Atletismo). Além disso, logo após obter um Acerto Crítico, pode se mover até metade do seu Deslocamento sem provocar Ataques de Oportunidade."
+    },
+    {
+     "nivel": 7,
+     "nome": "Estilo de Luta Adicional",
+     "descricao": "Você ganha outro talento de Estilo de Luta à sua escolha."
+    },
+    {
+     "nivel": 10,
+     "nome": "Guerreiro Heroico",
+     "descricao": "Durante um combate, você pode se dar Inspiração Heroica sempre que começar o seu turno sem ela."
+    },
+    {
+     "nivel": 15,
+     "nome": "Crítico Superior",
+     "descricao": "Suas jogadas de ataque com armas e Ataques Desarmados passam a obter Acerto Crítico com 18 a 20 no d20."
+    },
+    {
+     "nivel": 18,
+     "nome": "Sobrevivente",
+     "descricao": "Desafiar a Morte: você tem Vantagem nas Salvaguardas contra a Morte, e um resultado de 18 a 20 nelas conta como 20. Recuperação Heroica: no início de cada um dos seus turnos, se estiver Sangrando e tiver pelo menos 1 PV, você recupera PV iguais a 5 + seu modificador de Constituição."
+    }
+   ]
+  }
+ },
+ {
+  "id": "monge",
+  "nome": "Monge",
+  "en": "Monk",
+  "dadoVida": 8,
+  "atributoPrincipal": [
+   "des",
+   "sab"
+  ],
+  "salvaguardas": [
+   "for",
+   "des"
+  ],
+  "pericias": {
+   "escolhe": 2,
+   "lista": [
+    "acrobacia",
+    "atletismo",
+    "historia",
+    "intuicao",
+    "religiao",
+    "furtividade"
+   ]
+  },
+  "armas": "Armas simples e armas marciais com a propriedade Leve",
+  "armaduras": "Nenhuma",
+  "ferramentas": "Um tipo de ferramentas de artesão ou um instrumento musical à sua escolha",
+  "equipamento": "Escolha A ou B: (A) Lança, 5 Adagas, as Ferramentas de Artesão ou o Instrumento Musical escolhido na proficiência de ferramenta, Pacote de Explorador e 11 PO; ou (B) 50 PO",
+  "conjuracao": null,
+  "recursos": [
+   {
+    "nome": "Artes Marciais",
+    "porNivel": [
+     "1d6",
+     "1d6",
+     "1d6",
+     "1d6",
+     "1d8",
+     "1d8",
+     "1d8",
+     "1d8",
+     "1d8",
+     "1d8",
+     "1d10",
+     "1d10",
+     "1d10",
+     "1d10",
+     "1d10",
+     "1d10",
+     "1d12",
+     "1d12",
+     "1d12",
+     "1d12"
+    ]
+   },
+   {
+    "nome": "Pontos de Foco",
+    "porNivel": [
+     0,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20
+    ]
+   },
+   {
+    "nome": "Movimento sem Armadura",
+    "porNivel": [
+     "—",
+     "+3 m",
+     "+3 m",
+     "+3 m",
+     "+3 m",
+     "+4,5 m",
+     "+4,5 m",
+     "+4,5 m",
+     "+4,5 m",
+     "+6 m",
+     "+6 m",
+     "+6 m",
+     "+6 m",
+     "+7,5 m",
+     "+7,5 m",
+     "+7,5 m",
+     "+7,5 m",
+     "+9 m",
+     "+9 m",
+     "+9 m"
+    ]
+   }
+  ],
+  "niveis": [
+   {
+    "nivel": 1,
+    "caracteristicas": [
+     {
+      "nome": "Artes Marciais",
+      "descricao": "Armas de Monge são as armas corpo a corpo simples e as armas corpo a corpo marciais com a propriedade Leve. Enquanto estiver desarmado ou empunhando só armas de Monge, sem armadura e sem Escudo: você pode fazer um Ataque Desarmado como Ação Bônus; pode rolar o dado de Artes Marciais (coluna Artes Marciais, 1d6 no início) no lugar do dano normal do Ataque Desarmado ou das armas de Monge; e pode usar o modificador de Destreza em vez do de Força nas jogadas de ataque e dano dessas armas e do Ataque Desarmado, e para a CD das opções Agarrar e Empurrar do Ataque Desarmado."
+     },
+     {
+      "nome": "Defesa sem Armadura",
+      "descricao": "Sem vestir armadura nem empunhar Escudo, sua CA base é 10 + modificador de Destreza + modificador de Sabedoria."
+     }
+    ]
+   },
+   {
+    "nivel": 2,
+    "caracteristicas": [
+     {
+      "nome": "Foco do Monge",
+      "descricao": "Você tem Pontos de Foco conforme a coluna Pontos de Foco e os gasta em características de Monge. Recupera todos os pontos gastos ao terminar um Descanso Curto ou Longo. A CD das salvaguardas exigidas por essas características é 8 + modificador de Sabedoria + Bônus de Proficiência. Rajada de Golpes: gaste 1 Ponto de Foco para fazer dois Ataques Desarmados como Ação Bônus. Defesa Paciente: realize a ação Desengajar como Ação Bônus ou gaste 1 Ponto de Foco para realizar Desengajar e Esquivar como Ação Bônus. Passo do Vento: realize a ação Disparada como Ação Bônus ou gaste 1 Ponto de Foco para realizar Desengajar e Disparada como Ação Bônus, dobrando a distância do seu salto nesse turno."
+     },
+     {
+      "nome": "Movimento sem Armadura",
+      "descricao": "Seu Deslocamento aumenta em 3 m enquanto você não estiver usando armadura nem empunhando Escudo. O bônus aumenta em certos níveis de Monge, conforme a coluna Movimento sem Armadura."
+     },
+     {
+      "nome": "Metabolismo Incomum",
+      "descricao": "Ao rolar Iniciativa, você pode recuperar todos os Pontos de Foco gastos; ao fazer isso, role o dado de Artes Marciais e recupere PV iguais ao seu nível de Monge + o resultado. Depois de usar, só pode usar de novo após um Descanso Longo."
+     }
+    ]
+   },
+   {
+    "nivel": 3,
+    "caracteristicas": [
+     {
+      "nome": "Defletir Ataques",
+      "descricao": "Quando uma jogada de ataque acertar você e o dano incluir Concussão, Perfurante ou Cortante, você pode usar sua Reação para reduzir o dano total do ataque em 1d10 + modificador de Destreza + seu nível de Monge. Se reduzir o dano a 0, pode gastar 1 Ponto de Foco para redirecionar parte da força: escolha uma criatura que você veja a até 1,5 m (ataque corpo a corpo) ou a até 18 m e sem Cobertura Total (ataque à distância); ela deve passar numa salvaguarda de Destreza ou sofrer dano igual a duas rolagens do dado de Artes Marciais + modificador de Destreza, do mesmo tipo do ataque."
+     },
+     {
+      "nome": "Subclasse de Monge",
+      "descricao": "Você escolhe uma subclasse de Monge (no SRD: Guerreiro da Mão Aberta). A subclasse concede características em certos níveis de Monge; daí em diante você ganha cada característica dela de nível igual ou inferior ao seu nível de Monge."
+     }
+    ]
+   },
+   {
+    "nivel": 4,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     },
+     {
+      "nome": "Queda Lenta",
+      "descricao": "Ao cair, você pode usar sua Reação para reduzir o dano da queda em um valor igual a cinco vezes o seu nível de Monge."
+     }
+    ]
+   },
+   {
+    "nivel": 5,
+    "caracteristicas": [
+     {
+      "nome": "Ataque Extra",
+      "descricao": "Você pode atacar duas vezes, em vez de uma, sempre que realizar a ação Atacar no seu turno."
+     },
+     {
+      "nome": "Golpe Atordoante",
+      "descricao": "Uma vez por turno, ao acertar uma criatura com uma arma de Monge ou um Ataque Desarmado, você pode gastar 1 Ponto de Foco: o alvo faz uma salvaguarda de Constituição. Se falhar, fica Atordoado até o início do seu próximo turno. Se passar, seu Deslocamento cai à metade até o início do seu próximo turno, e a próxima jogada de ataque contra ele antes disso tem Vantagem."
+     }
+    ]
+   },
+   {
+    "nivel": 6,
+    "caracteristicas": [
+     {
+      "nome": "Golpes Fortalecidos",
+      "descricao": "Sempre que causar dano com seu Ataque Desarmado, você pode escolher que seja dano de Energia ou do tipo normal."
+     },
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 7,
+    "caracteristicas": [
+     {
+      "nome": "Evasão",
+      "descricao": "Quando um efeito permitir uma salvaguarda de Destreza para sofrer só metade do dano, você não sofre dano se passar e sofre só metade se falhar. Você não recebe esse benefício se estiver Incapacitado."
+     }
+    ]
+   },
+   {
+    "nivel": 8,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 9,
+    "caracteristicas": [
+     {
+      "nome": "Movimento Acrobático",
+      "descricao": "Sem vestir armadura nem empunhar Escudo, você pode se mover por superfícies verticais e sobre líquidos no seu turno sem cair durante o movimento."
+     }
+    ]
+   },
+   {
+    "nivel": 10,
+    "caracteristicas": [
+     {
+      "nome": "Foco Elevado",
+      "descricao": "Rajada de Golpes: ao gastar 1 Ponto de Foco nela, você faz três Ataques Desarmados em vez de dois. Defesa Paciente: ao gastar um Ponto de Foco nela, você ganha PV Temporários iguais a duas rolagens do dado de Artes Marciais. Passo do Vento: ao gastar um Ponto de Foco nele, você pode escolher uma criatura voluntária, Grande ou menor, a até 1,5 m e movê-la com você até o fim do seu turno; o movimento dela não provoca Ataques de Oportunidade."
+     },
+     {
+      "nome": "Autorrestauração",
+      "descricao": "No fim de cada um dos seus turnos, você pode remover de si uma destas condições: Enfeitiçado, Amedrontado ou Envenenado. Além disso, ficar sem comida e água não lhe causa níveis de Exaustão."
+     }
+    ]
+   },
+   {
+    "nivel": 11,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 12,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 13,
+    "caracteristicas": [
+     {
+      "nome": "Defletir Energia",
+      "descricao": "Você pode usar Defletir Ataques contra ataques de qualquer tipo de dano, não só Concussão, Perfurante ou Cortante."
+     }
+    ]
+   },
+   {
+    "nivel": 14,
+    "caracteristicas": [
+     {
+      "nome": "Sobrevivente Disciplinado",
+      "descricao": "Você ganha proficiência em todas as salvaguardas. Além disso, ao falhar numa salvaguarda, pode gastar 1 Ponto de Foco para rolá-la de novo, e deve usar a nova rolagem."
+     }
+    ]
+   },
+   {
+    "nivel": 15,
+    "caracteristicas": [
+     {
+      "nome": "Foco Perfeito",
+      "descricao": "Ao rolar Iniciativa sem usar Metabolismo Incomum, se tiver 3 Pontos de Foco ou menos, você recupera pontos gastos até ficar com 4."
+     }
+    ]
+   },
+   {
+    "nivel": 16,
+    "caracteristicas": [
+     {
+      "nome": "Aumento no Valor de Atributo",
+      "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+     }
+    ]
+   },
+   {
+    "nivel": 17,
+    "caracteristicas": [
+     {
+      "nome": "Característica de Subclasse",
+      "descricao": "Você ganha uma característica da sua subclasse."
+     }
+    ]
+   },
+   {
+    "nivel": 18,
+    "caracteristicas": [
+     {
+      "nome": "Defesa Superior",
+      "descricao": "No início do seu turno, você pode gastar 3 Pontos de Foco para ganhar, por 1 minuto ou até ficar Incapacitado, Resistência a todo dano, exceto dano de Energia."
+     }
+    ]
+   },
+   {
+    "nivel": 19,
+    "caracteristicas": [
+     {
+      "nome": "Dádiva Épica",
+      "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Ofensiva Irresistível."
+     }
+    ]
+   },
+   {
+    "nivel": 20,
+    "caracteristicas": [
+     {
+      "nome": "Corpo e Mente",
+      "descricao": "Seus valores de Destreza e Sabedoria aumentam em 4, até o máximo de 25."
+     }
+    ]
+   }
+  ],
+  "subclasse": {
+   "id": "mao-aberta",
+   "nome": "Guerreiro da Mão Aberta",
+   "en": "Warrior of the Open Hand",
+   "caracteristicas": [
+    {
+     "nivel": 3,
+     "nome": "Técnica da Mão Aberta",
+     "descricao": "Sempre que acertar uma criatura com um ataque concedido pela Rajada de Golpes, você pode impor um efeito ao alvo: Desestabilizar (ele não pode fazer Ataques de Oportunidade até o início do próximo turno dele); Empurrar (ele deve passar numa salvaguarda de Força ou é empurrado até 4,5 m para longe de você); ou Derrubar (ele deve passar numa salvaguarda de Destreza ou fica Caído)."
+    },
+    {
+     "nivel": 6,
+     "nome": "Integridade do Corpo",
+     "descricao": "Como Ação Bônus, role o dado de Artes Marciais e recupere PV iguais ao resultado + seu modificador de Sabedoria (mínimo 1 PV). Você pode usar esta característica um número de vezes igual ao seu modificador de Sabedoria (mínimo 1) e recupera todos os usos num Descanso Longo."
+    },
+    {
+     "nivel": 11,
+     "nome": "Passo Ligeiro",
+     "descricao": "Ao realizar uma Ação Bônus que não seja Passo do Vento, você também pode usar Passo do Vento logo depois dela."
+    },
+    {
+     "nivel": 17,
+     "nome": "Palma Vibrante",
+     "descricao": "Ao acertar uma criatura com um Ataque Desarmado, você pode gastar 4 Pontos de Foco para iniciar vibrações imperceptíveis no corpo dela, que duram um número de dias igual ao seu nível de Monge. Elas são inofensivas até você usar uma ação para encerrá-las, ou abrir mão de um dos ataques da ação Atacar no seu turno para isso; vocês dois precisam estar no mesmo plano de existência. Ao encerrá-las, o alvo faz uma salvaguarda de Constituição, sofrendo 10d12 de dano de Energia se falhar ou metade se passar. Só uma criatura por vez pode estar sob este efeito, e você pode encerrar as vibrações sem dano (sem ação)."
+    }
+   ]
+  }
+ }
+]

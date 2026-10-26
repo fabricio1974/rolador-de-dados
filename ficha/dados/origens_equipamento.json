@@ -1,0 +1,1382 @@
+{
+ "especies": [
+  {
+   "id": "draconato",
+   "nome": "Draconato",
+   "en": "Dragonborn",
+   "tamanho": "Médio",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Ancestralidade Dracônica",
+     "descricao": "Escolha um tipo de dragão; ele define o tipo de dano do Sopro e da Resistência a Dano, além da sua aparência. Preto ou Cobre: Ácido. Azul ou Bronze: Elétrico. Latão, Ouro ou Vermelho: Fogo. Verde: Veneno. Prata ou Branco: Frio."
+    },
+    {
+     "nome": "Sopro",
+     "descricao": "Ao usar a ação Atacar no seu turno, você pode substituir um dos ataques por uma exalação de energia mágica em Cone de 4,5 m ou Linha de 9 m com 1,5 m de largura (escolha a forma a cada uso). Cada criatura na área faz uma salvaguarda de Destreza (CD 8 + mod. de Con + BP). Falha: 1d10 de dano do tipo da sua Ancestralidade Dracônica; sucesso: metade. O dano aumenta para 2d10 no nível 5, 3d10 no 11 e 4d10 no 17. Usos iguais ao BP; recupera todos em um Descanso Longo."
+    },
+    {
+     "nome": "Resistência a Dano",
+     "descricao": "Você tem Resistência ao tipo de dano definido pela sua Ancestralidade Dracônica."
+    },
+    {
+     "nome": "Visão no Escuro",
+     "descricao": "Você tem Visão no Escuro com alcance de 18 m."
+    },
+    {
+     "nome": "Voo Dracônico",
+     "descricao": "A partir do nível 5, como Ação Bônus, asas espectrais brotam das suas costas por 10 minutos, até você recolhê-las (sem ação) ou ficar Incapacitado. Nesse tempo você tem Deslocamento de Voo igual ao seu Deslocamento. As asas parecem feitas da mesma energia do Sopro. Depois de usar, só de novo após um Descanso Longo."
+    }
+   ]
+  },
+  {
+   "id": "anao",
+   "nome": "Anão",
+   "en": "Dwarf",
+   "tamanho": "Médio",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Visão no Escuro",
+     "descricao": "Você tem Visão no Escuro com alcance de 36 m."
+    },
+    {
+     "nome": "Resiliência Anã",
+     "descricao": "Você tem Resistência a dano de Veneno e Vantagem em salvaguardas para evitar ou encerrar a condição Envenenado."
+    },
+    {
+     "nome": "Robustez Anã",
+     "descricao": "Seus Pontos de Vida máximos aumentam em 1, e aumentam em 1 de novo sempre que você ganha um nível."
+    },
+    {
+     "nome": "Conhecimento de Pedra",
+     "descricao": "Como Ação Bônus, você ganha Sentido Sísmico com alcance de 18 m por 10 minutos. Você precisa estar sobre uma superfície de pedra ou tocando uma (natural ou trabalhada). Usos iguais ao BP; recupera todos em um Descanso Longo."
+    }
+   ]
+  },
+  {
+   "id": "elfo",
+   "nome": "Elfo",
+   "en": "Elf",
+   "tamanho": "Médio",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Visão no Escuro",
+     "descricao": "Você tem Visão no Escuro com alcance de 18 m."
+    },
+    {
+     "nome": "Linhagem Élfica",
+     "descricao": "Escolha uma linhagem e ganhe o benefício de nível 1. Nos níveis 3 e 5 você aprende a magia indicada; ela fica sempre preparada, pode ser conjurada uma vez sem espaço de magia (recupera no Descanso Longo) e também com espaços do nível adequado. Atributo de conjuração: Int, Sab ou Car (escolhido com a linhagem). Drow: Visão no Escuro passa a 36 m e você conhece o truque Luzes Dançantes; nível 3: Fogo das Fadas; nível 5: Escuridão. Alto Elfo: você conhece o truque Prestidigitação e pode trocá-lo por outro truque da lista de Mago ao fim de cada Descanso Longo; nível 3: Detectar Magia; nível 5: Passo Nebuloso. Elfo da Floresta: seu Deslocamento passa a 10,5 m e você conhece o truque Arte Druídica; nível 3: Passos Longos; nível 5: Passos sem Pegadas."
+    },
+    {
+     "nome": "Ancestralidade Feérica",
+     "descricao": "Você tem Vantagem em salvaguardas para evitar ou encerrar a condição Enfeitiçado."
+    },
+    {
+     "nome": "Sentidos Aguçados",
+     "descricao": "Você tem proficiência em Intuição, Percepção ou Sobrevivência (à escolha)."
+    },
+    {
+     "nome": "Transe",
+     "descricao": "Você não precisa dormir, e magia não pode fazê-lo dormir. Você pode concluir um Descanso Longo em 4 horas de meditação em transe, durante as quais permanece consciente."
+    }
+   ]
+  },
+  {
+   "id": "gnomo",
+   "nome": "Gnomo",
+   "en": "Gnome",
+   "tamanho": "Pequeno",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Visão no Escuro",
+     "descricao": "Você tem Visão no Escuro com alcance de 18 m."
+    },
+    {
+     "nome": "Astúcia Gnômica",
+     "descricao": "Você tem Vantagem em salvaguardas de Inteligência, Sabedoria e Carisma."
+    },
+    {
+     "nome": "Linhagem Gnômica",
+     "descricao": "Escolha uma opção; o atributo de conjuração dessas magias é Int, Sab ou Car (escolhido com a linhagem). Gnomo da Floresta: você conhece o truque Ilusão Menor e tem sempre preparada a magia Falar com Animais, que pode conjurar sem espaço de magia um número de vezes igual ao BP (recupera no Descanso Longo) ou com qualquer espaço de magia. Gnomo das Rochas: você conhece os truques Consertar e Prestidigitação. Gastando 10 minutos conjurando Prestidigitação, cria um dispositivo mecânico Miúdo (CA 5, 1 PV), como um brinquedo, acendedor ou caixa de música, que reproduz um efeito escolhido de Prestidigitação (uma única opção, se o efeito tiver opções) quando alguém usa uma Ação Bônus para ativá-lo com um toque. Você pode ter até três ao mesmo tempo; cada um se desfaz 8 horas após criado ou quando você o desmonta com um toque usando a ação Utilizar."
+    }
+   ]
+  },
+  {
+   "id": "golias",
+   "nome": "Golias",
+   "en": "Goliath",
+   "tamanho": "Médio",
+   "deslocamento": "10,5 m",
+   "tracos": [
+    {
+     "nome": "Ancestralidade Gigante",
+     "descricao": "Escolha um benefício; usos iguais ao BP, recupera todos em um Descanso Longo. Salto das Nuvens (Gigante das Nuvens): como Ação Bônus, teletransporta-se até 9 m para um espaço desocupado que você veja. Queimadura do Fogo (Gigante do Fogo): ao acertar um alvo com jogada de ataque e causar dano, causa também 1d10 de dano de Fogo. Calafrio do Gelo (Gigante do Gelo): ao acertar um alvo com jogada de ataque e causar dano, causa também 1d6 de dano de Frio e reduz o Deslocamento dele em 3 m até o início do seu próximo turno. Tombo da Colina (Gigante da Colina): ao acertar uma criatura Grande ou menor com jogada de ataque e causar dano, pode deixá-la Caída. Resistência da Pedra (Gigante da Pedra): ao sofrer dano, use uma Reação para rolar 1d12 + mod. de Con e reduzir o dano nesse total. Trovão da Tempestade (Gigante da Tempestade): ao sofrer dano de uma criatura a até 18 m, use uma Reação para causar 1d8 de dano Trovejante a ela."
+    },
+    {
+     "nome": "Forma Grande",
+     "descricao": "A partir do nível 5, como Ação Bônus, você pode mudar seu tamanho para Grande se houver espaço suficiente, por 10 minutos ou até encerrar (sem ação). Durante esse tempo, tem Vantagem em testes de Força e seu Deslocamento aumenta em 3 m. Depois de usar, só de novo após um Descanso Longo."
+    },
+    {
+     "nome": "Constituição Poderosa",
+     "descricao": "Você tem Vantagem em testes de atributo para encerrar a condição Agarrado e conta como um tamanho maior para determinar sua capacidade de carga."
+    }
+   ]
+  },
+  {
+   "id": "pequenino",
+   "nome": "Pequenino",
+   "en": "Halfling",
+   "tamanho": "Pequeno",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Bravura",
+     "descricao": "Você tem Vantagem em salvaguardas para evitar ou encerrar a condição Amedrontado."
+    },
+    {
+     "nome": "Agilidade Pequenina",
+     "descricao": "Você pode atravessar o espaço de qualquer criatura um tamanho maior que você, mas não pode parar nele."
+    },
+    {
+     "nome": "Sorte",
+     "descricao": "Quando tirar 1 no d20 de um Teste de D20, você pode rolar o dado de novo e deve usar o novo resultado."
+    },
+    {
+     "nome": "Furtivo por Natureza",
+     "descricao": "Você pode usar a ação Esconder-se mesmo quando estiver obscurecido apenas por uma criatura pelo menos um tamanho maior que você."
+    }
+   ]
+  },
+  {
+   "id": "humano",
+   "nome": "Humano",
+   "en": "Human",
+   "tamanho": "Médio ou Pequeno",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Engenhoso",
+     "descricao": "Você ganha Inspiração Heroica sempre que termina um Descanso Longo."
+    },
+    {
+     "nome": "Habilidoso",
+     "descricao": "Você ganha proficiência em uma perícia à sua escolha."
+    },
+    {
+     "nome": "Versátil",
+     "descricao": "Você ganha um talento de Origem à sua escolha. Recomenda-se Habilidoso."
+    }
+   ]
+  },
+  {
+   "id": "orc",
+   "nome": "Orc",
+   "en": "Orc",
+   "tamanho": "Médio",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Surto de Adrenalina",
+     "descricao": "Você pode usar a ação Disparada como Ação Bônus. Ao fazê-lo, ganha Pontos de Vida Temporários iguais ao seu BP. Usos iguais ao BP; recupera todos em um Descanso Curto ou Longo."
+    },
+    {
+     "nome": "Visão no Escuro",
+     "descricao": "Você tem Visão no Escuro com alcance de 36 m."
+    },
+    {
+     "nome": "Resistência Implacável",
+     "descricao": "Quando seus Pontos de Vida caem a 0 sem que você morra instantaneamente, você pode ficar com 1 PV. Depois de usar, só de novo após um Descanso Longo."
+    }
+   ]
+  },
+  {
+   "id": "tiferino",
+   "nome": "Tiferino",
+   "en": "Tiefling",
+   "tamanho": "Médio ou Pequeno",
+   "deslocamento": "9 m",
+   "tracos": [
+    {
+     "nome": "Visão no Escuro",
+     "descricao": "Você tem Visão no Escuro com alcance de 18 m."
+    },
+    {
+     "nome": "Legado Ínfero",
+     "descricao": "Escolha um legado e ganhe o benefício de nível 1. Nos níveis 3 e 5 você aprende a magia indicada; ela fica sempre preparada, pode ser conjurada uma vez sem espaço de magia (recupera no Descanso Longo) e também com espaços do nível adequado. Atributo de conjuração: Int, Sab ou Car (escolhido com o legado). Abissal: Resistência a dano de Veneno e o truque Rajada de Veneno; nível 3: Raio Nauseante; nível 5: Imobilizar Pessoa. Ctônico: Resistência a dano Necrótico e o truque Toque Arrepiante; nível 3: Vitalidade Falsa; nível 5: Raio do Enfraquecimento. Infernal: Resistência a dano de Fogo e o truque Raio de Fogo; nível 3: Repreensão Infernal; nível 5: Escuridão."
+    },
+    {
+     "nome": "Presença Sobrenatural",
+     "descricao": "Você conhece o truque Taumaturgia. Ao conjurá-lo por este traço, usa o mesmo atributo de conjuração do seu Legado Ínfero."
+    }
+   ]
+  }
+ ],
+ "antecedentes": [
+  {
+   "id": "acolito",
+   "nome": "Acólito",
+   "en": "Acolyte",
+   "atributos": [
+    "int",
+    "sab",
+    "car"
+   ],
+   "talento": "iniciado-em-magia-clerigo",
+   "talentoNome": "Iniciado em Magia (Clérigo)",
+   "pericias": [
+    "intuicao",
+    "religiao"
+   ],
+   "ferramenta": "Suprimentos de calígrafo",
+   "equipamento": "Escolha A ou B: (A) Suprimentos de calígrafo, Livro (orações), Símbolo Sagrado, Pergaminho (10 folhas), Túnica, 8 PO; ou (B) 50 PO"
+  },
+  {
+   "id": "criminoso",
+   "nome": "Criminoso",
+   "en": "Criminal",
+   "atributos": [
+    "des",
+    "con",
+    "int"
+   ],
+   "talento": "alerta",
+   "talentoNome": "Alerta",
+   "pericias": [
+    "prestidigitacao",
+    "furtividade"
+   ],
+   "ferramenta": "Ferramentas de ladrão",
+   "equipamento": "Escolha A ou B: (A) 2 Adagas, Ferramentas de ladrão, Pé de cabra, 2 Bolsas, Roupas de viajante, 16 PO; ou (B) 50 PO"
+  },
+  {
+   "id": "sabio",
+   "nome": "Sábio",
+   "en": "Sage",
+   "atributos": [
+    "con",
+    "int",
+    "sab"
+   ],
+   "talento": "iniciado-em-magia-mago",
+   "talentoNome": "Iniciado em Magia (Mago)",
+   "pericias": [
+    "arcanismo",
+    "historia"
+   ],
+   "ferramenta": "Suprimentos de calígrafo",
+   "equipamento": "Escolha A ou B: (A) Bordão, Suprimentos de calígrafo, Livro (história), Pergaminho (8 folhas), Túnica, 8 PO; ou (B) 50 PO"
+  },
+  {
+   "id": "soldado",
+   "nome": "Soldado",
+   "en": "Soldier",
+   "atributos": [
+    "for",
+    "des",
+    "con"
+   ],
+   "talento": "atacante-selvagem",
+   "talentoNome": "Atacante Selvagem",
+   "pericias": [
+    "atletismo",
+    "intimidacao"
+   ],
+   "ferramenta": "Um tipo de jogo à escolha",
+   "equipamento": "Escolha A ou B: (A) Lança, Arco Curto, 20 Flechas, Jogo (o mesmo da proficiência), Kit de curandeiro, Aljava, Roupas de viajante, 14 PO; ou (B) 50 PO"
+  }
+ ],
+ "talentos": [
+  {
+   "id": "alerta",
+   "nome": "Alerta",
+   "en": "Alert",
+   "categoria": "Origem",
+   "prerequisito": "",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Proficiência em Iniciativa: ao rolar Iniciativa, você pode somar seu Bônus de Proficiência. Troca de Iniciativa: logo após rolar Iniciativa, você pode trocar sua Iniciativa com a de um aliado voluntário no mesmo combate. A troca não é possível se você ou o aliado estiver Incapacitado."
+  },
+  {
+   "id": "iniciado-em-magia-clerigo",
+   "nome": "Iniciado em Magia (Clérigo)",
+   "en": "Magic Initiate (Cleric)",
+   "categoria": "Origem",
+   "prerequisito": "",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Dois Truques: você aprende dois truques à sua escolha da lista de magias de Clérigo. Inteligência, Sabedoria ou Carisma é o atributo de conjuração das magias deste talento (escolha ao pegá-lo). Magia de Nível 1: escolha uma magia de nível 1 da mesma lista. Ela fica sempre preparada; você pode conjurá-la uma vez sem espaço de magia e recupera esse uso ao terminar um Descanso Longo. Também pode conjurá-la com qualquer espaço de magia que tenha. Troca de Magia: sempre que ganhar um nível, você pode trocar uma das magias escolhidas por este talento por outra do mesmo nível da mesma lista. Repetível: o talento pode ser pego mais de uma vez, mas com uma lista diferente a cada vez (Druida ou Mago)."
+  },
+  {
+   "id": "iniciado-em-magia-druida",
+   "nome": "Iniciado em Magia (Druida)",
+   "en": "Magic Initiate (Druid)",
+   "categoria": "Origem",
+   "prerequisito": "",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Dois Truques: você aprende dois truques à sua escolha da lista de magias de Druida. Inteligência, Sabedoria ou Carisma é o atributo de conjuração das magias deste talento (escolha ao pegá-lo). Magia de Nível 1: escolha uma magia de nível 1 da mesma lista. Ela fica sempre preparada; você pode conjurá-la uma vez sem espaço de magia e recupera esse uso ao terminar um Descanso Longo. Também pode conjurá-la com qualquer espaço de magia que tenha. Troca de Magia: sempre que ganhar um nível, você pode trocar uma das magias escolhidas por este talento por outra do mesmo nível da mesma lista. Repetível: o talento pode ser pego mais de uma vez, mas com uma lista diferente a cada vez (Clérigo ou Mago)."
+  },
+  {
+   "id": "iniciado-em-magia-mago",
+   "nome": "Iniciado em Magia (Mago)",
+   "en": "Magic Initiate (Wizard)",
+   "categoria": "Origem",
+   "prerequisito": "",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Dois Truques: você aprende dois truques à sua escolha da lista de magias de Mago. Inteligência, Sabedoria ou Carisma é o atributo de conjuração das magias deste talento (escolha ao pegá-lo). Magia de Nível 1: escolha uma magia de nível 1 da mesma lista. Ela fica sempre preparada; você pode conjurá-la uma vez sem espaço de magia e recupera esse uso ao terminar um Descanso Longo. Também pode conjurá-la com qualquer espaço de magia que tenha. Troca de Magia: sempre que ganhar um nível, você pode trocar uma das magias escolhidas por este talento por outra do mesmo nível da mesma lista. Repetível: o talento pode ser pego mais de uma vez, mas com uma lista diferente a cada vez (Clérigo ou Druida)."
+  },
+  {
+   "id": "atacante-selvagem",
+   "nome": "Atacante Selvagem",
+   "en": "Savage Attacker",
+   "categoria": "Origem",
+   "prerequisito": "",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Uma vez por turno, ao acertar um alvo com uma arma, você pode rolar os dados de dano da arma duas vezes e usar qualquer um dos resultados."
+  },
+  {
+   "id": "habilidoso",
+   "nome": "Habilidoso",
+   "en": "Skilled",
+   "categoria": "Origem",
+   "prerequisito": "",
+   "repetivel": true,
+   "aumento": null,
+   "descricao": "Você ganha proficiência em qualquer combinação de três perícias ou ferramentas à sua escolha. Repetível."
+  },
+  {
+   "id": "aumento-no-valor-de-atributo",
+   "nome": "Aumento no Valor de Atributo",
+   "en": "Ability Score Improvement",
+   "categoria": "Geral",
+   "prerequisito": "Nível 4+",
+   "repetivel": true,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des",
+     "con",
+     "int",
+     "sab",
+     "car"
+    ],
+    "qtd": 2,
+    "dividir": true
+   },
+   "descricao": "Aumente um valor de atributo à sua escolha em 2, ou dois valores de atributo em 1. Este talento não pode elevar um valor acima de 20. Repetível."
+  },
+  {
+   "id": "agarrador",
+   "nome": "Agarrador",
+   "en": "Grappler",
+   "categoria": "Geral",
+   "prerequisito": "Nível 4+, Força ou Destreza 13+",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des"
+    ],
+    "qtd": 1,
+    "max": 20
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em Força ou Destreza, até o máximo de 20. Socar e Agarrar: ao acertar uma criatura com um Ataque Desarmado como parte da ação Atacar no seu turno, você pode usar tanto a opção Dano quanto a opção Agarrar; só uma vez por turno. Vantagem no Ataque: você tem Vantagem em jogadas de ataque contra uma criatura Agarrada por você. Lutador Ágil: você não gasta movimento extra para mover uma criatura Agarrada por você se ela for do seu tamanho ou menor."
+  },
+  {
+   "id": "arquearia",
+   "nome": "Arquearia",
+   "en": "Archery",
+   "categoria": "Estilo de Luta",
+   "prerequisito": "Característica Estilo de Luta",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Você recebe +2 nas jogadas de ataque com armas à distância."
+  },
+  {
+   "id": "defesa",
+   "nome": "Defesa",
+   "en": "Defense",
+   "categoria": "Estilo de Luta",
+   "prerequisito": "Característica Estilo de Luta",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Enquanto estiver usando armadura Leve, Média ou Pesada, você recebe +1 na Classe de Armadura."
+  },
+  {
+   "id": "combate-com-arma-grande",
+   "nome": "Combate com Arma Grande",
+   "en": "Great Weapon Fighting",
+   "categoria": "Estilo de Luta",
+   "prerequisito": "Característica Estilo de Luta",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Ao rolar dano de um ataque com uma arma corpo a corpo que você empunha com as duas mãos, você pode tratar qualquer 1 ou 2 num dado de dano como 3. A arma precisa ter a propriedade Duas Mãos ou Versátil."
+  },
+  {
+   "id": "combate-com-duas-armas",
+   "nome": "Combate com Duas Armas",
+   "en": "Two-Weapon Fighting",
+   "categoria": "Estilo de Luta",
+   "prerequisito": "Característica Estilo de Luta",
+   "repetivel": false,
+   "aumento": null,
+   "descricao": "Ao fazer um ataque extra por usar uma arma com a propriedade Leve, você pode somar seu modificador de atributo ao dano desse ataque, se ainda não o estiver somando."
+  },
+  {
+   "id": "dadiva-da-proeza-em-combate",
+   "nome": "Dádiva da Proeza em Combate",
+   "en": "Boon of Combat Prowess",
+   "categoria": "Dádiva Épica",
+   "prerequisito": "Nível 19+",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des",
+     "con",
+     "int",
+     "sab",
+     "car"
+    ],
+    "qtd": 1,
+    "max": 30
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Mira Inigualável: quando errar uma jogada de ataque, você pode acertar em vez disso. Depois de usar, só de novo no início do seu próximo turno."
+  },
+  {
+   "id": "dadiva-da-viagem-dimensional",
+   "nome": "Dádiva da Viagem Dimensional",
+   "en": "Boon of Dimensional Travel",
+   "categoria": "Dádiva Épica",
+   "prerequisito": "Nível 19+",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des",
+     "con",
+     "int",
+     "sab",
+     "car"
+    ],
+    "qtd": 1,
+    "max": 30
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Passos Cintilantes: logo após usar a ação Atacar ou a ação Magia, você pode se teletransportar até 9 m para um espaço desocupado que consiga ver."
+  },
+  {
+   "id": "dadiva-do-destino",
+   "nome": "Dádiva do Destino",
+   "en": "Boon of Fate",
+   "categoria": "Dádiva Épica",
+   "prerequisito": "Nível 19+",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des",
+     "con",
+     "int",
+     "sab",
+     "car"
+    ],
+    "qtd": 1,
+    "max": 30
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Melhorar o Destino: quando você ou outra criatura a até 18 m de você tiver sucesso ou falhar num Teste de D20, você pode rolar 2d4 e aplicar o total como bônus ou penalidade à rolagem do d20. Depois de usar, só de novo ao rolar Iniciativa ou ao terminar um Descanso Curto ou Longo."
+  },
+  {
+   "id": "dadiva-da-ofensiva-irresistivel",
+   "nome": "Dádiva da Ofensiva Irresistível",
+   "en": "Boon of Irresistible Offense",
+   "categoria": "Dádiva Épica",
+   "prerequisito": "Nível 19+",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des"
+    ],
+    "qtd": 1,
+    "max": 30
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em Força ou Destreza, até o máximo de 30. Superar Defesas: o dano Concussão, Perfurante e Cortante que você causa sempre ignora Resistência. Golpe Esmagador: quando tirar 20 no d20 de uma jogada de ataque, você pode causar ao alvo dano extra igual ao valor do atributo aumentado por este talento, do mesmo tipo do ataque."
+  },
+  {
+   "id": "dadiva-da-recordacao-de-magia",
+   "nome": "Dádiva da Recordação de Magia",
+   "en": "Boon of Spell Recall",
+   "categoria": "Dádiva Épica",
+   "prerequisito": "Nível 19+, característica Conjuração",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "int",
+     "sab",
+     "car"
+    ],
+    "qtd": 1,
+    "max": 30
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em Inteligência, Sabedoria ou Carisma, até o máximo de 30. Conjuração Livre: sempre que conjurar uma magia com um espaço de magia de nível 1 a 4, role 1d4. Se o resultado for igual ao nível do espaço, ele não é gasto."
+  },
+  {
+   "id": "dadiva-do-espirito-noturno",
+   "nome": "Dádiva do Espírito Noturno",
+   "en": "Boon of the Night Spirit",
+   "categoria": "Dádiva Épica",
+   "prerequisito": "Nível 19+",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des",
+     "con",
+     "int",
+     "sab",
+     "car"
+    ],
+    "qtd": 1,
+    "max": 30
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Fundir-se às Sombras: em Penumbra ou Escuridão, você pode se dar a condição Invisível como Ação Bônus; ela termina logo após você usar uma ação, Ação Bônus ou Reação. Forma Sombria: em Penumbra ou Escuridão, você tem Resistência a todo dano, exceto Psíquico e Radiante."
+  },
+  {
+   "id": "dadiva-da-visao-verdadeira",
+   "nome": "Dádiva da Visão Verdadeira",
+   "en": "Boon of Truesight",
+   "categoria": "Dádiva Épica",
+   "prerequisito": "Nível 19+",
+   "repetivel": false,
+   "aumento": {
+    "atributos": [
+     "for",
+     "des",
+     "con",
+     "int",
+     "sab",
+     "car"
+    ],
+    "qtd": 1,
+    "max": 30
+   },
+   "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Visão Verdadeira: você tem Visão Verdadeira com alcance de 18 m."
+  }
+ ],
+ "armas": [
+  {
+   "id": "clava",
+   "nome": "Clava",
+   "en": "Club",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d4",
+   "tipo": "Concussão",
+   "propriedades": "Leve",
+   "maestria": "Lentidão",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "1 PP"
+  },
+  {
+   "id": "adaga",
+   "nome": "Adaga",
+   "en": "Dagger",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d4",
+   "tipo": "Perfurante",
+   "propriedades": "Acuidade, Leve, Arremesso (6/18 m)",
+   "maestria": "Talho",
+   "alcance": "6/18 m",
+   "acuidade": true,
+   "distancia": false,
+   "peso": "0,5 kg",
+   "preco": "2 PO"
+  },
+  {
+   "id": "clava-grande",
+   "nome": "Clava Grande",
+   "en": "Greatclub",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Concussão",
+   "propriedades": "Duas Mãos",
+   "maestria": "Empurrão",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "5 kg",
+   "preco": "2 PP"
+  },
+  {
+   "id": "machadinha",
+   "nome": "Machadinha",
+   "en": "Handaxe",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d6",
+   "tipo": "Cortante",
+   "propriedades": "Leve, Arremesso (6/18 m)",
+   "maestria": "Atormentar",
+   "alcance": "6/18 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "5 PO"
+  },
+  {
+   "id": "azagaia",
+   "nome": "Azagaia",
+   "en": "Javelin",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d6",
+   "tipo": "Perfurante",
+   "propriedades": "Arremesso (9/36 m)",
+   "maestria": "Lentidão",
+   "alcance": "9/36 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "5 PP"
+  },
+  {
+   "id": "martelo-leve",
+   "nome": "Martelo Leve",
+   "en": "Light Hammer",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d4",
+   "tipo": "Concussão",
+   "propriedades": "Leve, Arremesso (6/18 m)",
+   "maestria": "Talho",
+   "alcance": "6/18 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "2 PO"
+  },
+  {
+   "id": "maca",
+   "nome": "Maça",
+   "en": "Mace",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d6",
+   "tipo": "Concussão",
+   "propriedades": "",
+   "maestria": "Enfraquecer",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "2 kg",
+   "preco": "5 PO"
+  },
+  {
+   "id": "bordao",
+   "nome": "Bordão",
+   "en": "Quarterstaff",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d6",
+   "tipo": "Concussão",
+   "propriedades": "Versátil (1d8)",
+   "maestria": "Derrubar",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "2 kg",
+   "preco": "2 PP"
+  },
+  {
+   "id": "foice-curta",
+   "nome": "Foice Curta",
+   "en": "Sickle",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d4",
+   "tipo": "Cortante",
+   "propriedades": "Leve",
+   "maestria": "Talho",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "1 PO"
+  },
+  {
+   "id": "lanca",
+   "nome": "Lança",
+   "en": "Spear",
+   "categoria": "Simples Corpo a Corpo",
+   "dano": "1d6",
+   "tipo": "Perfurante",
+   "propriedades": "Arremesso (6/18 m), Versátil (1d8)",
+   "maestria": "Enfraquecer",
+   "alcance": "6/18 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1,5 kg",
+   "preco": "1 PO"
+  },
+  {
+   "id": "dardo",
+   "nome": "Dardo",
+   "en": "Dart",
+   "categoria": "Simples à Distância",
+   "dano": "1d4",
+   "tipo": "Perfurante",
+   "propriedades": "Acuidade, Arremesso (6/18 m)",
+   "maestria": "Atormentar",
+   "alcance": "6/18 m",
+   "acuidade": true,
+   "distancia": true,
+   "peso": "0,125 kg",
+   "preco": "5 PC"
+  },
+  {
+   "id": "besta-leve",
+   "nome": "Besta Leve",
+   "en": "Light Crossbow",
+   "categoria": "Simples à Distância",
+   "dano": "1d8",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (24/96 m; Virote), Recarga, Duas Mãos",
+   "maestria": "Lentidão",
+   "alcance": "24/96 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "2,5 kg",
+   "preco": "25 PO"
+  },
+  {
+   "id": "arco-curto",
+   "nome": "Arco Curto",
+   "en": "Shortbow",
+   "categoria": "Simples à Distância",
+   "dano": "1d6",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (24/96 m; Flecha), Duas Mãos",
+   "maestria": "Atormentar",
+   "alcance": "24/96 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "1 kg",
+   "preco": "25 PO"
+  },
+  {
+   "id": "funda",
+   "nome": "Funda",
+   "en": "Sling",
+   "categoria": "Simples à Distância",
+   "dano": "1d4",
+   "tipo": "Concussão",
+   "propriedades": "Munição (9/36 m; Bala)",
+   "maestria": "Lentidão",
+   "alcance": "9/36 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "—",
+   "preco": "1 PP"
+  },
+  {
+   "id": "machado-de-batalha",
+   "nome": "Machado de Batalha",
+   "en": "Battleaxe",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Cortante",
+   "propriedades": "Versátil (1d10)",
+   "maestria": "Derrubar",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "2 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "mangual",
+   "nome": "Mangual",
+   "en": "Flail",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Concussão",
+   "propriedades": "",
+   "maestria": "Enfraquecer",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "glaive",
+   "nome": "Glaive",
+   "en": "Glaive",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d10",
+   "tipo": "Cortante",
+   "propriedades": "Pesada, Alcance, Duas Mãos",
+   "maestria": "Raspão",
+   "alcance": "3 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "3 kg",
+   "preco": "20 PO"
+  },
+  {
+   "id": "machado-grande",
+   "nome": "Machado Grande",
+   "en": "Greataxe",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d12",
+   "tipo": "Cortante",
+   "propriedades": "Pesada, Duas Mãos",
+   "maestria": "Trespassar",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "3,5 kg",
+   "preco": "30 PO"
+  },
+  {
+   "id": "espada-grande",
+   "nome": "Espada Grande",
+   "en": "Greatsword",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "2d6",
+   "tipo": "Cortante",
+   "propriedades": "Pesada, Duas Mãos",
+   "maestria": "Raspão",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "3 kg",
+   "preco": "50 PO"
+  },
+  {
+   "id": "alabarda",
+   "nome": "Alabarda",
+   "en": "Halberd",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d10",
+   "tipo": "Cortante",
+   "propriedades": "Pesada, Alcance, Duas Mãos",
+   "maestria": "Trespassar",
+   "alcance": "3 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "3 kg",
+   "preco": "20 PO"
+  },
+  {
+   "id": "lanca-de-montaria",
+   "nome": "Lança de Montaria",
+   "en": "Lance",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d10",
+   "tipo": "Perfurante",
+   "propriedades": "Pesada, Alcance, Duas Mãos (exceto montado)",
+   "maestria": "Derrubar",
+   "alcance": "3 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "3 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "espada-longa",
+   "nome": "Espada Longa",
+   "en": "Longsword",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Cortante",
+   "propriedades": "Versátil (1d10)",
+   "maestria": "Enfraquecer",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1,5 kg",
+   "preco": "15 PO"
+  },
+  {
+   "id": "malho",
+   "nome": "Malho",
+   "en": "Maul",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "2d6",
+   "tipo": "Concussão",
+   "propriedades": "Pesada, Duas Mãos",
+   "maestria": "Derrubar",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "5 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "maca-estrela",
+   "nome": "Maça-Estrela",
+   "en": "Morningstar",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Perfurante",
+   "propriedades": "",
+   "maestria": "Enfraquecer",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "2 kg",
+   "preco": "15 PO"
+  },
+  {
+   "id": "pique",
+   "nome": "Pique",
+   "en": "Pike",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d10",
+   "tipo": "Perfurante",
+   "propriedades": "Pesada, Alcance, Duas Mãos",
+   "maestria": "Empurrão",
+   "alcance": "3 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "9 kg",
+   "preco": "5 PO"
+  },
+  {
+   "id": "rapieira",
+   "nome": "Rapieira",
+   "en": "Rapier",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Perfurante",
+   "propriedades": "Acuidade",
+   "maestria": "Atormentar",
+   "alcance": "1,5 m",
+   "acuidade": true,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "25 PO"
+  },
+  {
+   "id": "cimitarra",
+   "nome": "Cimitarra",
+   "en": "Scimitar",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d6",
+   "tipo": "Cortante",
+   "propriedades": "Acuidade, Leve",
+   "maestria": "Talho",
+   "alcance": "1,5 m",
+   "acuidade": true,
+   "distancia": false,
+   "peso": "1,5 kg",
+   "preco": "25 PO"
+  },
+  {
+   "id": "espada-curta",
+   "nome": "Espada Curta",
+   "en": "Shortsword",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d6",
+   "tipo": "Perfurante",
+   "propriedades": "Acuidade, Leve",
+   "maestria": "Atormentar",
+   "alcance": "1,5 m",
+   "acuidade": true,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "tridente",
+   "nome": "Tridente",
+   "en": "Trident",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Perfurante",
+   "propriedades": "Arremesso (6/18 m), Versátil (1d10)",
+   "maestria": "Derrubar",
+   "alcance": "6/18 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "2 kg",
+   "preco": "5 PO"
+  },
+  {
+   "id": "martelo-de-guerra",
+   "nome": "Martelo de Guerra",
+   "en": "Warhammer",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Concussão",
+   "propriedades": "Versátil (1d10)",
+   "maestria": "Empurrão",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "2,5 kg",
+   "preco": "15 PO"
+  },
+  {
+   "id": "picareta-de-guerra",
+   "nome": "Picareta de Guerra",
+   "en": "War Pick",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d8",
+   "tipo": "Perfurante",
+   "propriedades": "Versátil (1d10)",
+   "maestria": "Enfraquecer",
+   "alcance": "1,5 m",
+   "acuidade": false,
+   "distancia": false,
+   "peso": "1 kg",
+   "preco": "5 PO"
+  },
+  {
+   "id": "chicote",
+   "nome": "Chicote",
+   "en": "Whip",
+   "categoria": "Marcial Corpo a Corpo",
+   "dano": "1d4",
+   "tipo": "Cortante",
+   "propriedades": "Acuidade, Alcance",
+   "maestria": "Lentidão",
+   "alcance": "3 m",
+   "acuidade": true,
+   "distancia": false,
+   "peso": "1,5 kg",
+   "preco": "2 PO"
+  },
+  {
+   "id": "zarabatana",
+   "nome": "Zarabatana",
+   "en": "Blowgun",
+   "categoria": "Marcial à Distância",
+   "dano": "1",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (7,5/30 m; Agulha), Recarga",
+   "maestria": "Atormentar",
+   "alcance": "7,5/30 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "0,5 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "besta-de-mao",
+   "nome": "Besta de Mão",
+   "en": "Hand Crossbow",
+   "categoria": "Marcial à Distância",
+   "dano": "1d6",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (9/36 m; Virote), Leve, Recarga",
+   "maestria": "Atormentar",
+   "alcance": "9/36 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "1,5 kg",
+   "preco": "75 PO"
+  },
+  {
+   "id": "besta-pesada",
+   "nome": "Besta Pesada",
+   "en": "Heavy Crossbow",
+   "categoria": "Marcial à Distância",
+   "dano": "1d10",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (30/120 m; Virote), Pesada, Recarga, Duas Mãos",
+   "maestria": "Empurrão",
+   "alcance": "30/120 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "9 kg",
+   "preco": "50 PO"
+  },
+  {
+   "id": "arco-longo",
+   "nome": "Arco Longo",
+   "en": "Longbow",
+   "categoria": "Marcial à Distância",
+   "dano": "1d8",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (45/180 m; Flecha), Pesada, Duas Mãos",
+   "maestria": "Lentidão",
+   "alcance": "45/180 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "1 kg",
+   "preco": "50 PO"
+  },
+  {
+   "id": "mosquete",
+   "nome": "Mosquete",
+   "en": "Musket",
+   "categoria": "Marcial à Distância",
+   "dano": "1d12",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (12/36 m; Bala), Recarga, Duas Mãos",
+   "maestria": "Lentidão",
+   "alcance": "12/36 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "5 kg",
+   "preco": "500 PO"
+  },
+  {
+   "id": "pistola",
+   "nome": "Pistola",
+   "en": "Pistol",
+   "categoria": "Marcial à Distância",
+   "dano": "1d10",
+   "tipo": "Perfurante",
+   "propriedades": "Munição (9/27 m; Bala), Recarga",
+   "maestria": "Atormentar",
+   "alcance": "9/27 m",
+   "acuidade": false,
+   "distancia": true,
+   "peso": "1,5 kg",
+   "preco": "250 PO"
+  }
+ ],
+ "propriedadesArmas": [
+  {
+   "nome": "Munição",
+   "en": "Ammunition",
+   "descricao": "Só é possível fazer um ataque à distância com a arma se houver munição para disparar; o tipo exigido aparece junto da distância. Cada ataque gasta uma munição. Sacar a munição faz parte do ataque (é preciso uma mão livre para carregar uma arma de uma mão). Após a luta, gastando 1 minuto, você recupera metade (arredondada para baixo) da munição usada; o resto se perde."
+  },
+  {
+   "nome": "Acuidade",
+   "en": "Finesse",
+   "descricao": "Ao atacar com a arma, use à sua escolha o modificador de Força ou de Destreza nas jogadas de ataque e de dano; o mesmo modificador nas duas."
+  },
+  {
+   "nome": "Pesada",
+   "en": "Heavy",
+   "descricao": "Você tem Desvantagem nas jogadas de ataque com a arma se ela for corpo a corpo e sua Força for menor que 13, ou se for à distância e sua Destreza for menor que 13."
+  },
+  {
+   "nome": "Leve",
+   "en": "Light",
+   "descricao": "Quando usa a ação Atacar no seu turno e ataca com uma arma Leve, você pode fazer um ataque extra como Ação Bônus mais tarde no mesmo turno, com uma arma Leve diferente. Não some o modificador de atributo ao dano do ataque extra, a menos que ele seja negativo."
+  },
+  {
+   "nome": "Recarga",
+   "en": "Loading",
+   "descricao": "Você só dispara uma munição da arma quando usa uma ação, Ação Bônus ou Reação para dispará-la, não importa quantos ataques possa fazer normalmente."
+  },
+  {
+   "nome": "Distância",
+   "en": "Range",
+   "descricao": "A distância aparece entre parênteses após Munição ou Arremesso, com dois números: a distância normal e a longa. Além da normal, você tem Desvantagem na jogada de ataque; além da longa, não pode atacar o alvo."
+  },
+  {
+   "nome": "Alcance",
+   "en": "Reach",
+   "descricao": "A arma acrescenta 1,5 m ao seu alcance ao atacar com ela, inclusive para determinar o alcance dos seus Ataques de Oportunidade com ela."
+  },
+  {
+   "nome": "Arremesso",
+   "en": "Thrown",
+   "descricao": "Você pode arremessar a arma para fazer um ataque à distância e sacá-la como parte do ataque. Se for uma arma corpo a corpo, use nas jogadas de ataque e de dano o mesmo modificador de atributo que usaria num ataque corpo a corpo com ela."
+  },
+  {
+   "nome": "Duas Mãos",
+   "en": "Two-Handed",
+   "descricao": "A arma exige as duas mãos para atacar."
+  },
+  {
+   "nome": "Versátil",
+   "en": "Versatile",
+   "descricao": "A arma pode ser usada com uma ou duas mãos. O dano entre parênteses vale quando ela é usada com as duas mãos num ataque corpo a corpo."
+  }
+ ],
+ "maestrias": [
+  {
+   "nome": "Trespassar",
+   "en": "Cleave",
+   "descricao": "Ao acertar uma criatura com uma jogada de ataque corpo a corpo com esta arma, você pode fazer outra jogada de ataque corpo a corpo com ela contra uma segunda criatura a até 1,5 m da primeira e dentro do seu alcance. Se acertar, a segunda criatura sofre o dano da arma, sem somar o modificador de atributo (a menos que seja negativo). Só uma vez por turno."
+  },
+  {
+   "nome": "Raspão",
+   "en": "Graze",
+   "descricao": "Se sua jogada de ataque com esta arma errar uma criatura, você pode causar a ela dano igual ao modificador de atributo usado no ataque, do mesmo tipo da arma. Esse dano só aumenta se o modificador aumentar."
+  },
+  {
+   "nome": "Talho",
+   "en": "Nick",
+   "descricao": "Ao fazer o ataque extra da propriedade Leve, você pode fazê-lo como parte da ação Atacar em vez de usar uma Ação Bônus. Só uma vez por turno."
+  },
+  {
+   "nome": "Empurrão",
+   "en": "Push",
+   "descricao": "Ao acertar uma criatura com esta arma, você pode empurrá-la até 3 m em linha reta para longe de você, se ela for Grande ou menor."
+  },
+  {
+   "nome": "Enfraquecer",
+   "en": "Sap",
+   "descricao": "Ao acertar uma criatura com esta arma, ela tem Desvantagem na próxima jogada de ataque antes do início do seu próximo turno."
+  },
+  {
+   "nome": "Lentidão",
+   "en": "Slow",
+   "descricao": "Ao acertar uma criatura com esta arma e causar dano, você pode reduzir o Deslocamento dela em 3 m até o início do seu próximo turno. Atingida mais de uma vez por armas com esta propriedade, a redução não passa de 3 m."
+  },
+  {
+   "nome": "Derrubar",
+   "en": "Topple",
+   "descricao": "Ao acertar uma criatura com esta arma, você pode forçá-la a fazer uma salvaguarda de Constituição (CD 8 + modificador de atributo usado no ataque + seu Bônus de Proficiência). Se falhar, ela fica Caída."
+  },
+  {
+   "nome": "Atormentar",
+   "en": "Vex",
+   "descricao": "Ao acertar uma criatura com esta arma e causar dano, você tem Vantagem na sua próxima jogada de ataque contra ela antes do fim do seu próximo turno."
+  }
+ ],
+ "armaduras": [
+  {
+   "id": "acolchoada",
+   "nome": "Acolchoada",
+   "en": "Padded Armor",
+   "categoria": "Leve",
+   "ca": "11 + mod. de Des",
+   "forca": "",
+   "furtividade": "Desvantagem",
+   "peso": "4 kg",
+   "preco": "5 PO"
+  },
+  {
+   "id": "couro",
+   "nome": "Couro",
+   "en": "Leather Armor",
+   "categoria": "Leve",
+   "ca": "11 + mod. de Des",
+   "forca": "",
+   "furtividade": "",
+   "peso": "5 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "couro-batido",
+   "nome": "Couro Batido",
+   "en": "Studded Leather Armor",
+   "categoria": "Leve",
+   "ca": "12 + mod. de Des",
+   "forca": "",
+   "furtividade": "",
+   "peso": "6,5 kg",
+   "preco": "45 PO"
+  },
+  {
+   "id": "gibao-de-peles",
+   "nome": "Gibão de Peles",
+   "en": "Hide Armor",
+   "categoria": "Média",
+   "ca": "12 + mod. de Des (máx. 2)",
+   "forca": "",
+   "furtividade": "",
+   "peso": "6 kg",
+   "preco": "10 PO"
+  },
+  {
+   "id": "camisao-de-malha",
+   "nome": "Camisão de Malha",
+   "en": "Chain Shirt",
+   "categoria": "Média",
+   "ca": "13 + mod. de Des (máx. 2)",
+   "forca": "",
+   "furtividade": "",
+   "peso": "10 kg",
+   "preco": "50 PO"
+  },
+  {
+   "id": "brunea",
+   "nome": "Brunea",
+   "en": "Scale Mail",
+   "categoria": "Média",
+   "ca": "14 + mod. de Des (máx. 2)",
+   "forca": "",
+   "furtividade": "Desvantagem",
+   "peso": "22,5 kg",
+   "preco": "50 PO"
+  },
+  {
+   "id": "peitoral",
+   "nome": "Peitoral",
+   "en": "Breastplate",
+   "categoria": "Média",
+   "ca": "14 + mod. de Des (máx. 2)",
+   "forca": "",
+   "furtividade": "",
+   "peso": "10 kg",
+   "preco": "400 PO"
+  },
+  {
+   "id": "meia-armadura",
+   "nome": "Meia-Armadura",
+   "en": "Half Plate Armor",
+   "categoria": "Média",
+   "ca": "15 + mod. de Des (máx. 2)",
+   "forca": "",
+   "furtividade": "Desvantagem",
+   "peso": "20 kg",
+   "preco": "750 PO"
+  },
+  {
+   "id": "cota-de-aneis",
+   "nome": "Cota de Anéis",
+   "en": "Ring Mail",
+   "categoria": "Pesada",
+   "ca": "14",
+   "forca": "",
+   "furtividade": "Desvantagem",
+   "peso": "20 kg",
+   "preco": "30 PO"
+  },
+  {
+   "id": "cota-de-malha",
+   "nome": "Cota de Malha",
+   "en": "Chain Mail",
+   "categoria": "Pesada",
+   "ca": "16",
+   "forca": "For 13",
+   "furtividade": "Desvantagem",
+   "peso": "27,5 kg",
+   "preco": "75 PO"
+  },
+  {
+   "id": "cota-de-talas",
+   "nome": "Cota de Talas",
+   "en": "Splint Armor",
+   "categoria": "Pesada",
+   "ca": "17",
+   "forca": "For 15",
+   "furtividade": "Desvantagem",
+   "peso": "30 kg",
+   "preco": "200 PO"
+  },
+  {
+   "id": "armadura-de-placas",
+   "nome": "Armadura de Placas",
+   "en": "Plate Armor",
+   "categoria": "Pesada",
+   "ca": "18",
+   "forca": "For 15",
+   "furtividade": "Desvantagem",
+   "peso": "32,5 kg",
+   "preco": "1.500 PO"
+  },
+  {
+   "id": "escudo",
+   "nome": "Escudo",
+   "en": "Shield",
+   "categoria": "Escudo",
+   "ca": "+2",
+   "forca": "",
+   "furtividade": "",
+   "peso": "3 kg",
+   "preco": "10 PO"
+  }
+ ]
+}

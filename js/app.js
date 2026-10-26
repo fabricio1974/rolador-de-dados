@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '20';
+const VERSAO = '21';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);

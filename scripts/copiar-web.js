@@ -9,6 +9,8 @@ fs.rmSync(destino, { recursive: true, force: true });
 fs.mkdirSync(destino);
 for (const item of ['index.html', 'css', 'js', 'icones', 'ficha']) {
   const origem = path.join(raiz, item);
-  if (fs.existsSync(origem)) fs.cpSync(origem, path.join(destino, item), { recursive: true });
+  // ficha/dados/ (os JSON de origem) e os testes não vão no APK: o app usa ficha/dados5e.js.
+  const fora = [path.join(raiz, 'ficha', 'dados'), path.join(raiz, 'ficha', 'testes.js')];
+  if (fs.existsSync(origem)) fs.cpSync(origem, path.join(destino, item), { recursive: true, filter: (f) => !fora.includes(f) });
 }
 console.log('www/ pronta:', fs.readdirSync(destino).join(', '));

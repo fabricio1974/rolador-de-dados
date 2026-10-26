@@ -1,0 +1,2220 @@
+{
+ "classes": [
+  {
+   "id": "paladino",
+   "nome": "Paladino",
+   "en": "Paladin",
+   "dadoVida": 10,
+   "atributoPrincipal": [
+    "for",
+    "car"
+   ],
+   "salvaguardas": [
+    "sab",
+    "car"
+   ],
+   "pericias": {
+    "escolhe": 2,
+    "lista": [
+     "atletismo",
+     "intuicao",
+     "intimidacao",
+     "medicina",
+     "persuasao",
+     "religiao"
+    ]
+   },
+   "armas": "Armas simples e marciais",
+   "armaduras": "Armaduras leves, médias e pesadas e escudos",
+   "ferramentas": "",
+   "equipamento": "Escolha A ou B: (A) Cota de Malha, Escudo, Espada Longa, 6 Azagaias, Símbolo Sagrado, Pacote de Sacerdote e 9 PO; ou (B) 150 PO",
+   "conjuracao": {
+    "atributo": "car",
+    "tipo": "meia",
+    "truques": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "preparadas": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     6,
+     7,
+     7,
+     9,
+     9,
+     10,
+     10,
+     11,
+     11,
+     12,
+     12,
+     14,
+     14,
+     15,
+     15
+    ]
+   },
+   "recursos": [
+    {
+     "nome": "Canalizar Divindade",
+     "porNivel": [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "nome": "Maestria em Armas",
+     "porNivel": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    }
+   ],
+   "niveis": [
+    {
+     "nivel": 1,
+     "caracteristicas": [
+      {
+       "nome": "Cura pelas Mãos",
+       "descricao": "Você tem uma reserva de cura que se renova ao terminar um Descanso Longo e permite restaurar um total de Pontos de Vida igual a 5 × seu nível de Paladino. Como Ação Bônus, você toca uma criatura (pode ser você) e restaura PV dela, até o máximo que restar na reserva. Você também pode gastar 5 PV da reserva para remover a condição Envenenado da criatura; esses pontos não restauram PV."
+      },
+      {
+       "nome": "Conjuração",
+       "descricao": "Você conjura magias de Paladino usando Carisma como atributo de conjuração e pode usar um Símbolo Sagrado como Foco de Conjuração. A tabela da classe mostra seus espaços de magia, recuperados ao terminar um Descanso Longo, e quantas magias de nível 1+ você tem preparadas; ao aumentar esse número, escolha mais magias de Paladino de níveis para os quais tenha espaços (um Paladino de nível 5 pode preparar seis magias de nível 1 ou 2 em qualquer combinação). Ao terminar um Descanso Longo, você pode trocar uma magia preparada por outra magia de Paladino para a qual tenha espaços. Magias sempre preparadas por outras características da classe não contam nesse limite, mas contam como magias de Paladino."
+      },
+      {
+       "nome": "Maestria em Armas",
+       "descricao": "Você pode usar as propriedades de maestria de dois tipos de armas com as quais tenha proficiência (por exemplo, Espadas Longas e Azagaias). Ao terminar um Descanso Longo, pode trocar os tipos escolhidos (por exemplo, para Alabardas e Manguais)."
+      }
+     ]
+    },
+    {
+     "nivel": 2,
+     "caracteristicas": [
+      {
+       "nome": "Estilo de Luta",
+       "descricao": "Você ganha um talento de Estilo de Luta à sua escolha. Em vez disso, pode escolher Guerreiro Abençoado: você aprende dois truques de Clérigo à sua escolha (recomendados: Orientação e Chama Sagrada), que contam como magias de Paladino e usam Carisma como atributo de conjuração. Sempre que ganhar um nível de Paladino, pode trocar um desses truques por outro truque de Clérigo."
+      },
+      {
+       "nome": "Golpe do Paladino",
+       "descricao": "Você sempre tem a magia Golpe Divino (Divine Smite) preparada. Além disso, pode conjurá-la uma vez sem gastar espaço de magia, recuperando esse uso ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 3,
+     "caracteristicas": [
+      {
+       "nome": "Canalizar Divindade",
+       "descricao": "Você canaliza energia divina para criar efeitos mágicos e escolhe o efeito a cada uso; começa com Sentido Divino, e outras características de Paladino dão mais opções. Pode usar Canalizar Divindade duas vezes (três a partir do nível 11), recupera um uso ao terminar um Descanso Curto e todos ao terminar um Descanso Longo. Se um efeito exigir salvaguarda, a CD é a CD de magia da sua Conjuração. Sentido Divino: como Ação Bônus, por 10 minutos ou até ficar Incapacitado, você sabe a localização e o tipo de qualquer Celestial, Corruptor ou Morto-vivo a até 18 m de você, e detecta nesse raio lugares ou objetos consagrados ou profanados, como na magia Consagrar (Hallow)."
+      },
+      {
+       "nome": "Subclasse de Paladino",
+       "descricao": "Você escolhe uma subclasse de Paladino (o SRD traz o Juramento de Devoção). A partir daí, ganha cada característica dela de nível igual ou inferior ao seu nível de Paladino."
+      }
+     ]
+    },
+    {
+     "nivel": 4,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 5,
+     "caracteristicas": [
+      {
+       "nome": "Ataque Extra",
+       "descricao": "Você pode atacar duas vezes, em vez de uma, sempre que realizar a ação Atacar no seu turno."
+      },
+      {
+       "nome": "Corcel Fiel",
+       "descricao": "Você sempre tem a magia Encontrar Montaria (Find Steed) preparada. Também pode conjurá-la uma vez sem gastar espaço de magia, recuperando esse uso ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 6,
+     "caracteristicas": [
+      {
+       "nome": "Aura de Proteção",
+       "descricao": "Você irradia uma aura protetora e invisível numa Emanação de 3 m a partir de você; ela fica inativa enquanto você estiver Incapacitado. Você e seus aliados na aura ganham um bônus nas salvaguardas igual ao seu modificador de Carisma (mínimo +1). Se houver outro Paladino presente, cada criatura só se beneficia de uma Aura de Proteção por vez, escolhendo qual enquanto estiver nelas."
+      }
+     ]
+    },
+    {
+     "nivel": 7,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 8,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 9,
+     "caracteristicas": [
+      {
+       "nome": "Abjurar Inimigos",
+       "descricao": "Como ação de Magia, você gasta um uso de Canalizar Divindade e apresenta seu Símbolo Sagrado ou arma, escolhendo como alvo um número de criaturas igual ao seu modificador de Carisma (mínimo 1) que você possa ver a até 18 m. Cada alvo deve passar numa salvaguarda de Sabedoria ou fica Amedrontado por 1 minuto ou até sofrer qualquer dano. Enquanto estiver Amedrontado dessa forma, o alvo só pode fazer uma destas coisas em seus turnos: mover-se, realizar uma ação ou realizar uma Ação Bônus."
+      }
+     ]
+    },
+    {
+     "nivel": 10,
+     "caracteristicas": [
+      {
+       "nome": "Aura de Coragem",
+       "descricao": "Você e seus aliados têm Imunidade à condição Amedrontado enquanto estiverem na sua Aura de Proteção. Se um aliado Amedrontado entrar na aura, a condição não tem efeito sobre ele enquanto permanecer ali."
+      }
+     ]
+    },
+    {
+     "nivel": 11,
+     "caracteristicas": [
+      {
+       "nome": "Golpes Radiantes",
+       "descricao": "Quando você acerta um alvo com uma jogada de ataque usando uma arma Corpo a Corpo ou um Ataque Desarmado, o alvo sofre 1d8 de dano Radiante extra."
+      }
+     ]
+    },
+    {
+     "nivel": 12,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 13,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 14,
+     "caracteristicas": [
+      {
+       "nome": "Toque Restaurador",
+       "descricao": "Ao usar Cura pelas Mãos numa criatura, você também pode remover dela uma ou mais destas condições: Cego, Enfeitiçado, Surdo, Amedrontado, Paralisado ou Atordoado. Cada condição removida custa 5 PV da reserva de Cura pelas Mãos; esses pontos não restauram PV da criatura."
+      }
+     ]
+    },
+    {
+     "nivel": 15,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 16,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 17,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 18,
+     "caracteristicas": [
+      {
+       "nome": "Expansão de Aura",
+       "descricao": "Sua Aura de Proteção passa a ser uma Emanação de 9 m."
+      }
+     ]
+    },
+    {
+     "nivel": 19,
+     "caracteristicas": [
+      {
+       "nome": "Dádiva Épica",
+       "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Visão Verdadeira (Boon of Truesight)."
+      }
+     ]
+    },
+    {
+     "nivel": 20,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    }
+   ],
+   "subclasse": {
+    "id": "devocao",
+    "nome": "Juramento de Devoção",
+    "en": "Oath of Devotion",
+    "caracteristicas": [
+     {
+      "nivel": 3,
+      "nome": "Magias do Juramento de Devoção",
+      "descricao": "Ao atingir cada nível de Paladino indicado, você passa a ter sempre preparadas as magias listadas. Nível 3: Proteção contra o Bem e o Mal (Protection from Evil and Good) e Escudo da Fé (Shield of Faith). Nível 5: Auxílio (Aid) e Zona da Verdade (Zone of Truth). Nível 9: Sinal de Esperança (Beacon of Hope) e Dissipar Magia (Dispel Magic). Nível 13: Liberdade de Movimento (Freedom of Movement) e Guardião da Fé (Guardian of Faith). Nível 17: Comunhão (Commune) e Coluna de Chamas (Flame Strike)."
+     },
+     {
+      "nivel": 3,
+      "nome": "Arma Sagrada",
+      "descricao": "Ao realizar a ação Atacar, você pode gastar um uso de Canalizar Divindade para imbuir de energia positiva uma arma Corpo a Corpo que esteja segurando. Por 10 minutos ou até usar esta característica de novo, você soma seu modificador de Carisma às jogadas de ataque com essa arma (mínimo +1), e cada acerto causa o tipo de dano normal da arma ou dano Radiante, à sua escolha. A arma emite Luz Plena num raio de 6 m e Penumbra por mais 6 m. Você pode encerrar o efeito a qualquer momento (sem ação), e ele também termina se você não estiver carregando a arma."
+     },
+     {
+      "nivel": 7,
+      "nome": "Aura de Devoção",
+      "descricao": "Você e seus aliados têm Imunidade à condição Enfeitiçado enquanto estiverem na sua Aura de Proteção. Se um aliado Enfeitiçado entrar na aura, a condição não tem efeito sobre ele enquanto permanecer ali."
+     },
+     {
+      "nivel": 15,
+      "nome": "Golpe de Proteção",
+      "descricao": "Sempre que você conjura Golpe Divino (Divine Smite), você e seus aliados têm Meia Cobertura enquanto estiverem na sua Aura de Proteção. A aura mantém esse benefício até o início do seu próximo turno."
+     },
+     {
+      "nivel": 20,
+      "nome": "Nimbo Sagrado",
+      "descricao": "Como Ação Bônus, você imbui sua Aura de Proteção de poder sagrado por 10 minutos ou até encerrá-lo (sem ação), com estes benefícios. Proteção Sagrada: você tem Vantagem em salvaguardas que um Corruptor ou Morto-vivo o obrigue a fazer. Dano Radiante: sempre que um inimigo começa o turno na aura, sofre dano Radiante igual ao seu modificador de Carisma + seu Bônus de Proficiência. Luz Solar: a aura fica preenchida de Luz Plena que é luz solar. Depois de usar, só pode usar de novo ao terminar um Descanso Longo, ou pode restaurar o uso gastando um espaço de magia de nível 5 (sem ação)."
+     }
+    ]
+   }
+  },
+  {
+   "id": "patrulheiro",
+   "nome": "Patrulheiro",
+   "en": "Ranger",
+   "dadoVida": 10,
+   "atributoPrincipal": [
+    "des",
+    "sab"
+   ],
+   "salvaguardas": [
+    "for",
+    "des"
+   ],
+   "pericias": {
+    "escolhe": 3,
+    "lista": [
+     "adestrar",
+     "atletismo",
+     "intuicao",
+     "investigacao",
+     "natureza",
+     "percepcao",
+     "furtividade",
+     "sobrevivencia"
+    ]
+   },
+   "armas": "Armas simples e marciais",
+   "armaduras": "Armaduras leves e médias e escudos",
+   "ferramentas": "",
+   "equipamento": "Escolha A ou B: (A) Armadura de Couro Batido, Cimitarra, Espada Curta, Arco Longo, 20 Flechas, Aljava, Foco Druídico (ramo de visco), Pacote de Explorador e 7 PO; ou (B) 150 PO",
+   "conjuracao": {
+    "atributo": "sab",
+    "tipo": "meia",
+    "truques": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "preparadas": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     6,
+     7,
+     7,
+     9,
+     9,
+     10,
+     10,
+     11,
+     11,
+     12,
+     12,
+     14,
+     14,
+     15,
+     15
+    ]
+   },
+   "recursos": [
+    {
+     "nome": "Inimigo Favorito",
+     "porNivel": [
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4,
+      5,
+      5,
+      5,
+      5,
+      6,
+      6,
+      6,
+      6
+     ]
+    },
+    {
+     "nome": "Maestria em Armas",
+     "porNivel": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    }
+   ],
+   "niveis": [
+    {
+     "nivel": 1,
+     "caracteristicas": [
+      {
+       "nome": "Conjuração",
+       "descricao": "Você conjura magias de Patrulheiro usando Sabedoria como atributo de conjuração e pode usar um Foco Druídico como Foco de Conjuração. A tabela da classe mostra seus espaços de magia, recuperados ao terminar um Descanso Longo, e quantas magias de nível 1+ você tem preparadas; ao aumentar esse número, escolha mais magias de Patrulheiro de níveis para os quais tenha espaços (um Patrulheiro de nível 5 pode preparar seis magias de nível 1 ou 2 em qualquer combinação). Ao terminar um Descanso Longo, você pode trocar uma magia preparada por outra magia de Patrulheiro para a qual tenha espaços. Magias sempre preparadas por outras características da classe não contam nesse limite, mas contam como magias de Patrulheiro."
+      },
+      {
+       "nome": "Inimigo Favorito",
+       "descricao": "Você sempre tem a magia Marca do Caçador (Hunter's Mark) preparada. Pode conjurá-la sem gastar espaço de magia duas vezes, recuperando todos esses usos ao terminar um Descanso Longo. O número de conjurações sem espaço aumenta com o nível, conforme a coluna Inimigo Favorito da tabela."
+      },
+      {
+       "nome": "Maestria em Armas",
+       "descricao": "Você pode usar as propriedades de maestria de dois tipos de armas com as quais tenha proficiência (por exemplo, Arcos Longos e Espadas Curtas). Ao terminar um Descanso Longo, pode trocar os tipos escolhidos (por exemplo, para Cimitarras e Espadas Longas)."
+      }
+     ]
+    },
+    {
+     "nivel": 2,
+     "caracteristicas": [
+      {
+       "nome": "Explorador Hábil",
+       "descricao": "Graças às suas viagens, você ganha estes benefícios. Especialização: escolha uma perícia em que tenha proficiência e ainda não tenha Especialização; você ganha Especialização nela. Idiomas: você conhece dois idiomas à sua escolha das tabelas de idiomas da Criação de Personagem."
+      },
+      {
+       "nome": "Estilo de Luta",
+       "descricao": "Você ganha um talento de Estilo de Luta à sua escolha. Em vez disso, pode escolher Guerreiro Druídico: você aprende dois truques de Druida à sua escolha (recomendados: Orientação e Lampejo Estelar), que contam como magias de Patrulheiro e usam Sabedoria como atributo de conjuração. Sempre que ganhar um nível de Patrulheiro, pode trocar um desses truques por outro truque de Druida."
+      }
+     ]
+    },
+    {
+     "nivel": 3,
+     "caracteristicas": [
+      {
+       "nome": "Subclasse de Patrulheiro",
+       "descricao": "Você escolhe uma subclasse de Patrulheiro (o SRD traz o Caçador). A partir daí, ganha cada característica dela de nível igual ou inferior ao seu nível de Patrulheiro."
+      }
+     ]
+    },
+    {
+     "nivel": 4,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 5,
+     "caracteristicas": [
+      {
+       "nome": "Ataque Extra",
+       "descricao": "Você pode atacar duas vezes, em vez de uma, sempre que realizar a ação Atacar no seu turno."
+      }
+     ]
+    },
+    {
+     "nivel": 6,
+     "caracteristicas": [
+      {
+       "nome": "Andarilho",
+       "descricao": "Seu Deslocamento aumenta em 3 m enquanto você não estiver usando armadura Pesada. Você também tem Deslocamento de Escalada e Deslocamento de Natação iguais ao seu Deslocamento."
+      }
+     ]
+    },
+    {
+     "nivel": 7,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 8,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 9,
+     "caracteristicas": [
+      {
+       "nome": "Especialização",
+       "descricao": "Escolha duas perícias em que tenha proficiência e ainda não tenha Especialização; você ganha Especialização nelas."
+      }
+     ]
+    },
+    {
+     "nivel": 10,
+     "caracteristicas": [
+      {
+       "nome": "Incansável",
+       "descricao": "Forças primais alimentam suas jornadas. Pontos de Vida Temporários: como ação de Magia, você ganha PV Temporários iguais a 1d8 + seu modificador de Sabedoria (mínimo 1); pode fazer isso um número de vezes igual ao seu modificador de Sabedoria (mínimo 1) e recupera todos os usos ao terminar um Descanso Longo. Reduzir Exaustão: sempre que termina um Descanso Curto, seu nível de Exaustão, se houver, diminui em 1."
+      }
+     ]
+    },
+    {
+     "nivel": 11,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 12,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 13,
+     "caracteristicas": [
+      {
+       "nome": "Caçador Implacável",
+       "descricao": "Sofrer dano não pode quebrar sua Concentração em Marca do Caçador (Hunter's Mark)."
+      }
+     ]
+    },
+    {
+     "nivel": 14,
+     "caracteristicas": [
+      {
+       "nome": "Véu da Natureza",
+       "descricao": "Como Ação Bônus, você invoca espíritos da natureza e ganha a condição Invisível até o fim do seu próximo turno. Pode usar esta característica um número de vezes igual ao seu modificador de Sabedoria (mínimo 1), recuperando todos os usos ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 15,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 16,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 17,
+     "caracteristicas": [
+      {
+       "nome": "Caçador Preciso",
+       "descricao": "Você tem Vantagem nas jogadas de ataque contra a criatura atualmente marcada pela sua Marca do Caçador (Hunter's Mark)."
+      }
+     ]
+    },
+    {
+     "nivel": 18,
+     "caracteristicas": [
+      {
+       "nome": "Sentidos Ferais",
+       "descricao": "Sua ligação com as forças da natureza lhe dá Percepção às Cegas com alcance de 9 m."
+      }
+     ]
+    },
+    {
+     "nivel": 19,
+     "caracteristicas": [
+      {
+       "nome": "Dádiva Épica",
+       "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Viagem Dimensional (Boon of Dimensional Travel)."
+      }
+     ]
+    },
+    {
+     "nivel": 20,
+     "caracteristicas": [
+      {
+       "nome": "Matador de Inimigos",
+       "descricao": "O dado de dano da sua Marca do Caçador (Hunter's Mark) passa a ser d10 em vez de d6."
+      }
+     ]
+    }
+   ],
+   "subclasse": {
+    "id": "cacador",
+    "nome": "Caçador",
+    "en": "Hunter",
+    "caracteristicas": [
+     {
+      "nivel": 3,
+      "nome": "Conhecimento do Caçador",
+      "descricao": "Enquanto uma criatura estiver marcada pela sua Marca do Caçador (Hunter's Mark), você sabe se ela tem Imunidades, Resistências ou Vulnerabilidades e, se tiver, quais são."
+     },
+     {
+      "nivel": 3,
+      "nome": "Presa do Caçador",
+      "descricao": "Você ganha uma das opções abaixo; ao terminar um Descanso Curto ou Longo, pode trocá-la pela outra. Matador de Colossos: quando você acerta uma criatura com uma arma, a arma causa 1d8 de dano extra se o alvo estiver sem algum dos seus Pontos de Vida; só uma vez por turno. Destruidor de Hordas: uma vez em cada um dos seus turnos, ao atacar com uma arma, você pode fazer outro ataque com a mesma arma contra uma criatura diferente que esteja a até 1,5 m do alvo original, dentro do alcance da arma, e que você ainda não atacou neste turno."
+     },
+     {
+      "nivel": 7,
+      "nome": "Táticas Defensivas",
+      "descricao": "Você ganha uma das opções abaixo; ao terminar um Descanso Curto ou Longo, pode trocá-la pela outra. Escapar da Horda: Ataques de Oportunidade têm Desvantagem contra você. Defesa contra Multiataque: quando uma criatura o acerta com uma jogada de ataque, ela tem Desvantagem em todas as outras jogadas de ataque contra você neste turno."
+     },
+     {
+      "nivel": 11,
+      "nome": "Presa do Caçador Superior",
+      "descricao": "Uma vez por turno, ao causar dano a uma criatura marcada pela sua Marca do Caçador (Hunter's Mark), você também pode causar o dano extra dessa magia a uma criatura diferente que possa ver a até 9 m da primeira."
+     },
+     {
+      "nivel": 15,
+      "nome": "Defesa do Caçador Superior",
+      "descricao": "Quando você sofre dano, pode usar uma Reação para ganhar Resistência a esse dano e a qualquer outro dano do mesmo tipo até o fim do turno atual."
+     }
+    ]
+   }
+  },
+  {
+   "id": "ladino",
+   "nome": "Ladino",
+   "en": "Rogue",
+   "dadoVida": 8,
+   "atributoPrincipal": [
+    "des"
+   ],
+   "salvaguardas": [
+    "des",
+    "int"
+   ],
+   "pericias": {
+    "escolhe": 4,
+    "lista": [
+     "acrobacia",
+     "atletismo",
+     "enganacao",
+     "intuicao",
+     "intimidacao",
+     "investigacao",
+     "percepcao",
+     "persuasao",
+     "prestidigitacao",
+     "furtividade"
+    ]
+   },
+   "armas": "Armas simples e armas marciais com a propriedade Acuidade ou Leve",
+   "armaduras": "Armaduras leves",
+   "ferramentas": "Ferramentas de Ladrão",
+   "equipamento": "Escolha A ou B: (A) Armadura de Couro, 2 Adagas, Espada Curta, Arco Curto, 20 Flechas, Aljava, Ferramentas de Ladrão, Pacote de Assaltante e 8 PO; ou (B) 100 PO",
+   "conjuracao": null,
+   "recursos": [
+    {
+     "nome": "Ataque Furtivo",
+     "porNivel": [
+      "1d6",
+      "1d6",
+      "2d6",
+      "2d6",
+      "3d6",
+      "3d6",
+      "4d6",
+      "4d6",
+      "5d6",
+      "5d6",
+      "6d6",
+      "6d6",
+      "7d6",
+      "7d6",
+      "8d6",
+      "8d6",
+      "9d6",
+      "9d6",
+      "10d6",
+      "10d6"
+     ]
+    },
+    {
+     "nome": "Maestria em Armas",
+     "porNivel": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    }
+   ],
+   "niveis": [
+    {
+     "nivel": 1,
+     "caracteristicas": [
+      {
+       "nome": "Especialização",
+       "descricao": "Você ganha Especialização em duas perícias em que tenha proficiência, à sua escolha (recomendadas: Prestidigitação e Furtividade, se tiver proficiência nelas). No nível 6 de Ladino, ganha Especialização em mais duas."
+      },
+      {
+       "nome": "Ataque Furtivo",
+       "descricao": "Uma vez por turno, você pode causar 1d6 de dano extra a uma criatura que acertar com uma jogada de ataque, se tiver Vantagem na jogada e o ataque usar uma arma com Acuidade ou à Distância; o dano extra é do mesmo tipo do da arma. Você não precisa de Vantagem se pelo menos um aliado seu estiver a até 1,5 m do alvo, esse aliado não estiver Incapacitado e você não tiver Desvantagem na jogada. O dano extra aumenta com o nível, conforme a coluna Ataque Furtivo da tabela."
+      },
+      {
+       "nome": "Gíria de Ladrão",
+       "descricao": "Você conhece a Gíria de Ladrão e mais um idioma à sua escolha das tabelas de idiomas da Criação de Personagem."
+      },
+      {
+       "nome": "Maestria em Armas",
+       "descricao": "Você pode usar as propriedades de maestria de dois tipos de armas com as quais tenha proficiência (por exemplo, Adagas e Arcos Curtos). Ao terminar um Descanso Longo, pode trocar os tipos escolhidos (por exemplo, para Cimitarras e Espadas Curtas)."
+      }
+     ]
+    },
+    {
+     "nivel": 2,
+     "caracteristicas": [
+      {
+       "nome": "Ação Ardilosa",
+       "descricao": "No seu turno, você pode realizar uma destas ações como Ação Bônus: Disparada, Desengajar ou Esconder-se."
+      }
+     ]
+    },
+    {
+     "nivel": 3,
+     "caracteristicas": [
+      {
+       "nome": "Subclasse de Ladino",
+       "descricao": "Você escolhe uma subclasse de Ladino (o SRD traz o Ladrão). A partir daí, ganha cada característica dela de nível igual ou inferior ao seu nível de Ladino."
+      },
+      {
+       "nome": "Mira Firme",
+       "descricao": "Como Ação Bônus, você ganha Vantagem na sua próxima jogada de ataque neste turno. Só pode usar esta característica se não tiver se movido neste turno, e depois de usá-la seu Deslocamento fica 0 até o fim do turno atual."
+      }
+     ]
+    },
+    {
+     "nivel": 4,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 5,
+     "caracteristicas": [
+      {
+       "nome": "Golpe Ardiloso",
+       "descricao": "Ao causar dano de Ataque Furtivo, você pode adicionar um efeito de Golpe Ardiloso, abrindo mão de um número de dados de Ataque Furtivo igual ao custo do efeito; você remove os dados antes de rolar, e o efeito ocorre logo após o dano do ataque. A CD das salvaguardas é 8 + seu modificador de Destreza + seu Bônus de Proficiência. Veneno (custo 1d6): o alvo faz uma salvaguarda de Constituição ou fica Envenenado por 1 minuto, repetindo a salvaguarda no fim de cada um dos turnos dele e encerrando o efeito num sucesso; exige que você tenha um Kit de Envenenador consigo. Derrubar (custo 1d6): se o alvo for Grande ou menor, deve passar numa salvaguarda de Destreza ou fica Caído. Recuar (custo 1d6): logo após o ataque, você se move até metade do seu Deslocamento sem provocar Ataques de Oportunidade."
+      },
+      {
+       "nome": "Esquiva Sobrenatural",
+       "descricao": "Quando um atacante que você possa ver o acerta com uma jogada de ataque, você pode usar uma Reação para reduzir à metade o dano desse ataque contra você (arredondado para baixo)."
+      }
+     ]
+    },
+    {
+     "nivel": 6,
+     "caracteristicas": [
+      {
+       "nome": "Especialização",
+       "descricao": "Você ganha Especialização em mais duas perícias em que tenha proficiência, à sua escolha."
+      }
+     ]
+    },
+    {
+     "nivel": 7,
+     "caracteristicas": [
+      {
+       "nome": "Evasão",
+       "descricao": "Quando um efeito permite uma salvaguarda de Destreza para sofrer só metade do dano, você não sofre dano se passar e sofre só metade se falhar. Você não pode usar esta característica se estiver Incapacitado."
+      },
+      {
+       "nome": "Talento Confiável",
+       "descricao": "Sempre que fizer um teste de atributo que use uma perícia ou ferramenta em que tenha proficiência, você pode tratar um resultado de 9 ou menos no d20 como 10."
+      }
+     ]
+    },
+    {
+     "nivel": 8,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 9,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 10,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 11,
+     "caracteristicas": [
+      {
+       "nome": "Golpe Ardiloso Aprimorado",
+       "descricao": "Você pode usar até dois efeitos de Golpe Ardiloso ao causar dano de Ataque Furtivo, pagando o custo em dados de cada efeito."
+      }
+     ]
+    },
+    {
+     "nivel": 12,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 13,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 14,
+     "caracteristicas": [
+      {
+       "nome": "Golpes Desonestos",
+       "descricao": "Estes efeitos passam a fazer parte das suas opções de Golpe Ardiloso. Aturdir (custo 2d6): o alvo deve passar numa salvaguarda de Constituição ou, no próximo turno dele, só pode fazer uma destas coisas: mover-se, realizar uma ação ou realizar uma Ação Bônus. Nocautear (custo 6d6): o alvo deve passar numa salvaguarda de Constituição ou fica Inconsciente por 1 minuto ou até sofrer qualquer dano, repetindo a salvaguarda no fim de cada um dos turnos dele e encerrando o efeito num sucesso. Obscurecer (custo 3d6): o alvo deve passar numa salvaguarda de Destreza ou fica Cego até o fim do próximo turno dele."
+      }
+     ]
+    },
+    {
+     "nivel": 15,
+     "caracteristicas": [
+      {
+       "nome": "Mente Escorregadia",
+       "descricao": "Você ganha proficiência em salvaguardas de Sabedoria e de Carisma."
+      }
+     ]
+    },
+    {
+     "nivel": 16,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 17,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 18,
+     "caracteristicas": [
+      {
+       "nome": "Elusivo",
+       "descricao": "Nenhuma jogada de ataque pode ter Vantagem contra você, a menos que você esteja Incapacitado."
+      }
+     ]
+    },
+    {
+     "nivel": 19,
+     "caracteristicas": [
+      {
+       "nome": "Dádiva Épica",
+       "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva do Espírito Noturno (Boon of the Night Spirit)."
+      }
+     ]
+    },
+    {
+     "nivel": 20,
+     "caracteristicas": [
+      {
+       "nome": "Golpe de Sorte",
+       "descricao": "Se você falhar num Teste de D20, pode transformar o resultado da rolagem em 20. Depois de usar esta característica, só pode usá-la de novo ao terminar um Descanso Curto ou Longo."
+      }
+     ]
+    }
+   ],
+   "subclasse": {
+    "id": "ladrao",
+    "nome": "Ladrão",
+    "en": "Thief",
+    "caracteristicas": [
+     {
+      "nivel": 3,
+      "nome": "Mãos Rápidas",
+      "descricao": "Como Ação Bônus, você pode fazer uma destas coisas. Prestidigitação: fazer um teste de Destreza (Prestidigitação) para abrir uma fechadura ou desarmar uma armadilha com Ferramentas de Ladrão, ou para bater uma carteira. Usar um Objeto: realizar a ação Utilizar, ou realizar a ação de Magia para usar um item mágico que exija essa ação."
+     },
+     {
+      "nivel": 3,
+      "nome": "Trabalho no Segundo Andar",
+      "descricao": "Escalador: você ganha Deslocamento de Escalada igual ao seu Deslocamento. Saltador: você pode determinar a distância dos seus saltos usando Destreza em vez de Força."
+     },
+     {
+      "nivel": 9,
+      "nome": "Furtividade Suprema",
+      "descricao": "Você ganha esta opção de Golpe Ardiloso. Ataque Furtivo Oculto (custo 1d6): se você tiver a condição Invisível concedida pela ação Esconder-se, este ataque não encerra essa condição se você terminar o turno atrás de Cobertura de Três Quartos ou Cobertura Total."
+     },
+     {
+      "nivel": 13,
+      "nome": "Usar Dispositivo Mágico",
+      "descricao": "Sintonização: você pode se sintonizar com até quatro itens mágicos ao mesmo tempo. Cargas: sempre que usar uma propriedade de item mágico que gaste cargas, role 1d6; num 6, você usa a propriedade sem gastar as cargas. Pergaminhos: você pode usar qualquer Pergaminho de Magia, com Inteligência como atributo de conjuração; truques e magias de nível 1 funcionam sem teste, mas para uma magia de nível maior você precisa antes passar num teste de Inteligência (Arcanismo) com CD 10 + o nível da magia. Se passar, conjura a magia; se falhar, o pergaminho se desintegra."
+     },
+     {
+      "nivel": 17,
+      "nome": "Reflexos de Ladrão",
+      "descricao": "Você pode realizar dois turnos durante a primeira rodada de qualquer combate: o primeiro na sua Iniciativa normal e o segundo na sua Iniciativa menos 10."
+     }
+    ]
+   }
+  },
+  {
+   "id": "feiticeiro",
+   "nome": "Feiticeiro",
+   "en": "Sorcerer",
+   "dadoVida": 6,
+   "atributoPrincipal": [
+    "car"
+   ],
+   "salvaguardas": [
+    "con",
+    "car"
+   ],
+   "pericias": {
+    "escolhe": 2,
+    "lista": [
+     "arcanismo",
+     "enganacao",
+     "intuicao",
+     "intimidacao",
+     "persuasao",
+     "religiao"
+    ]
+   },
+   "armas": "Armas simples",
+   "armaduras": "",
+   "ferramentas": "",
+   "equipamento": "Escolha A ou B: (A) Lança, 2 Adagas, Foco Arcano (cristal), Pacote de Explorador de Masmorras e 28 PO; ou (B) 50 PO",
+   "conjuracao": {
+    "atributo": "car",
+    "tipo": "completa",
+    "truques": [
+     4,
+     4,
+     4,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     6,
+     6,
+     6,
+     6,
+     6,
+     6,
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "preparadas": [
+     2,
+     4,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12,
+     14,
+     15,
+     16,
+     16,
+     17,
+     17,
+     18,
+     18,
+     19,
+     20,
+     21,
+     22
+    ]
+   },
+   "recursos": [
+    {
+     "nome": "Pontos de Feitiçaria",
+     "porNivel": [
+      0,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+     ]
+    },
+    {
+     "nome": "Opções de Metamagia",
+     "porNivel": [
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      6,
+      6,
+      6,
+      6
+     ]
+    }
+   ],
+   "niveis": [
+    {
+     "nivel": 1,
+     "caracteristicas": [
+      {
+       "nome": "Conjuração",
+       "descricao": "Você conjura magias de Feiticeiro usando Carisma como atributo de conjuração e pode usar um Foco Arcano como Foco de Conjuração. Truques: você conhece quatro truques de Feiticeiro à sua escolha e aprende mais um nos níveis 4 e 10; sempre que ganhar um nível de Feiticeiro, pode trocar um deles por outro truque de Feiticeiro. Espaços de magia: a tabela da classe mostra seus espaços, recuperados ao terminar um Descanso Longo. Magias preparadas: você prepara magias de Feiticeiro de nível 1+ conforme a coluna Magias Preparadas, sempre de níveis para os quais tenha espaços; sempre que ganhar um nível de Feiticeiro, pode trocar uma delas por outra. Magias sempre preparadas por outras características não contam nesse limite."
+      },
+      {
+       "nome": "Feitiçaria Inata",
+       "descricao": "Como Ação Bônus, você libera sua magia inata por 1 minuto. Durante esse tempo, a CD de salvaguarda das suas magias de Feiticeiro aumenta em 1 e você tem Vantagem nas jogadas de ataque das magias de Feiticeiro que conjurar. Pode usar esta característica duas vezes e recupera todos os usos ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 2,
+     "caracteristicas": [
+      {
+       "nome": "Fonte de Magia",
+       "descricao": "Você tem Pontos de Feitiçaria conforme a coluna da tabela (2 no nível 2) e nunca pode ter mais do que esse valor; recupera todos ao terminar um Descanso Longo. Converter espaços em pontos: você pode gastar um espaço de magia para ganhar Pontos de Feitiçaria iguais ao nível do espaço (sem ação). Criar espaços de magia: como Ação Bônus, você transforma pontos não gastos num espaço de magia, com custo e nível mínimo de Feiticeiro: nível 1 = 2 pontos (nível 2); nível 2 = 3 pontos (nível 3); nível 3 = 5 pontos (nível 5); nível 4 = 6 pontos (nível 7); nível 5 = 7 pontos (nível 9). Não é possível criar espaço acima do nível 5, e os espaços criados desaparecem ao terminar um Descanso Longo."
+      },
+      {
+       "nome": "Metamagia",
+       "descricao": "Você ganha duas opções de Metamagia à sua escolha e as usa para modificar temporariamente magias que conjura, gastando os Pontos de Feitiçaria que cada uma custa. Só pode usar uma opção de Metamagia por magia, salvo indicação contrária na própria opção. Sempre que ganhar um nível de Feiticeiro, pode trocar uma opção por outra que não conheça. Você ganha mais duas opções nos níveis 10 e 17."
+      }
+     ]
+    },
+    {
+     "nivel": 3,
+     "caracteristicas": [
+      {
+       "nome": "Subclasse de Feiticeiro",
+       "descricao": "Você escolhe uma subclasse de Feiticeiro (o SRD traz a Feitiçaria Dracônica). A partir daí, ganha cada característica dela de nível igual ou inferior ao seu nível de Feiticeiro."
+      }
+     ]
+    },
+    {
+     "nivel": 4,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 5,
+     "caracteristicas": [
+      {
+       "nome": "Restauração Feiticeira",
+       "descricao": "Ao terminar um Descanso Curto, você pode recuperar Pontos de Feitiçaria gastos, até um número igual à metade do seu nível de Feiticeiro (arredondado para baixo). Depois de usar esta característica, só pode usá-la de novo ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 6,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 7,
+     "caracteristicas": [
+      {
+       "nome": "Feitiçaria Encarnada",
+       "descricao": "Se não tiver mais usos de Feitiçaria Inata, você pode ativá-la gastando 2 Pontos de Feitiçaria ao realizar a Ação Bônus. Além disso, enquanto Feitiçaria Inata estiver ativa, você pode usar até duas opções de Metamagia em cada magia que conjurar."
+      }
+     ]
+    },
+    {
+     "nivel": 8,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 9,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 10,
+     "caracteristicas": [
+      {
+       "nome": "Metamagia",
+       "descricao": "Você ganha mais duas opções de Metamagia à sua escolha."
+      }
+     ]
+    },
+    {
+     "nivel": 11,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 12,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 13,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 14,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 15,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 16,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 17,
+     "caracteristicas": [
+      {
+       "nome": "Metamagia",
+       "descricao": "Você ganha mais duas opções de Metamagia à sua escolha."
+      }
+     ]
+    },
+    {
+     "nivel": 18,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 19,
+     "caracteristicas": [
+      {
+       "nome": "Dádiva Épica",
+       "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Viagem Dimensional (Boon of Dimensional Travel)."
+      }
+     ]
+    },
+    {
+     "nivel": 20,
+     "caracteristicas": [
+      {
+       "nome": "Apoteose Arcana",
+       "descricao": "Enquanto Feitiçaria Inata estiver ativa, você pode usar uma opção de Metamagia em cada um dos seus turnos sem gastar Pontos de Feitiçaria nela."
+      }
+     ]
+    }
+   ],
+   "subclasse": {
+    "id": "draconica",
+    "nome": "Feitiçaria Dracônica",
+    "en": "Draconic Sorcery",
+    "caracteristicas": [
+     {
+      "nivel": 3,
+      "nome": "Resiliência Dracônica",
+      "descricao": "Seu máximo de Pontos de Vida aumenta em 3 e aumenta em mais 1 sempre que você ganha outro nível de Feiticeiro. Partes do seu corpo são cobertas de escamas dracônicas: enquanto não estiver usando armadura, sua Classe de Armadura base é 10 + seus modificadores de Destreza e de Carisma."
+     },
+     {
+      "nivel": 3,
+      "nome": "Magias Dracônicas",
+      "descricao": "Ao atingir cada nível de Feiticeiro indicado, você passa a ter sempre preparadas as magias listadas. Nível 3: Alterar-se (Alter Self), Orbe Cromático (Chromatic Orb), Comando (Command) e Sopro do Dragão (Dragon's Breath). Nível 5: Medo (Fear) e Voo (Fly). Nível 7: Olho Arcano (Arcane Eye) e Enfeitiçar Monstro (Charm Monster). Nível 9: Lenda (Legend Lore) e Invocar Dragão (Summon Dragon)."
+     },
+     {
+      "nivel": 6,
+      "nome": "Afinidade Elemental",
+      "descricao": "Escolha um tipo de dano associado a dragões: Ácido, Frio, Fogo, Elétrico ou Veneno. Você tem Resistência a esse tipo de dano e, ao conjurar uma magia que cause dano desse tipo, pode somar seu modificador de Carisma a uma jogada de dano dessa magia."
+     },
+     {
+      "nivel": 14,
+      "nome": "Asas de Dragão",
+      "descricao": "Como Ação Bônus, você faz surgir asas dracônicas nas costas, que duram 1 hora ou até você dispensá-las (sem ação). Durante esse tempo, você tem Deslocamento de Voo de 18 m. Depois de usar, só pode usar de novo ao terminar um Descanso Longo, a menos que gaste 3 Pontos de Feitiçaria (sem ação) para restaurar o uso."
+     },
+     {
+      "nivel": 18,
+      "nome": "Companheiro Dracônico",
+      "descricao": "Você pode conjurar Invocar Dragão (Summon Dragon) sem o componente Material. Também pode conjurá-la uma vez sem gastar espaço de magia, recuperando esse uso ao terminar um Descanso Longo. Sempre que começar a conjurar essa magia, pode modificá-la para não exigir Concentração; nesse caso, a duração passa a ser 1 minuto naquela conjuração."
+     }
+    ]
+   }
+  },
+  {
+   "id": "bruxo",
+   "nome": "Bruxo",
+   "en": "Warlock",
+   "dadoVida": 8,
+   "atributoPrincipal": [
+    "car"
+   ],
+   "salvaguardas": [
+    "sab",
+    "car"
+   ],
+   "pericias": {
+    "escolhe": 2,
+    "lista": [
+     "arcanismo",
+     "enganacao",
+     "historia",
+     "intimidacao",
+     "investigacao",
+     "natureza",
+     "religiao"
+    ]
+   },
+   "armas": "Armas simples",
+   "armaduras": "Armaduras leves",
+   "ferramentas": "",
+   "equipamento": "Escolha A ou B: (A) Armadura de Couro, Foice Curta, 2 Adagas, Foco Arcano (orbe), Livro (saber oculto), Pacote de Estudioso e 15 PO; ou (B) 100 PO",
+   "conjuracao": {
+    "atributo": "car",
+    "tipo": "pacto",
+    "truques": [
+     2,
+     2,
+     2,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4
+    ],
+    "preparadas": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     10,
+     11,
+     11,
+     12,
+     12,
+     13,
+     13,
+     14,
+     14,
+     15,
+     15
+    ],
+    "espacosPacto": [
+     1,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4
+    ],
+    "nivelPacto": [
+     1,
+     1,
+     2,
+     2,
+     3,
+     3,
+     4,
+     4,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5
+    ]
+   },
+   "recursos": [
+    {
+     "nome": "Invocações Místicas",
+     "porNivel": [
+      1,
+      3,
+      3,
+      3,
+      5,
+      5,
+      6,
+      6,
+      7,
+      7,
+      7,
+      8,
+      8,
+      8,
+      9,
+      9,
+      9,
+      10,
+      10,
+      10
+     ]
+    }
+   ],
+   "niveis": [
+    {
+     "nivel": 1,
+     "caracteristicas": [
+      {
+       "nome": "Invocações Místicas",
+       "descricao": "Você ganha uma Invocação Mística à sua escolha (por exemplo, Pacto do Tomo) e ganha mais conforme a coluna Invocações Místicas da tabela. Se uma invocação tiver pré-requisito, você precisa cumpri-lo para aprendê-la. Sempre que ganhar um nível de Bruxo, pode trocar uma invocação por outra para a qual se qualifique, exceto se ela for pré-requisito de outra invocação que você tenha. Você não pode escolher a mesma invocação mais de uma vez, salvo indicação na descrição dela."
+      },
+      {
+       "nome": "Magia de Pacto",
+       "descricao": "Você conjura magias de Bruxo usando Carisma como atributo de conjuração e pode usar um Foco Arcano como Foco de Conjuração. Truques: você conhece dois truques de Bruxo e aprende mais um nos níveis 4 e 10; sempre que ganhar um nível de Bruxo, pode trocar um deles. Espaços: todos os seus espaços de Magia de Pacto têm o mesmo nível, indicado na tabela, e você recupera todos ao terminar um Descanso Curto ou Longo (por exemplo, no nível 5 você tem dois espaços de nível 3, e qualquer magia de nível 1 conjurada com eles é de nível 3). Magias preparadas: você prepara magias de Bruxo de nível 1+ conforme a coluna Magias Preparadas, de nível não superior ao dos seus espaços; sempre que ganhar um nível de Bruxo, pode trocar uma delas por outra de nível elegível. Magias sempre preparadas por outras características não contam nesse limite."
+      }
+     ]
+    },
+    {
+     "nivel": 2,
+     "caracteristicas": [
+      {
+       "nome": "Astúcia Mágica",
+       "descricao": "Você pode realizar um rito esotérico de 1 minuto. Ao final, recupera espaços de Magia de Pacto gastos, até metade do seu máximo (arredondado para cima). Depois de usar esta característica, só pode usá-la de novo ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 3,
+     "caracteristicas": [
+      {
+       "nome": "Subclasse de Bruxo",
+       "descricao": "Você escolhe uma subclasse de Bruxo (o SRD traz o Patrono Corruptor). A partir daí, ganha cada característica dela de nível igual ou inferior ao seu nível de Bruxo."
+      }
+     ]
+    },
+    {
+     "nivel": 4,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 5,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 6,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 7,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 8,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 9,
+     "caracteristicas": [
+      {
+       "nome": "Contatar Patrono",
+       "descricao": "Você sempre tem a magia Contatar Outro Plano (Contact Other Plane) preparada. Com esta característica, pode conjurá-la sem gastar espaço de magia para contatar seu patrono, e passa automaticamente na salvaguarda da magia. Depois de conjurá-la assim, só pode fazê-lo de novo ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 10,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 11,
+     "caracteristicas": [
+      {
+       "nome": "Arcano Místico (magia de nível 6)",
+       "descricao": "Seu patrono lhe concede um arcano: escolha uma magia de Bruxo de nível 6. Você pode conjurá-la uma vez sem gastar espaço de magia e recupera esse uso ao terminar um Descanso Longo. Você ganha outras magias assim nos níveis 13 (nível 7), 15 (nível 8) e 17 (nível 9). Sempre que ganhar um nível de Bruxo, pode trocar uma magia de arcano por outra magia de Bruxo do mesmo nível."
+      }
+     ]
+    },
+    {
+     "nivel": 12,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 13,
+     "caracteristicas": [
+      {
+       "nome": "Arcano Místico (magia de nível 7)",
+       "descricao": "Você escolhe uma magia de Bruxo de nível 7 como arcano adicional. Pode conjurá-la uma vez sem gastar espaço de magia e recupera esse uso ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 14,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 15,
+     "caracteristicas": [
+      {
+       "nome": "Arcano Místico (magia de nível 8)",
+       "descricao": "Você escolhe uma magia de Bruxo de nível 8 como arcano adicional. Pode conjurá-la uma vez sem gastar espaço de magia e recupera esse uso ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 16,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 17,
+     "caracteristicas": [
+      {
+       "nome": "Arcano Místico (magia de nível 9)",
+       "descricao": "Você escolhe uma magia de Bruxo de nível 9 como arcano adicional. Pode conjurá-la uma vez sem gastar espaço de magia e recupera esse uso ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 18,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 19,
+     "caracteristicas": [
+      {
+       "nome": "Dádiva Épica",
+       "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva do Destino (Boon of Fate)."
+      }
+     ]
+    },
+    {
+     "nivel": 20,
+     "caracteristicas": [
+      {
+       "nome": "Mestre Místico",
+       "descricao": "Ao usar Astúcia Mágica, você recupera todos os seus espaços de Magia de Pacto gastos."
+      }
+     ]
+    }
+   ],
+   "subclasse": {
+    "id": "corruptor",
+    "nome": "Patrono Corruptor",
+    "en": "Fiend Patron",
+    "caracteristicas": [
+     {
+      "nivel": 3,
+      "nome": "Bênção do Sombrio",
+      "descricao": "Quando você reduz um inimigo a 0 Pontos de Vida, ganha PV Temporários iguais ao seu modificador de Carisma + seu nível de Bruxo (mínimo 1). Você também ganha esse benefício se outra criatura reduzir a 0 PV um inimigo que esteja a até 3 m de você."
+     },
+     {
+      "nivel": 3,
+      "nome": "Magias do Corruptor",
+      "descricao": "Ao atingir cada nível de Bruxo indicado, você passa a ter sempre preparadas as magias listadas. Nível 3: Mãos Flamejantes (Burning Hands), Comando (Command), Raio Ardente (Scorching Ray) e Sugestão (Suggestion). Nível 5: Bola de Fogo (Fireball) e Névoa Fétida (Stinking Cloud). Nível 7: Escudo de Fogo (Fire Shield) e Muralha de Fogo (Wall of Fire). Nível 9: Missão (Geas) e Praga de Insetos (Insect Plague)."
+     },
+     {
+      "nivel": 6,
+      "nome": "Sorte do Próprio Sombrio",
+      "descricao": "Quando você faz um teste de atributo ou uma salvaguarda, pode somar 1d10 à rolagem, mesmo depois de vê-la, mas antes que os efeitos ocorram. Pode usar esta característica um número de vezes igual ao seu modificador de Carisma (mínimo 1), no máximo uma vez por rolagem, e recupera todos os usos ao terminar um Descanso Longo."
+     },
+     {
+      "nivel": 10,
+      "nome": "Resiliência Infernal",
+      "descricao": "Sempre que terminar um Descanso Curto ou Longo, escolha um tipo de dano que não seja Energia. Você tem Resistência a esse tipo até escolher outro com esta característica."
+     },
+     {
+      "nivel": 14,
+      "nome": "Arremessar pelo Inferno",
+      "descricao": "Uma vez por turno, ao acertar uma criatura com uma jogada de ataque, você pode tentar transportá-la instantaneamente pelos Planos Inferiores. O alvo faz uma salvaguarda de Carisma contra sua CD de magia; se falhar, desaparece numa paisagem de pesadelo, sofre 8d10 de dano Psíquico se não for um Corruptor e fica Incapacitado até o fim do seu próximo turno, quando volta ao espaço que ocupava ou ao espaço desocupado mais próximo. Depois de usar, só pode usar de novo ao terminar um Descanso Longo, a menos que gaste um espaço de Magia de Pacto (sem ação) para restaurar o uso."
+     }
+    ]
+   }
+  },
+  {
+   "id": "mago",
+   "nome": "Mago",
+   "en": "Wizard",
+   "dadoVida": 6,
+   "atributoPrincipal": [
+    "int"
+   ],
+   "salvaguardas": [
+    "int",
+    "sab"
+   ],
+   "pericias": {
+    "escolhe": 2,
+    "lista": [
+     "arcanismo",
+     "historia",
+     "intuicao",
+     "investigacao",
+     "medicina",
+     "natureza",
+     "religiao"
+    ]
+   },
+   "armas": "Armas simples",
+   "armaduras": "",
+   "ferramentas": "",
+   "equipamento": "Escolha A ou B: (A) 2 Adagas, Foco Arcano (bordão), Túnica, Grimório, Pacote de Estudioso e 5 PO; ou (B) 55 PO",
+   "conjuracao": {
+    "atributo": "int",
+    "tipo": "completa",
+    "truques": [
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "preparadas": [
+     4,
+     5,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12,
+     14,
+     15,
+     16,
+     16,
+     17,
+     18,
+     19,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "recursos": [],
+   "niveis": [
+    {
+     "nivel": 1,
+     "caracteristicas": [
+      {
+       "nome": "Conjuração",
+       "descricao": "Você conjura magias de Mago usando Inteligência como atributo de conjuração e pode usar um Foco Arcano ou seu grimório como Foco de Conjuração. Truques: você conhece três truques de Mago, aprende mais um nos níveis 4 e 10 e pode trocar um deles ao terminar um Descanso Longo. Grimório: objeto Miúdo de 1,5 kg e 100 páginas, legível só por você ou por quem conjurar Identificar (Identify); começa com seis magias de Mago de nível 1, e a cada nível de Mago após o 1 você adiciona duas magias de Mago de níveis para os quais tenha espaços. Copiar no grimório uma magia de Mago de nível 1+ encontrada (de nível que você possa preparar) leva 2 horas e custa 50 PO por nível da magia; copiar uma magia do seu grimório para outro livro leva 1 hora e custa 10 PO por nível. Espaços e preparação: espaços recuperados ao terminar um Descanso Longo; você prepara magias do grimório conforme a coluna Magias Preparadas, de níveis para os quais tenha espaços, e ao terminar um Descanso Longo pode trocar qualquer uma delas por outras do grimório."
+      },
+      {
+       "nome": "Adepto de Rituais",
+       "descricao": "Você pode conjurar como Ritual qualquer magia com o marcador Ritual que esteja no seu grimório. Não precisa tê-la preparada, mas precisa lê-la no livro para conjurá-la assim."
+      },
+      {
+       "nome": "Recuperação Arcana",
+       "descricao": "Ao terminar um Descanso Curto, você pode recuperar espaços de magia gastos cujos níveis somados não passem da metade do seu nível de Mago (arredondada para cima), e nenhum deles pode ser de nível 6 ou maior. Por exemplo, no nível 4 você recupera um espaço de nível 2 ou dois espaços de nível 1. Depois de usar esta característica, só pode usá-la de novo ao terminar um Descanso Longo."
+      }
+     ]
+    },
+    {
+     "nivel": 2,
+     "caracteristicas": [
+      {
+       "nome": "Erudito",
+       "descricao": "Escolha uma destas perícias em que tenha proficiência: Arcanismo, História, Investigação, Medicina, Natureza ou Religião. Você ganha Especialização nela."
+      }
+     ]
+    },
+    {
+     "nivel": 3,
+     "caracteristicas": [
+      {
+       "nome": "Subclasse de Mago",
+       "descricao": "Você escolhe uma subclasse de Mago (o SRD traz o Evocador). A partir daí, ganha cada característica dela de nível igual ou inferior ao seu nível de Mago."
+      }
+     ]
+    },
+    {
+     "nivel": 4,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 5,
+     "caracteristicas": [
+      {
+       "nome": "Memorizar Magia",
+       "descricao": "Sempre que terminar um Descanso Curto, você pode estudar seu grimório e trocar uma magia de Mago de nível 1+ que tenha preparada por outra magia de nível 1+ do grimório."
+      }
+     ]
+    },
+    {
+     "nivel": 6,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 7,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 8,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 9,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 10,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 11,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 12,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 13,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 14,
+     "caracteristicas": [
+      {
+       "nome": "Característica de Subclasse",
+       "descricao": "Você ganha uma característica da sua subclasse."
+      }
+     ]
+    },
+    {
+     "nivel": 15,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 16,
+     "caracteristicas": [
+      {
+       "nome": "Aumento no Valor de Atributo",
+       "descricao": "Você ganha o talento Aumento no Valor de Atributo ou outro talento para o qual se qualifique."
+      }
+     ]
+    },
+    {
+     "nivel": 17,
+     "caracteristicas": []
+    },
+    {
+     "nivel": 18,
+     "caracteristicas": [
+      {
+       "nome": "Maestria em Magia",
+       "descricao": "Escolha uma magia de nível 1 e uma de nível 2 do seu grimório com tempo de conjuração de uma ação. Você as tem sempre preparadas e pode conjurá-las no nível mínimo sem gastar espaço de magia; para conjurá-las num nível maior, precisa gastar um espaço. Ao terminar um Descanso Longo, pode estudar o grimório e trocar uma delas por outra magia elegível do mesmo nível."
+      }
+     ]
+    },
+    {
+     "nivel": 19,
+     "caracteristicas": [
+      {
+       "nome": "Dádiva Épica",
+       "descricao": "Você ganha um talento de Dádiva Épica ou outro talento para o qual se qualifique. Recomendado: Dádiva da Recuperação de Magia (Boon of Spell Recall)."
+      }
+     ]
+    },
+    {
+     "nivel": 20,
+     "caracteristicas": [
+      {
+       "nome": "Magias Assinatura",
+       "descricao": "Escolha duas magias de nível 3 do seu grimório como magias assinatura. Você as tem sempre preparadas e pode conjurar cada uma delas uma vez no nível 3 sem gastar espaço de magia, recuperando esse uso ao terminar um Descanso Curto ou Longo. Para conjurá-las num nível maior, precisa gastar um espaço."
+      }
+     ]
+    }
+   ],
+   "subclasse": {
+    "id": "evocador",
+    "nome": "Evocador",
+    "en": "Evoker",
+    "caracteristicas": [
+     {
+      "nivel": 3,
+      "nome": "Sábio da Evocação",
+      "descricao": "Escolha duas magias de Mago da escola de Evocação, cada uma de nível 2 ou menor, e adicione-as ao seu grimório de graça. Além disso, sempre que ganhar acesso a um novo nível de espaços de magia nesta classe, pode adicionar de graça ao grimório uma magia de Mago de Evocação de um nível para o qual tenha espaços."
+     },
+     {
+      "nivel": 3,
+      "nome": "Truque Potente",
+      "descricao": "Quando você conjura um truque contra uma criatura e erra a jogada de ataque ou o alvo passa na salvaguarda contra ele, o alvo sofre metade do dano do truque (se houver), mas nenhum efeito adicional dele."
+     },
+     {
+      "nivel": 6,
+      "nome": "Esculpir Magias",
+      "descricao": "Ao conjurar uma magia de Evocação que afete outras criaturas que você possa ver, você pode escolher um número delas igual a 1 + o nível da magia. As criaturas escolhidas passam automaticamente nas salvaguardas contra a magia e não sofrem dano se normalmente sofreriam metade num sucesso."
+     },
+     {
+      "nivel": 10,
+      "nome": "Evocação Fortalecida",
+      "descricao": "Sempre que conjurar uma magia de Mago da escola de Evocação, você pode somar seu modificador de Inteligência a uma jogada de dano dessa magia."
+     },
+     {
+      "nivel": 14,
+      "nome": "Sobrecarga",
+      "descricao": "Ao conjurar uma magia de Mago que cause dano usando um espaço de nível 1 a 5, você pode causar o dano máximo com ela no turno em que a conjura. Na primeira vez, não há efeito adverso. Se usar de novo antes de terminar um Descanso Longo, você sofre 2d12 de dano Necrótico por nível do espaço logo após conjurar, dano que ignora Resistência e Imunidade; cada uso adicional antes do Descanso Longo aumenta esse dano em 1d12 por nível da magia."
+     }
+    ]
+   }
+  }
+ ],
+ "invocacoes": [
+  {
+   "nome": "Explosão Agonizante",
+   "en": "Agonizing Blast",
+   "prerequisito": "Nível 2+ de Bruxo, um truque de Bruxo que cause dano",
+   "descricao": "Escolha um truque de Bruxo que você conheça e que cause dano. Você pode somar seu modificador de Carisma às jogadas de dano dessa magia. Repetível: você pode ganhar esta invocação mais de uma vez, escolhendo um truque elegível diferente a cada vez."
+  },
+  {
+   "nome": "Armadura de Sombras",
+   "en": "Armor of Shadows",
+   "prerequisito": "",
+   "descricao": "Você pode conjurar Armadura Arcana (Mage Armor) em si mesmo sem gastar espaço de magia."
+  },
+  {
+   "nome": "Passo Ascendente",
+   "en": "Ascendant Step",
+   "prerequisito": "Nível 5+ de Bruxo",
+   "descricao": "Você pode conjurar Levitação (Levitate) em si mesmo sem gastar espaço de magia."
+  },
+  {
+   "nome": "Visão do Diabo",
+   "en": "Devil's Sight",
+   "prerequisito": "Nível 2+ de Bruxo",
+   "descricao": "Você enxerga normalmente em Penumbra e Escuridão, mágicas ou não, a até 36 m de você."
+  },
+  {
+   "nome": "Lâmina Devoradora",
+   "en": "Devouring Blade",
+   "prerequisito": "Nível 12+ de Bruxo, invocação Lâmina Sedenta",
+   "descricao": "O Ataque Extra da sua invocação Lâmina Sedenta concede dois ataques extras em vez de um."
+  },
+  {
+   "nome": "Mente Mística",
+   "en": "Eldritch Mind",
+   "prerequisito": "",
+   "descricao": "Você tem Vantagem nas salvaguardas de Constituição para manter a Concentração."
+  },
+  {
+   "nome": "Golpe Místico",
+   "en": "Eldritch Smite",
+   "prerequisito": "Nível 5+ de Bruxo, invocação Pacto da Lâmina",
+   "descricao": "Uma vez por turno, ao acertar uma criatura com sua arma de pacto, você pode gastar um espaço de Magia de Pacto para causar 1d8 de dano de Energia extra ao alvo, mais 1d8 por nível do espaço, e pode deixar o alvo Caído se ele for Enorme ou menor."
+  },
+  {
+   "nome": "Lança Mística",
+   "en": "Eldritch Spear",
+   "prerequisito": "Nível 2+ de Bruxo, um truque de Bruxo que cause dano",
+   "descricao": "Escolha um truque de Bruxo que você conheça, que cause dano e tenha alcance de 3 m ou mais. Ao conjurá-lo, o alcance aumenta em 9 m × seu nível de Bruxo. Repetível: você pode ganhar esta invocação mais de uma vez, escolhendo um truque elegível diferente a cada vez."
+  },
+  {
+   "nome": "Vigor Infernal",
+   "en": "Fiendish Vigor",
+   "prerequisito": "Nível 2+ de Bruxo",
+   "descricao": "Você pode conjurar Vitalidade Falsa (False Life) em si mesmo sem gastar espaço de magia. Ao conjurá-la assim, não rola o dado dos PV Temporários: recebe automaticamente o valor máximo do dado."
+  },
+  {
+   "nome": "Olhar de Duas Mentes",
+   "en": "Gaze of Two Minds",
+   "prerequisito": "Nível 5+ de Bruxo",
+   "descricao": "Com uma Ação Bônus, você toca uma criatura voluntária e percebe pelos sentidos dela até o fim do seu próximo turno. Enquanto ela estiver no mesmo plano de existência, você pode usar uma Ação Bônus nos turnos seguintes para manter a conexão, estendendo-a até o fim do seu próximo turno; ela termina se você não a mantiver. Enquanto percebe pelos sentidos da criatura, você se beneficia dos sentidos especiais dela e pode conjurar magias como se estivesse no seu espaço ou no dela, se vocês estiverem a até 18 m um do outro."
+  },
+  {
+   "nome": "Dádiva das Profundezas",
+   "en": "Gift of the Depths",
+   "prerequisito": "Nível 5+ de Bruxo",
+   "descricao": "Você pode respirar debaixo d'água e ganha Deslocamento de Natação igual ao seu Deslocamento. Também pode conjurar Respirar na Água (Water Breathing) uma vez sem gastar espaço de magia, recuperando esse uso ao terminar um Descanso Longo."
+  },
+  {
+   "nome": "Dádiva dos Protetores",
+   "en": "Gift of the Protectors",
+   "prerequisito": "Nível 9+ de Bruxo, invocação Pacto do Tomo",
+   "descricao": "Uma nova página surge no seu Livro das Sombras quando você o conjura. Com sua permissão, uma criatura pode usar uma ação para escrever o nome nela; a página comporta um número de nomes igual ao seu modificador de Carisma (mínimo 1). Quando uma criatura com o nome na página é reduzida a 0 PV sem morrer instantaneamente, ela cai para 1 PV em vez disso; depois que essa magia é ativada, nenhuma criatura pode se beneficiar dela até você terminar um Descanso Longo. Como ação de Magia, você pode apagar um nome tocando-o."
+  },
+  {
+   "nome": "Investidura do Mestre da Corrente",
+   "en": "Investment of the Chain Master",
+   "prerequisito": "Nível 5+ de Bruxo, invocação Pacto da Corrente",
+   "descricao": "Ao conjurar Encontrar Familiar (Find Familiar), o familiar recebe estes benefícios. Aéreo ou Aquático: ganha Deslocamento de Voo ou de Natação (à sua escolha) de 12 m. Ataque Rápido: como Ação Bônus, você pode ordenar que ele realize a ação Atacar. Dano Necrótico ou Radiante: sempre que ele causar dano de Concussão, Perfurante ou Cortante, você pode fazê-lo causar dano Necrótico ou Radiante. Sua CD: se ele forçar uma salvaguarda, usa a sua CD de magia. Resistência: quando ele sofrer dano, você pode usar uma Reação para lhe dar Resistência a esse dano."
+  },
+  {
+   "nome": "Lições dos Primordiais",
+   "en": "Lessons of the First Ones",
+   "prerequisito": "Nível 2+ de Bruxo",
+   "descricao": "Você recebeu conhecimento de uma entidade ancestral do multiverso e ganha um Talento de Origem à sua escolha. Repetível: você pode ganhar esta invocação mais de uma vez, escolhendo um Talento de Origem diferente a cada vez."
+  },
+  {
+   "nome": "Bebedor de Vida",
+   "en": "Lifedrinker",
+   "prerequisito": "Nível 9+ de Bruxo, invocação Pacto da Lâmina",
+   "descricao": "Uma vez por turno, ao acertar uma criatura com sua arma de pacto, você pode causar 1d6 de dano extra Necrótico, Psíquico ou Radiante (à sua escolha) e pode gastar um dos seus Dados de Vida para rolá-lo e recuperar PV iguais ao resultado + seu modificador de Constituição (mínimo 1 PV)."
+  },
+  {
+   "nome": "Máscara de Muitas Faces",
+   "en": "Mask of Many Faces",
+   "prerequisito": "Nível 2+ de Bruxo",
+   "descricao": "Você pode conjurar Disfarçar-se (Disguise Self) sem gastar espaço de magia."
+  },
+  {
+   "nome": "Mestre de Miríades de Formas",
+   "en": "Master of Myriad Forms",
+   "prerequisito": "Nível 5+ de Bruxo",
+   "descricao": "Você pode conjurar Alterar-se (Alter Self) sem gastar espaço de magia."
+  },
+  {
+   "nome": "Visões Nebulosas",
+   "en": "Misty Visions",
+   "prerequisito": "Nível 2+ de Bruxo",
+   "descricao": "Você pode conjurar Imagem Silenciosa (Silent Image) sem gastar espaço de magia."
+  },
+  {
+   "nome": "Um com as Sombras",
+   "en": "One with Shadows",
+   "prerequisito": "Nível 5+ de Bruxo",
+   "descricao": "Enquanto estiver numa área de Penumbra ou Escuridão, você pode conjurar Invisibilidade (Invisibility) em si mesmo sem gastar espaço de magia."
+  },
+  {
+   "nome": "Salto Transcendental",
+   "en": "Otherworldly Leap",
+   "prerequisito": "Nível 2+ de Bruxo",
+   "descricao": "Você pode conjurar Salto (Jump) em si mesmo sem gastar espaço de magia."
+  },
+  {
+   "nome": "Pacto da Lâmina",
+   "en": "Pact of the Blade",
+   "prerequisito": "",
+   "descricao": "Como Ação Bônus, você conjura na mão uma arma de pacto (uma arma Corpo a Corpo Simples ou Marcial à sua escolha, com a qual cria um vínculo) ou cria um vínculo com uma arma mágica que tocar, desde que ninguém esteja sintonizado com ela e nenhum outro Bruxo esteja vinculado a ela. Enquanto o vínculo durar, você tem proficiência com a arma e pode usá-la como Foco de Conjuração. Ao atacar com ela, pode usar seu modificador de Carisma nas jogadas de ataque e dano em vez de Força ou Destreza, e pode fazê-la causar dano Necrótico, Psíquico ou Radiante, ou seu tipo normal. O vínculo termina se você usar esta Ação Bônus de novo, se a arma ficar a mais de 1,5 m de você por 1 minuto ou mais, ou se você morrer; uma arma conjurada desaparece quando o vínculo termina."
+  },
+  {
+   "nome": "Pacto da Corrente",
+   "en": "Pact of the Chain",
+   "prerequisito": "",
+   "descricao": "Você aprende a magia Encontrar Familiar (Find Familiar) e pode conjurá-la como ação de Magia sem gastar espaço de magia. Ao conjurá-la, escolhe uma das formas normais ou uma destas formas especiais: Diabrete, Pseudodragão, Quasit, Esqueleto, Esfinge das Maravilhas, Sprite ou Serpente Venenosa. Além disso, ao realizar a ação Atacar, você pode abrir mão de um dos seus ataques para permitir que o familiar faça um ataque próprio usando a Reação dele."
+  },
+  {
+   "nome": "Pacto do Tomo",
+   "en": "Pact of the Tome",
+   "prerequisito": "",
+   "descricao": "Ao fim de um Descanso Curto ou Longo, você conjura na mão um Livro das Sombras (aparência à sua escolha), que desaparece se você conjurar outro livro com esta característica ou se morrer. Truques e Rituais: quando o livro aparece, escolha três truques e duas magias de nível 1 com o marcador Ritual, de qualquer lista de classe, que você ainda não tenha preparadas; enquanto o livro estiver com você, essas magias ficam preparadas e funcionam como magias de Bruxo para você. Foco de Conjuração: você pode usar o livro como Foco de Conjuração."
+  },
+  {
+   "nome": "Explosão Repulsiva",
+   "en": "Repelling Blast",
+   "prerequisito": "Nível 2+ de Bruxo, um truque de Bruxo que cause dano por jogada de ataque",
+   "descricao": "Escolha um truque de Bruxo que você conheça e que exija jogada de ataque. Quando acertar uma criatura Grande ou menor com ele, você pode empurrá-la até 3 m em linha reta para longe de você. Repetível: você pode ganhar esta invocação mais de uma vez, escolhendo um truque elegível diferente a cada vez."
+  },
+  {
+   "nome": "Lâmina Sedenta",
+   "en": "Thirsting Blade",
+   "prerequisito": "Nível 5+ de Bruxo, invocação Pacto da Lâmina",
+   "descricao": "Você ganha a característica Ataque Extra apenas para sua arma de pacto: pode atacar com ela duas vezes, em vez de uma, ao realizar a ação Atacar no seu turno."
+  },
+  {
+   "nome": "Visões de Reinos Distantes",
+   "en": "Visions of Distant Realms",
+   "prerequisito": "Nível 9+ de Bruxo",
+   "descricao": "Você pode conjurar Olho Arcano (Arcane Eye) sem gastar espaço de magia."
+  },
+  {
+   "nome": "Sussurros do Túmulo",
+   "en": "Whispers of the Grave",
+   "prerequisito": "Nível 7+ de Bruxo",
+   "descricao": "Você pode conjurar Falar com os Mortos (Speak with Dead) sem gastar espaço de magia."
+  },
+  {
+   "nome": "Visão Bruxa",
+   "en": "Witch Sight",
+   "prerequisito": "Nível 15+ de Bruxo",
+   "descricao": "Você tem Visão Verdadeira com alcance de 9 m."
+  }
+ ],
+ "metamagias": [
+  {
+   "nome": "Magia Cuidadosa",
+   "en": "Careful Spell",
+   "custo": 1,
+   "descricao": "Ao conjurar uma magia que force outras criaturas a fazer salvaguarda, escolha até um número delas igual ao seu modificador de Carisma (mínimo 1). As escolhidas passam automaticamente na salvaguarda e não sofrem dano se normalmente sofreriam metade num sucesso."
+  },
+  {
+   "nome": "Magia Distante",
+   "en": "Distant Spell",
+   "custo": 1,
+   "descricao": "Dobra o alcance de uma magia com alcance de pelo menos 1,5 m; ou, para uma magia com alcance de Toque, torna o alcance 9 m."
+  },
+  {
+   "nome": "Magia Potencializada",
+   "en": "Empowered Spell",
+   "custo": 1,
+   "descricao": "Ao rolar o dano de uma magia, rerrole um número de dados de dano até seu modificador de Carisma (mínimo 1) e use os novos resultados. Pode ser usada mesmo que outra opção de Metamagia já tenha sido usada na mesma conjuração."
+  },
+  {
+   "nome": "Magia Estendida",
+   "en": "Extended Spell",
+   "custo": 1,
+   "descricao": "Dobra a duração de uma magia com duração de 1 minuto ou mais, até o máximo de 24 horas. Se a magia exigir Concentração, você tem Vantagem nas salvaguardas para mantê-la."
+  },
+  {
+   "nome": "Magia Elevada",
+   "en": "Heightened Spell",
+   "custo": 2,
+   "descricao": "Ao conjurar uma magia que force uma criatura a fazer salvaguarda, um alvo da magia tem Desvantagem nas salvaguardas contra ela."
+  },
+  {
+   "nome": "Magia Acelerada",
+   "en": "Quickened Spell",
+   "custo": 2,
+   "descricao": "Muda o tempo de conjuração de uma magia de uma ação para uma Ação Bônus nesta conjuração. Não pode ser usada se você já conjurou uma magia de nível 1+ neste turno, e depois de usá-la você não pode conjurar magia de nível 1+ neste turno."
+  },
+  {
+   "nome": "Magia Buscadora",
+   "en": "Seeking Spell",
+   "custo": 1,
+   "descricao": "Se errar a jogada de ataque de uma magia, rerrole o d20 e use o novo resultado. Pode ser usada mesmo que outra opção de Metamagia já tenha sido usada na mesma conjuração."
+  },
+  {
+   "nome": "Magia Sutil",
+   "en": "Subtle Spell",
+   "custo": 1,
+   "descricao": "Conjura a magia sem componentes Verbais, Somáticos ou Materiais, exceto componentes Materiais consumidos pela magia ou com custo especificado."
+  },
+  {
+   "nome": "Magia Transmutada",
+   "en": "Transmuted Spell",
+   "custo": 1,
+   "descricao": "Se a magia causar um destes tipos de dano, troque-o por outro da lista: Ácido, Frio, Fogo, Elétrico, Veneno, Trovejante."
+  },
+  {
+   "nome": "Magia Duplicada",
+   "en": "Twinned Spell",
+   "custo": 1,
+   "descricao": "Ao conjurar uma magia que, com espaço de nível maior, pode ter como alvo uma criatura adicional (como Enfeitiçar Pessoa), aumenta em 1 o nível efetivo da magia."
+  }
+ ]
+}
