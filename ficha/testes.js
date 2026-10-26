@@ -130,6 +130,41 @@ teste('aumento de atributo e truques', () => {
   assert.deepStrictEqual([R.ganhaAumento(dc, 4), R.ganhaAumento(dc, 5), R.ganhaAumento(null, 4)], [true, false, false]);
 });
 
+teste('CA, deslocamento, iniciativa, salvaguardas e perícias com bônus', () => {
+  assert.strictEqual(R.classeArmaduraDe(pandora), 17);                 // ficha antiga: CA 17 vira Nenhuma + 4
+  assert.deepStrictEqual(pandora.armadura, { base: 10, escudo: 0, tipo: 'nenhuma', extra: '', mod: 4, nome: '' });
+  const couro = R.limparPersonagem({ ...pandora, armadura: { base: 12, tipo: 'leve', escudo: 2 } });
+  assert.strictEqual(R.classeArmaduraDe(couro), 17);                   // 12 + 2 + Des 3
+  const media = R.limparPersonagem({ ...pandora, armadura: { base: 14, tipo: 'media' } });
+  assert.strictEqual(R.classeArmaduraDe(media), 16);                   // Des conta até 2
+  const placas = R.limparPersonagem({ ...pandora, armadura: { base: 18, tipo: 'pesada', extra: 'sab' } });
+  assert.strictEqual(R.classeArmaduraDe(placas), 19);                  // sem Des, + Sab 1
+  assert.deepStrictEqual(['9 m', '30', '30 pés', '4,5', 'x'].map(R.lerMetros), [9, 9, 9, 4.5, null]);
+  assert.strictEqual(R.deslocamentoDe(pandora), 9);
+  assert.strictEqual(R.metros(4.5), '4,5');
+  const ini = R.limparPersonagem({ ...pandora, iniciativaProf: 0.5, iniciativaAtributo: 'sab', iniciativaBonus: 1 });
+  assert.strictEqual(R.iniciativa(ini), 3 + 1 + 1 + 1);
+  const sv = R.limparPersonagem({ ...pandora, salvaguardasBonus: { des: 2 }, salvaguardaExtra: 'car', periciasBonus: { furtividade: 1 } });
+  assert.strictEqual(R.salvaguarda(sv, 'des'), 3 + 2 + 1);             // Carisma -1 conta como +1 (mínimo 1)
+  assert.strictEqual(R.pericia(sv, 'furtividade'), 4);
+});
+
+teste('recursos de classe e espaços por tipo', () => {
+  assert.deepStrictEqual(pandora.recursos, [{ nome: 'Sorte', texto: 'Sorte', max: 2, dado: 20, gastavel: true, reset: 'longo', recCurto: 0, recLongo: 0, usados: 0 }]);
+  assert.strictEqual(R.textoRecurso({ ...pandora.recursos[0], usados: 1 }), '1d20');
+  const rs = [R.limparRecurso({ nome: 'A', max: 3, usados: 3, reset: 'curto' }), R.limparRecurso({ nome: 'B', max: 4, usados: 4, reset: 'longo', recCurto: 1 }),
+    R.limparRecurso({ nome: 'C', max: 2, usados: 2, reset: 'nunca', recLongo: 1 })];
+  assert.deepStrictEqual(R.descansarRecursos(rs, false).map(r => r.usados), [0, 3, 2]);
+  assert.deepStrictEqual(R.descansarRecursos(rs, true).map(r => r.usados), [0, 0, 1]);
+  const conj = (t, n) => R.espacosPorTipo(R.limparPersonagem({ ...pandora, conjuracao: { atributo: 'int', nivel: n, espacosTipo: t } }), null);
+  assert.deepStrictEqual(conj('completo', 3), { 1: 4, 2: 2 });
+  assert.deepStrictEqual(conj('meio', 5), { 1: 4, 2: 2 });
+  assert.deepStrictEqual(conj('terco', 7), { 1: 4, 2: 2 });
+  assert.strictEqual(conj('manual', 5), null);
+  const bonus = R.limparPersonagem({ ...pandora, conjuracao: { atributo: 'int', nivel: 2, bonusAtaque: 1, bonusCD: 2 } });
+  assert.deepStrictEqual([R.ataqueMagia(bonus), R.cdMagia(bonus)], [6, 15]);
+});
+
 teste('dados do SRD em português: completos e coerentes', () => {
   const D = require('./dados5e.js');
   assert.strictEqual(D.classes.length, 12);

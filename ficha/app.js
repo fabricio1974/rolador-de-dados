@@ -2,7 +2,7 @@
 // (com o parser do Rolador, ../js/logica.js) e salva tudo no localStorage.
 'use strict';
 
-const VERSAO_FICHA = '2';
+const VERSAO_FICHA = '3';
 
 // ---------- 1. Ajudantes ----------
 const $ = (id) => document.getElementById(id);
@@ -118,6 +118,7 @@ function comDesfazer(mensagem, mudar) {
 const camadas = [];
 let depoisDeVoltar = null;
 function abrirCamada(fechar) {
+  if (typeof cancelarGesto === 'function') cancelarGesto();
   camadas.push(fechar);
   history.pushState({ camada: camadas.length }, '');
 }
@@ -129,30 +130,119 @@ window.addEventListener('popstate', (ev) => {
 });
 if (history.state && history.state.camada > 0) history.go(-history.state.camada);
 
-// ---------- 4. Páginas (arrastar para o lado) ----------
+// ---------- 4. Páginas (arrastar para o lado, sem fim) ----------
+// As páginas ficam numa roda: depois da última vem a primeira (e antes da primeira, a
+// última). Cada página é posicionada com transform; o dedo arrasta na horizontal e a
+// rolagem vertical dentro da página continua sendo a do navegador (touch-action: pan-y).
 const paginas = $('paginas');
 const PAGINAS = [...paginas.children];
+const N_PAGINAS = PAGINAS.length;
+let paginaIdx = 0;
+let arrasto = 0;          // quanto o dedo já puxou (px)
+let fimDoArrasto = -1e9;  // quando o último arrasto acabou: o "clique" logo depois não vale
+const paginaAtual = () => paginaIdx;
+
+// Distância (em páginas) de "i" até a atual, pelo caminho mais curto da roda.
+function distanciaPagina(i) {
+  let d = i - paginaIdx;
+  if (d > N_PAGINAS / 2) d -= N_PAGINAS;
+  if (d <= -N_PAGINAS / 2) d += N_PAGINAS;
+  return d;
+}
+function posicionarPaginas(animar) {
+  const w = paginas.clientWidth;
+  PAGINAS.forEach((pg, i) => {
+    const d = distanciaPagina(i);
+    pg.style.transition = animar ? 'transform .3s cubic-bezier(.2,.75,.25,1)' : 'none';
+    pg.style.transform = `translate3d(${d * w + arrasto}px,0,0)`;
+    pg.style.visibility = Math.abs(d) <= 1 ? 'visible' : 'hidden';   // só a atual e as vizinhas
+    pg.setAttribute('aria-hidden', String(d !== 0));
+  });
+}
+function irParaPagina(i, animar = true) {
+  paginaIdx = ((i % N_PAGINAS) + N_PAGINAS) % N_PAGINAS;
+  arrasto = 0;
+  posicionarPaginas(animar);
+  marcarPonto();
+  gravar(CHAVE_PAGINA, paginaIdx);
+}
+function marcarPonto() {
+  [...$('pontos').children].forEach((b, i) => b.classList.toggle('ativo', i === paginaIdx));
+}
 PAGINAS.forEach((pg, i) => {
   const b = el('button');
   b.setAttribute('aria-label', pg.getAttribute('aria-label'));
-  b.addEventListener('click', () => paginas.scrollTo({ left: i * paginas.clientWidth, behavior: 'smooth' }));
+  b.addEventListener('click', () => irParaPagina(i));
   $('pontos').append(b);
 });
-const paginaAtual = () => Math.round(paginas.scrollLeft / Math.max(1, paginas.clientWidth));
-function marcarPonto() {
-  const atual = paginaAtual();
-  [...$('pontos').children].forEach((b, i) => b.classList.toggle('ativo', i === atual));
+
+let gesto = null;   // { id, x, y, t, modo: null | 'h' | 'v' }
+paginas.addEventListener('pointerdown', (ev) => {
+  if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+  if (arrasto) { arrasto = 0; posicionarPaginas(false); }
+  gesto = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, t: performance.now(), modo: null };
+});
+paginas.addEventListener('pointermove', (ev) => {
+  if (!gesto || ev.pointerId !== gesto.id) return;
+  if (ev.pointerType === 'mouse' && !ev.buttons) { cancelarGesto(); return; }   // soltou fora e voltou
+  const dx = ev.clientX - gesto.x, dy = ev.clientY - gesto.y;
+  if (!gesto.modo) {
+    // Decide o rumo no começo: mais de lado que de cima a baixo = trocar de página.
+    if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      gesto.modo = 'h';
+      try { paginas.setPointerCapture(ev.pointerId); } catch { /* sem captura: segue igual */ }
+    } else if (Math.abs(dy) > 12) gesto.modo = 'v';
+  }
+  if (gesto.modo === 'h') {
+    arrasto = dx;
+    posicionarPaginas(false);
+  }
+});
+function soltarGesto(ev) {
+  if (!gesto || ev.pointerId !== gesto.id) return;
+  if (gesto.modo === 'h') {
+    fimDoArrasto = performance.now();
+    const dx = ev.clientX - gesto.x;
+    const velocidade = dx / Math.max(1, performance.now() - gesto.t);   // px por ms
+    const w = paginas.clientWidth;
+    arrasto = 0;
+    if (dx < -w * 0.2 || velocidade < -0.45) irParaPagina(paginaIdx + 1);
+    else if (dx > w * 0.2 || velocidade > 0.45) irParaPagina(paginaIdx - 1);
+    else posicionarPaginas(true);
+  }
+  gesto = null;
 }
-let paginaTimer = null;
+// Soltar em qualquer lugar (até por cima de um diálogo que acabou de abrir) encerra o gesto.
+window.addEventListener('pointerup', soltarGesto);
+window.addEventListener('pointercancel', soltarGesto);
+// Abriu uma janela por cima (folha, diálogo, menu): o gesto que estava começando não vale mais.
+function cancelarGesto() {
+  gesto = null;
+  if (arrasto) { arrasto = 0; posicionarPaginas(true); }
+}
+// Depois de arrastar, o toque não vale como clique (não rola dado sem querer).
+paginas.addEventListener('click', (ev) => {
+  if (performance.now() - fimDoArrasto < 400) { ev.stopPropagation(); ev.preventDefault(); }
+}, true);
+// Setas do teclado (no computador) também passam as páginas.
+document.addEventListener('keydown', (ev) => {
+  if (camadas.length || /input|textarea|select/i.test(document.activeElement.tagName)) return;
+  if (ev.key === 'ArrowRight') irParaPagina(paginaIdx + 1);
+  if (ev.key === 'ArrowLeft') irParaPagina(paginaIdx - 1);
+});
+new ResizeObserver(() => posicionarPaginas(false)).observe(paginas);
+// A caixa das páginas nunca rola sozinha (o navegador tenta, ao focar um campo de uma página
+// vizinha): se rolar, volta e mostra a página daquele campo.
 paginas.addEventListener('scroll', () => {
-  marcarPonto();
-  clearTimeout(paginaTimer);
-  paginaTimer = setTimeout(() => gravar(CHAVE_PAGINA, paginaAtual()), 200);
-}, { passive: true });
-// Girou a tela ou mudou o tamanho: fica na mesma página.
-let paginaAntes = 0;
-new ResizeObserver(() => { paginas.scrollLeft = paginaAntes * paginas.clientWidth; }).observe(paginas);
-paginas.addEventListener('scrollend', () => { paginaAntes = paginaAtual(); });
+  if (!paginas.scrollLeft && !paginas.scrollTop) return;
+  paginas.scrollLeft = 0;
+  paginas.scrollTop = 0;
+});
+paginas.addEventListener('focusin', (ev) => {
+  const pg = ev.target.closest('.pagina');
+  const i = PAGINAS.indexOf(pg);
+  if (i >= 0 && i !== paginaIdx) irParaPagina(i, false);
+});
 
 // ---------- 5. Tocar e segurar ----------
 // Tocar faz a ação principal (quase sempre rolar); segurar meio segundo abre a edição.
@@ -382,6 +472,8 @@ function desenhar(tudo = false) {
   if (tudo) desenharGaleria();
 }
 const classeENivel = () => classeENivelDe(p);
+// Como na ficha de papel: positivo sem "+" (3), negativo com "-" (-1).
+const semMais = (n) => String(n);
 
 // Caixa com rótulo e número grande; textos compridos ("9 m", "2d20+1") ficam menores.
 function caixaNumero(classe, rotulo, numero, aoTocar, aoSegurar) {
@@ -401,22 +493,24 @@ function desenharPrincipal() {
 
   const trio = el('div', 'trio');
   const ini = iniciativa(p);
-  trio.append(caixaNumero('caixa-verde', 'Iniciativa', comSinal(ini), rolarIniciativa, editarIniciativa));
+  trio.append(caixaNumero('caixa-verde', 'Iniciativa', semMais(ini), rolarIniciativa, editarIniciativa));
   const pv = botao('caixa-pv' + (p.pv <= p.pvMax / 4 ? ' baixo' : ''),
     [el('span', 'rot', 'PV'), el('span', 'num-grande', String(p.pv))], folhaPV, folhaPV);
   if (p.pvTemp) pv.append(el('span', 'temp', `+${p.pvTemp} temp.`));
   trio.append(pv);
-  trio.append(caixaNumero('caixa-verde', 'Desloc.', p.deslocamento, editarDeslocamento, editarDeslocamento));
+  const desl = caixaNumero('caixa-verde', 'Deslocamento', metros(deslocamentoDe(p)), editarDeslocamento, editarDeslocamento);
+  desl.querySelector('.num-grande').append(el('small', 'unidade', 'm'));
+  trio.append(desl);
   pg.append(trio);
 
   const azul = el('div', 'grupo-azul');
   const textoDV = textoDadosDeVida(p);
   const dv = botao('', [el('span', 'rot', 'Dados de Vida'), el('span', 'num-grande' + (textoDV.length > 4 ? ' longo' : ''), textoDV)],
-    folhaDadosVida, folhaDadosVida);
+    dialogoDadosVida, dialogoDadosVida);
   if (dadosDeVidaRestantes(p) < p.nivel) dv.append(el('small', '', `de ${p.nivel}`));
   azul.append(
     dv,
-    caixaNumero('', 'Classe de Armadura', p.ca, editarCA, editarCA),
+    caixaNumero('', 'Classe de Armadura', classeArmaduraDe(p), editarCA, editarCA),
     caixaNumero('', 'Proficiência', comSinal(profDe(p)), folhaProficiencia, folhaProficiencia),
   );
   pg.append(azul);
@@ -430,9 +524,9 @@ function desenharPrincipal() {
 function cartaoAtributo(id) {
   const card = el('div', 'atributo');
   const nome = NOME_ATRIBUTO[id];
-  const teste = () => rolarExpr(`Teste de ${nome}`, '1d20' + comSinal(modDe(p, id)), () => editarAtributo(id));
-  const salv = () => rolarExpr(`Salvaguarda de ${nome}`, '1d20' + comSinal(salvaguarda(p, id)), () => editarAtributo(id));
-  const editar = () => editarAtributo(id);
+  const teste = () => rolarExpr(`Teste de ${nome}`, '1d20' + comSinal(modDe(p, id)), editarAtributos);
+  const salv = () => rolarExpr(`Salvaguarda de ${nome}`, '1d20' + comSinal(salvaguarda(p, id)), editarAtributos);
+  const editar = editarAtributos;
   const titulo = tocavel(el('h3', '', nome), teste, editar);
   const col = (rot, valor, classe = '') => {
     const c = el('span', classe);
@@ -457,14 +551,14 @@ function desenharPericias() {
       const cartao = el('div', 'cartao-pericias');
       const h = el('h3');
       h.append(el('span', '', NOME_ATRIBUTO[atr]), el('span', '', comSinal(modDe(p, atr))));
-      tocavel(h, () => rolarExpr(`Teste de ${NOME_ATRIBUTO[atr]}`, '1d20' + comSinal(modDe(p, atr)), () => editarAtributo(atr)),
-        () => editarAtributo(atr));
+      tocavel(h, () => rolarExpr(`Teste de ${NOME_ATRIBUTO[atr]}`, '1d20' + comSinal(modDe(p, atr)), editarAtributos),
+        editarAtributos);
       cartao.append(h);
       for (const s of PERICIAS.filter(x => x.atr === atr)) {
         const nivel = p.pericias[s.id] || 0;
         const valor = pericia(p, s.id);
         cartao.append(botao('pericia' + (nivel === 1 ? ' prof' : nivel === 2 ? ' espec' : ''),
-          [el('span', '', s.nome), el('span', '', comSinal(valor))],
+          [el('span', '', s.nome), el('span', '', semMais(valor))],
           () => rolarExpr(s.nome, '1d20' + comSinal(pericia(p, s.id)), () => editarPericia(s.id)),
           () => editarPericia(s.id)));
       }
@@ -480,13 +574,16 @@ function desenharAtaques() {
   pg.replaceChildren();
   const caixas = el('div', 'caixas-amarelas');
   const dest = p.atributoDestaque;
-  const atalho = el('span', 'num-grande' + (p.atalho.expr.length > 4 ? ' longo' : ''), p.atalho.expr);
+  const rec = p.recursos[p.recursoDestaque];
+  const textoRec = rec ? textoRecurso(rec) : '+';
+  const caixaRec = botao('caixa-amarela' + (rec && rec.gastavel && !restanteRecurso(rec) ? ' esgotado' : ''),
+    [el('span', 'rot', rec ? rec.texto : 'Recurso'), el('span', 'num-grande' + (textoRec.length > 4 ? ' longo' : ''), textoRec)],
+    () => (rec ? usarRecurso(p.recursoDestaque) : editarDestaque()), editarDestaque);
   caixas.append(
     caixaNumero('caixa-amarela', 'Proficiência', comSinal(profDe(p)), folhaProficiencia, folhaProficiencia),
     caixaNumero('caixa-amarela', NOME_ATRIBUTO[dest], comSinal(modDe(p, dest)),
       () => rolarExpr(`Teste de ${NOME_ATRIBUTO[dest]}`, '1d20' + comSinal(modDe(p, dest)), editarDestaque), editarDestaque),
-    botao('caixa-amarela', [el('span', 'rot', p.atalho.nome), atalho],
-      () => rolarExpr(p.atalho.nome, p.atalho.expr, editarAtalho), editarAtalho),
+    caixaRec,
   );
   pg.append(caixas);
 
@@ -506,6 +603,21 @@ function desenharAtaques() {
     pg.append(linha);
   });
   pg.append(botao('botao-novo', ['Nova'], escolherArma));
+}
+
+// Tocar no recurso: gasta um (e rola o dado dele, se tiver); fixo só rola.
+function usarRecurso(i) {
+  const r = p.recursos[i];
+  if (!r.gastavel) { if (r.dado) rolarExpr(r.nome, `${r.max}d${r.dado}`, editarDestaque); return; }
+  if (!restanteRecurso(r)) { avisar(`${r.nome}: nenhum uso restante. ${r.reset === 'nunca' ? '' : 'O descanso ' + (r.reset === 'curto' ? 'curto' : 'longo') + ' devolve.'}`); return; }
+  const antes = structuredClone(p);
+  r.usados += 1;
+  salvar();
+  desenhar();
+  if (r.dado) rolarExpr(`${r.nome} (restam ${restanteRecurso(r)})`, `1d${r.dado}`, editarDestaque);
+  avisar(`${r.nome}: restam ${restanteRecurso(r)} de ${r.max}`, 'Desfazer', () => {
+    const k = personagens.indexOf(p); personagens[k] = antes; p = antes; salvar(); desenhar(true);
+  });
 }
 
 function rolarAtaque(i) {
@@ -638,31 +750,6 @@ function editarNome() {
 function rolarIniciativa() {
   rolarExpr('Iniciativa', '1d20' + comSinal(iniciativa(p)), editarIniciativa);
 }
-function editarIniciativa() {
-  const bonus = entrada(p.iniciativaBonus, 'number', { foco: true });
-  formSimples('Iniciativa', [campo('Bônus extra', bonus),
-    dica(`Iniciativa = Destreza (${comSinal(modDe(p, 'des'))}) + bônus extra (talentos, itens...).`)], () => {
-    p.iniciativaBonus = Math.max(-20, Math.min(30, numeroDe(bonus)));
-  }, [botaoFolha('Rolar', '', rolarIniciativa)]);
-}
-
-function editarDeslocamento() {
-  const d = entrada(p.deslocamento, 'text', { foco: true, maxLength: 20 });
-  formSimples('Deslocamento', [campo('Deslocamento (ex.: 9 m ou 30 pés)', d)], () => {
-    if (!d.value.trim()) return 'Escreva o deslocamento.';
-    p.deslocamento = d.value.trim();
-  });
-}
-
-function editarCA() {
-  const ca = entrada(p.ca, 'number', { foco: true, min: 0, max: 50, inputMode: 'numeric' });
-  formSimples('Classe de Armadura', [campo('CA', ca)], () => {
-    const n = numeroDe(ca, -1);
-    if (n < 0 || n > 50) return 'A CA vai de 0 a 50.';
-    p.ca = n;
-  });
-}
-
 function folhaPV() {
   abrirFolha('Pontos de Vida', (corpo) => {
     const visor = el('div', 'pv-visor');
@@ -708,67 +795,6 @@ function folhaProficiencia() {
   });
 }
 
-function editarAtributo(id) {
-  const nome = NOME_ATRIBUTO[id];
-  const valor = entrada(p.atributos[id], 'number', { foco: true, min: 1, max: 30, inputMode: 'numeric' });
-  const prof = marcar('Proficiente na salvaguarda', p.salvaguardas[id]);
-  const conferir = () => {
-    const n = numeroDe(valor, 0);
-    if (n < 1 || n > 30) return 'O valor vai de 1 a 30.';
-    p.atributos[id] = n;
-    if (prof.caixa.checked) p.salvaguardas[id] = true; else delete p.salvaguardas[id];
-    return '';
-  };
-  const rolarDepois = (salv) => () => {
-    if (conferir()) return;
-    salvar();
-    desenhar();
-    const v = salv ? salvaguarda(p, id) : modDe(p, id);
-    rolarExpr(`${salv ? 'Salvaguarda' : 'Teste'} de ${nome}`, '1d20' + comSinal(v), () => editarAtributo(id));
-  };
-  formSimples(nome, [campo('Valor do atributo', valor), prof], conferir,
-    [botaoFolha('Teste', '', rolarDepois(false)), botaoFolha('Salvaguarda', '', rolarDepois(true))]);
-}
-
-function editarPericia(id) {
-  const s = PERICIAS.find(x => x.id === id);
-  abrirFolha(s.nome, (corpo) => {
-    const texto = el('p', 'dica');
-    const mostrar = () => { texto.textContent = `${s.nome} (${NOME_ATRIBUTO[s.atr]}): ${comSinal(pericia(p, id))}`; };
-    mostrar();
-    const nivel = escolha(NIVEIS_PERICIA.map((n, i) => [i, n]), p.pericias[id] || 0, (v) => {
-      if (v) p.pericias[id] = v; else delete p.pericias[id];
-      salvar(); desenhar(); mostrar();
-    });
-    corpo.append(texto, nivel,
-      dica('Proficiente soma o bônus de proficiência; Especialista soma o dobro.'),
-      linhaBotoes(botaoFolha('Rolar', 'principal', () => rolarExpr(s.nome, '1d20' + comSinal(pericia(p, id)), () => editarPericia(id)))));
-  });
-}
-
-function editarDestaque() {
-  abrirFolha('Atributo em destaque', (corpo) => {
-    corpo.append(dica('O atributo que aparece no meio, no alto da página de ataques (toque nele para rolar um teste).'));
-    const grade = el('div', 'botoes');
-    for (const a of ATRIBUTOS) {
-      grade.append(botaoFolha(`${a.nome} ${comSinal(modDe(p, a.id))}`, a.id === p.atributoDestaque ? 'principal' : '', () => {
-        p.atributoDestaque = a.id; salvar(); fecharFolha(() => desenhar());
-      }));
-    }
-    corpo.append(grade);
-  });
-}
-
-function editarAtalho() {
-  const nome = entrada(p.atalho.nome, 'text', { foco: true, maxLength: 20 });
-  const expr = entrada(p.atalho.expr, 'text', { maxLength: 80, autocapitalize: 'off', spellcheck: false });
-  formSimples('Rolagem rápida', [campo('Nome', nome), campo('Expressão (ex.: 2d20, 1d20+3, 8d6)', expr)], () => {
-    const erro = erroDaExpr(expr.value);
-    if (erro) return erro;
-    p.atalho = { nome: nome.value.trim() || 'Rolagem', expr: expr.value.trim() };
-  });
-}
-
 function editarArma(i, modelo = null) {
   const a = i === null ? limparAtaque(modelo || { nome: '', atributo: 'for', dano: '1d8' }) : structuredClone(p.ataques[i]);
   const nome = entrada(i === null && !modelo ? '' : a.nome, 'text', { foco: true, maxLength: 60, placeholder: 'Ex.: Espada Longa' });
@@ -804,25 +830,6 @@ function editarArma(i, modelo = null) {
   $('folha-corpo').addEventListener('input', atualizar);
   $('folha-corpo').addEventListener('change', atualizar);
   atualizar();
-}
-
-function editarConjuracao() {
-  abrirFolha('Conjuração', (corpo) => {
-    const atr = escolha([['int', 'INT'], ['sab', 'SAB'], ['car', 'CAR']], p.conjuracao.atributo);
-    const nivel = entrada(p.conjuracao.nivel, 'number', { min: 0, max: 20, inputMode: 'numeric' });
-    const erro = el('p', 'erro');
-    corpo.append(campo('Atributo de conjuração', atr), campo('Nível de conjurador', nivel),
-      dica('Ataque Mágico = proficiência + atributo. CD = 8 + proficiência + atributo.'), erro,
-      linhaBotoes(
-        botaoFolha('Rolar ataque', '', () => rolarExpr('Ataque Mágico', '1d20' + comSinal(ataqueMagia(p)), editarConjuracao)),
-        botaoFolha('Salvar', 'principal', () => {
-          const n = numeroDe(nivel, -1);
-          if (n < 0 || n > 20) { erro.textContent = 'O nível vai de 0 a 20.'; return; }
-          p.conjuracao = { atributo: atr.valor, nivel: n };
-          salvar();
-          fecharFolha(() => desenhar());
-        })));
-  });
 }
 
 function editarNivelMagia(n) {
@@ -919,45 +926,20 @@ function trocarPara(x) {
   desenhar(true);
 }
 
-function folhaPersonagens() {
-  abrirFolha('Personagens', (corpo) => {
-    for (const x of personagens) {
-      const b = el('button', 'item-lista' + (x === p ? ' atual' : ''));
-      const t = el('span');
-      t.append(el('b', '', x.nome), el('small', '', classeENivelDe(x)));
-      b.append(t);
-      b.addEventListener('click', () => fecharFolha(() => trocarPara(x)));
-      corpo.append(b);
-    }
-    corpo.append(linhaBotoes(
-      botaoFolha('Duplicar', '', () => {
-        const copia = limparPersonagem({ ...structuredClone(p), id: '', nome: p.nome + ' (cópia)' });
-        personagens.push(copia);
-        fecharFolha(() => trocarPara(copia));
-      }),
-      botaoFolha('Novo personagem', 'principal', () => {
-        const novo = novoPersonagem();
-        personagens.push(novo);
-        fecharFolha(() => { trocarPara(novo); editarNome(); });
-      })));
-  });
+// Manda um personagem para a lixeira (dá para restaurar em ⋮ → Restaurar personagem).
+function mandarParaLixeira(x) {
+  personagens.splice(personagens.indexOf(x), 1);
+  lixeira.unshift(x);
+  lixeira = lixeira.slice(0, 10);
+  if (!personagens.length) personagens.push(novoPersonagem());
+  if (x === p) trocarPara(personagens[0]); else { salvar(); desenhar(); }
+  avisar(`${x.nome} foi para a lixeira`, 'Desfazer', restaurar(0));
 }
-
-function apagarPersonagem() {
-  abrirFolha('Apagar personagem', (corpo) => {
-    corpo.append(dica(`Mandar ${p.nome} para a lixeira? Dá para trazer de volta em ⋮ → Restaurar personagem.`),
-      linhaBotoes(botaoFolha('Cancelar', '', () => fecharFolha()), botaoFolha('Mandar para a lixeira', 'ruim', () => {
-        const nome = p.nome;
-        personagens.splice(personagens.indexOf(p), 1);
-        lixeira.unshift(p);
-        lixeira = lixeira.slice(0, 10);
-        if (!personagens.length) personagens.push(novoPersonagem());
-        fecharFolha(() => {
-          trocarPara(personagens[0]);
-          avisar(`${nome} foi para a lixeira`, 'Desfazer', restaurar(0));
-        });
-      })));
-  });
+async function apagarPersonagem() {
+  const ok = await dialogo(`Apagar ${p.nome}?`, (corpo) => {
+    corpo.append(el('p', 'dialogo-dica', 'Vai para a lixeira: dá para trazer de volta em ⋮ → Restaurar personagem.'));
+  }, [{ texto: 'Cancelar', valor: false }, { texto: 'Apagar', valor: true }]);
+  if (ok) mandarParaLixeira(p);
 }
 const restaurar = (i) => () => {
   const x = lixeira.splice(i, 1)[0];
@@ -984,9 +966,12 @@ function folhaRestaurar() {
 function folhaDescanso() {
   abrirFolha('Descanso', (corpo) => {
     corpo.append(
-      dica('Curto (1 hora): gaste Dados de Vida para curar. Longo (8 horas): PV cheios, PV temporários acabam, espaços de magia e Dados de Vida voltam.'),
+      dica('Curto (1 hora): recursos de descanso curto voltam e você pode gastar Dados de Vida para curar. Longo (8 horas): PV cheios, PV temporários acabam, espaços de magia, recursos e Dados de Vida voltam.'),
       linhaBotoes(
-        botaoFolha('Descanso curto', '', () => fecharFolha(folhaDadosVida)),
+        botaoFolha('Descanso curto', '', () => fecharFolha(() => {
+          if (p.recursos.some(r => r.gastavel && r.usados)) comDesfazer('Descanso curto: recursos recuperados', () => { p.recursos = descansarRecursos(p.recursos, false); });
+          dialogoDadosVida();
+        })),
         botaoFolha('Descanso longo', 'principal', () => fecharFolha(() => {
           comDesfazer('Descanso longo: tudo recuperado', () => { Object.assign(p, descansoLongo(p)); });
         }))));
@@ -1040,11 +1025,14 @@ function folhaAjuda() {
     const ajuda = el('div', 'ajuda');
     const secao = (t, ...ps) => { ajuda.append(el('h3', '', t)); for (const x of ps) ajuda.append(el('p', '', x)); };
     secao('Tocar e segurar', 'Tocar rola os dados (atributos, salvaguardas, perícias, iniciativa, armas). Segurar meio segundo abre a edição. O lápis no resultado também abre a edição do que foi rolado.');
-    secao('Páginas', 'Arraste para o lado: Principal, Perícias, Ataques, Magias, Detalhes e Galeria. As bolinhas embaixo mostram onde você está.');
+    secao('Páginas', 'Arraste para o lado: Principal, Perícias, Ataques, Magias, Detalhes e Galeria. Não tem fim: depois da Galeria vem a Principal de novo (e ao contrário). As bolinhas embaixo mostram onde você está.');
     secao('Principal', 'Toque nos PV para Dano, Cura e PV temporários. Dados de Vida: gaste no descanso curto. Na caixa do atributo, a coluna Salv. rola a salvaguarda; o resto rola o teste.');
     secao('Perícias', 'Verde = proficiente; verde mais forte com ★ = especialista (dobro da proficiência). Segure para mudar.');
     secao('Ataques', 'Tocar na arma rola o ataque e o dano juntos; com 20 natural o dano rola o dobro de dados (regra 2024). O ✕ tira a arma (dá para desfazer). A caixa da direita é uma rolagem rápida que você escolhe (ex.: Sorte 2d20).');
     secao('Magias', 'Toque no número de espaços para gastar um. Toque na magia para ver, rolar ou lançar; o + cria uma nova. Magias cinza não estão preparadas.');
+    secao('Personagem novo', 'Na pasta → Novo Personagem → Usar o Criador de Personagem: nome, espécie (e linhagem), classe e antecedente; valores de atributo (Personalizado, Padrão 15/14/13/12/10/8, Compra de Pontos 27 ou Rolar 4d6); bônus do antecedente; perícias da classe; PV do primeiro nível.');
+    secao('Editar segurando', 'Segure Iniciativa (proficiência, metade, atributo extra), Deslocamento (andar, voo, natação, escavação, escalada), CA (armadura, escudo, tipo, atributo adicional, Selecionar Armadura), um atributo (todos os valores, proficiências e bônus de salvaguarda), uma perícia (proficiência, dobrada, bônus), Dados de Vida e o Ataque Mágico/CD (bônus extras, tipo de espaços).');
+    secao('Recursos de classe', 'Na página de ataques, a caixa da direita mostra um recurso (Fúria, Inspiração de Bardo, Sorte 2d20...). Tocar gasta um e rola o dado dele; segurar abre a lista de recursos (+ cria, ✕ apaga), com máximo, dado, gastável ou fixo e quando volta (descanso curto, longo ou nunca).');
     secao('Subir de nível', '⋮ → Subir de nível: escolha a classe (ou Multiclasse), os PV (Máx., Média ou Rolar), o aumento de atributos ou um talento nos níveis 4, 8, 12, 16 e 19, a subclasse no nível 3. As características novas, os espaços de magia e a proficiência entram sozinhos (dá para desfazer).');
     secao('Listas do D&D 2024', 'Ao criar arma (Nova) ou magia (+), escolha da lista em português (SRD 5.2.1) ou crie uma personalizada. Em Detalhes, o ▾ de Espécie e Antecedente abre a lista; as características aparecem no cartão Características e Talentos (toque para ler).');
     secao('Galeria', 'A última página guarda fotos e desenhos do personagem (ficam só neste aparelho e não vão no arquivo exportado). Toque numa foto para ver em tela cheia e passar para o lado.');
@@ -1076,5 +1064,5 @@ $('menu').addEventListener('click', (ev) => {
   depoisDeVoltar = b ? acoes[b.dataset.menu] : null;
   voltar();
 });
-$('abrir-personagens').addEventListener('click', folhaPersonagens);
+$('abrir-personagens').addEventListener('click', () => dialogoPersonagens());   // fica em dialogos.js
 $('apagar-personagem').addEventListener('click', apagarPersonagem);

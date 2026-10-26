@@ -67,12 +67,59 @@ const comSinal = (n) => (n < 0 ? '-' : '+') + Math.abs(n);
 
 const modDe = (p, atr) => modificador(p.atributos[atr]);
 const profDe = (p) => proficiencia(p.nivel);
-const salvaguarda = (p, atr) => modDe(p, atr) + (p.salvaguardas[atr] ? profDe(p) : 0);
+// Salvaguarda: modificador + proficiência (se tiver) + bônus extra do atributo + um atributo
+// somado em todas (ex.: Aura de Proteção do Paladino soma Carisma).
+const salvaguarda = (p, atr) => modDe(p, atr) + (p.salvaguardas[atr] ? profDe(p) : 0) +
+  (p.salvaguardasBonus[atr] || 0) + (p.salvaguardaExtra ? Math.max(1, modDe(p, p.salvaguardaExtra)) : 0);
 const pericia = (p, id) => {
   const def = PERICIAS.find(x => x.id === id);
-  return modDe(p, def.atr) + profDe(p) * (p.pericias[id] || 0);
+  return modDe(p, def.atr) + profDe(p) * (p.pericias[id] || 0) + (p.periciasBonus[id] || 0);
 };
-const iniciativa = (p) => modDe(p, 'des') + p.iniciativaBonus;
+// Iniciativa: Destreza + bônus extra + proficiência (inteira ou metade, arredondada para baixo)
+// + outro atributo (algumas características somam um segundo modificador).
+const iniciativa = (p) => modDe(p, 'des') + p.iniciativaBonus + Math.floor(profDe(p) * p.iniciativaProf) +
+  (p.iniciativaAtributo ? modDe(p, p.iniciativaAtributo) : 0);
+
+// ---------- Classe de Armadura ----------
+// Tipo de armadura: até quanto da Destreza conta (leve: tudo; média: até 2; pesada: nada).
+const TIPOS_ARMADURA = [
+  ['nenhuma', 'Nenhuma', 10], ['leve', 'Leve', 10], ['media', 'Média', 2], ['pesada', 'Pesada', 0],
+];
+const maxDestreza = (tipo) => (TIPOS_ARMADURA.find(t => t[0] === tipo) || TIPOS_ARMADURA[0])[2];
+function classeArmaduraDe(p) {
+  const a = p.armadura;
+  return a.base + a.escudo + Math.min(modDe(p, 'des'), maxDestreza(a.tipo)) +
+    (a.extra ? modDe(p, a.extra) : 0) + a.mod;
+}
+// Deslocamento: andar, voo, natação, escalada e escavação (base + modificador, em metros).
+const TIPOS_DESLOCAMENTO = [['andar', 'Andar'], ['voo', 'Voo'], ['natacao', 'Natação'], ['escavacao', 'Escavação'], ['escalada', 'Escalada']];
+const deslocamentoDe = (p, tipo = 'andar') => Math.max(0, p.deslocamentos[tipo].base + p.deslocamentos[tipo].mod);
+// "9" ou "4,5": metros com vírgula.
+const metros = (n) => String(Math.round(n * 10) / 10).replace('.', ',');
+// Lê "9 m", "30 pés", "4,5" → metros. Só número grande (20+) sem "m" é tratado como pés.
+function lerMetros(t) {
+  const s = String(t ?? '').toLowerCase();
+  const n = parseFloat(s.replace(',', '.'));
+  if (!Number.isFinite(n)) return null;
+  if (/p[eé]s|ft|feet/.test(s) || (n >= 20 && !/\bm\b|metro/.test(s))) return Math.round(n * 0.3 * 10) / 10;
+  return n;
+}
+
+// ---------- Recursos de classe (Fúria, Inspiração de Bardo, Sorte...) ----------
+const restanteRecurso = (r) => Math.max(0, r.max - r.usados);
+// O que aparece na caixa: "2d20" (2 restantes de d20), "3" ou o máximo se for fixo.
+const textoRecurso = (r) => {
+  const n = r.gastavel ? restanteRecurso(r) : r.max;
+  return r.dado ? `${n}d${r.dado}` : String(n);
+};
+function descansarRecursos(recursos, longo) {
+  return recursos.map(r => {
+    if (!r.gastavel) return r;
+    if (r.reset === 'curto' || (longo && r.reset === 'longo')) return { ...r, usados: 0 };
+    const volta = longo ? r.recLongo : r.recCurto;
+    return { ...r, usados: Math.max(0, r.usados - volta) };
+  });
+}
 // Percepção passiva: 10 + Percepção (aparece na ajuda da perícia).
 const percepcaoPassiva = (p) => 10 + pericia(p, 'percepcao');
 
@@ -89,8 +136,28 @@ function exprDano(p, a) {
   return extra ? dados + comSinal(extra) : dados;
 }
 
-const ataqueMagia = (p) => profDe(p) + modDe(p, p.conjuracao.atributo);
-const cdMagia = (p) => 8 + ataqueMagia(p);
+const ataqueMagia = (p) => profDe(p) + modDe(p, p.conjuracao.atributo) + p.conjuracao.bonusAtaque;
+const cdMagia = (p) => 8 + profDe(p) + modDe(p, p.conjuracao.atributo) + p.conjuracao.bonusCD;
+// Tipos de espaços de magia (a caixa "Espaços" do diálogo de conjuração).
+const TIPOS_ESPACOS = [
+  ['auto', 'Pelas classes'], ['completo', 'Conjurador completo'], ['meio', 'Meio conjurador'],
+  ['terco', 'Um terço'], ['pacto', 'Magia de Pacto'], ['manual', 'Manual'],
+];
+// Espaços pelo tipo e pelo nível de conjurador ("auto" usa as classes; "manual" não mexe).
+function espacosPorTipo(p, dados) {
+  const t = p.conjuracao.espacosTipo, n = p.conjuracao.nivel;
+  if (t === 'manual') return null;
+  if (t === 'auto') return espacosDasClasses(p.classes, dados);
+  if (t === 'pacto') {
+    const bruxo = dados && dados.classes.find(c => c.conjuracao && c.conjuracao.tipo === 'pacto');
+    if (!bruxo || !n) return {};
+    return { [bruxo.conjuracao.nivelPacto[n - 1]]: bruxo.conjuracao.espacosPacto[n - 1] };
+  }
+  const nivelConj = t === 'completo' ? n : t === 'meio' ? Math.ceil(n / 2) : Math.ceil(n / 3);
+  const r = {};
+  (ESPACOS_COMPLETO[Math.min(20, nivelConj)] || []).forEach((q, i) => { r[i + 1] = q; });
+  return r;
+}
 // O que rolar ao tocar em "Rolar" numa magia (vazio = nada para rolar).
 function exprMagia(p, m) {
   let r = m.rolagem.trim();
@@ -197,7 +264,7 @@ function escalarDados(expr, vezes) {
 function descansoLongo(p) {
   const espacos = {};
   for (const [n, e] of Object.entries(p.espacos)) espacos[n] = { ...e, usados: 0 };
-  return { ...p, pv: p.pvMax, pvTemp: 0, classes: p.classes.map(c => ({ ...c, gastos: 0 })), espacos };
+  return { ...p, pv: p.pvMax, pvTemp: 0, classes: p.classes.map(c => ({ ...c, gastos: 0 })), espacos, recursos: descansarRecursos(p.recursos, true) };
 }
 // Ganho de PV ao subir de nível: média do dado de vida (arredondada para cima) + CON.
 const mediaDadoVida = (d) => d / 2 + 1;
@@ -232,6 +299,26 @@ function limparAtaque(a) {
     notas: texto(a.notas, 400),         // propriedades e maestria (ex.: Versátil (1d10) · Maestria: Drenar)
   };
 }
+
+function limparRecurso(r) {
+  const max = inteiro(r.max, 1, 0, 99);
+  return {
+    nome: texto(r.nome, 40) || 'Recurso',
+    texto: texto(r.texto, 20) || texto(r.nome, 20) || 'Recurso',
+    max,
+    dado: [0, 2, 3, 4, 6, 8, 10, 12, 20, 100].includes(Number(r.dado)) ? Number(r.dado) : 0,
+    gastavel: r.gastavel !== false,
+    reset: ['curto', 'longo', 'nunca'].includes(r.reset) ? r.reset : 'longo',
+    recCurto: inteiro(r.recCurto, 0, 0, 99),
+    recLongo: inteiro(r.recLongo, 0, 0, 99),
+    usados: inteiro(r.usados, 0, 0, max),
+  };
+}
+const bonusPor = (x, ids) => {
+  const r = {};
+  for (const id of ids) { const n = inteiro(x && x[id], 0, -30, 30); if (n) r[id] = n; }
+  return r;
+};
 
 function limparMagia(m) {
   m = m && typeof m === 'object' ? m : {};
@@ -292,7 +379,34 @@ function limparPersonagem(x) {
   for (const m of MOEDAS) moedas[m.id] = inteiro(x.moedas && x.moedas[m.id], 0, 0, 1e9);
   const textos = {};
   for (const t of [...TEXTOS, ...TEXTOS_FINAIS]) textos[t.id] = texto(x.textos && x.textos[t.id], 20000);
-  const atalho = x.atalho && typeof x.atalho === 'object' ? x.atalho : {};
+  // Classe de Armadura: fichas antigas tinham só o número (vira "Nenhuma" + modificador).
+  const des = modificador(atributos.des);
+  const arm = x.armadura && typeof x.armadura === 'object' ? x.armadura : { mod: inteiro(x.ca, 10, 0, 50) - 10 - des };
+  const armadura = {
+    base: inteiro(arm.base, 10, 0, 30),
+    escudo: inteiro(arm.escudo, 0, 0, 10),
+    tipo: TIPOS_ARMADURA.some(t => t[0] === arm.tipo) ? arm.tipo : 'nenhuma',
+    extra: NOME_ATRIBUTO[arm.extra] ? arm.extra : '',
+    mod: inteiro(arm.mod, 0, -30, 30),
+    nome: texto(arm.nome, 60),
+  };
+  // Deslocamentos: fichas antigas tinham um texto ("9 m").
+  const desl = x.deslocamentos && typeof x.deslocamentos === 'object' ? x.deslocamentos : { andar: { base: lerMetros(x.deslocamento) ?? 9 } };
+  const deslocamentos = {};
+  for (const [t] of TIPOS_DESLOCAMENTO) {
+    const d = desl[t] && typeof desl[t] === 'object' ? desl[t] : {};
+    const base = Number(d.base), mod = Number(d.mod);
+    deslocamentos[t] = { base: Number.isFinite(base) ? Math.min(300, Math.max(0, base)) : 0, mod: Number.isFinite(mod) ? Math.min(300, Math.max(-300, mod)) : 0 };
+  }
+  // Recursos de classe: fichas antigas tinham uma "rolagem rápida" (ex.: Sorte 2d20).
+  let recursos = Array.isArray(x.recursos) ? x.recursos : null;
+  if (!recursos) {
+    const at = x.atalho && typeof x.atalho === 'object' ? x.atalho : { nome: 'Sorte', expr: '2d20' };
+    const m = String(at.expr || '').match(/^\s*(\d+)d(\d+)\s*$/);
+    recursos = [m ? { nome: at.nome, texto: at.nome, max: Number(m[1]), dado: Number(m[2]), gastavel: true, reset: 'longo' }
+      : { nome: at.nome || 'Recurso', texto: at.nome || 'Recurso', max: 1, dado: 0, gastavel: true, reset: 'longo' }];
+  }
+  recursos = recursos.filter(r => r && typeof r === 'object').slice(0, 20).map(limparRecurso);
   const conj = x.conjuracao && typeof x.conjuracao === 'object' ? x.conjuracao : {};
   return {
     id: typeof x.id === 'string' && x.id ? x.id.slice(0, 40) : novoId(),
@@ -306,16 +420,25 @@ function limparPersonagem(x) {
     pvMax,
     pv: inteiro(x.pv, pvMax, 0, pvMax),
     pvTemp: inteiro(x.pvTemp, 0, 0, 9999),
-    ca: inteiro(x.ca, 10, 0, 50),
-    deslocamento: texto(x.deslocamento, 20) || '9 m',
+    armadura,
+    deslocamentos,
     iniciativaBonus: inteiro(x.iniciativaBonus, 0, -20, 30),
+    iniciativaProf: [0, 0.5, 1].includes(Number(x.iniciativaProf)) ? Number(x.iniciativaProf) : 0,
+    iniciativaAtributo: NOME_ATRIBUTO[x.iniciativaAtributo] ? x.iniciativaAtributo : '',
     atributos, salvaguardas, pericias,
+    salvaguardasBonus: bonusPor(x.salvaguardasBonus, ATRIBUTOS.map(a => a.id)),
+    salvaguardaExtra: NOME_ATRIBUTO[x.salvaguardaExtra] ? x.salvaguardaExtra : '',
+    periciasBonus: bonusPor(x.periciasBonus, PERICIAS.map(s => s.id)),
+    recursos,
+    recursoDestaque: inteiro(x.recursoDestaque, 0, 0, Math.max(0, recursos.length - 1)),
     atributoDestaque: NOME_ATRIBUTO[x.atributoDestaque] ? x.atributoDestaque : 'des',
-    atalho: { nome: texto(atalho.nome, 20) || 'Sorte', expr: texto(atalho.expr, 80) || '2d20' },
     ataques: Array.isArray(x.ataques) ? x.ataques.slice(0, 40).map(limparAtaque) : [],
     conjuracao: {
       atributo: NOME_ATRIBUTO[conj.atributo] ? conj.atributo : 'int',
       nivel: inteiro(conj.nivel, nivel, 0, 20),
+      bonusAtaque: inteiro(conj.bonusAtaque, 0, -20, 30),
+      bonusCD: inteiro(conj.bonusCD, 0, -20, 30),
+      espacosTipo: TIPOS_ESPACOS.some(t => t[0] === conj.espacosTipo) ? conj.espacosTipo : 'auto',
     },
     espacos,
     magias: Array.isArray(x.magias) ? x.magias.slice(0, 300).map(limparMagia) : [],
@@ -387,7 +510,9 @@ if (typeof module !== 'undefined') {
   module.exports = {
     ATRIBUTOS, NOME_ATRIBUTO, PERICIAS, COLUNAS_PERICIAS, NIVEIS_PERICIA, DADOS_DE_VIDA, MOEDAS, TEXTOS, TEXTOS_FINAIS, ORDINAIS,
     modificador, proficiencia, comSinal, modDe, profDe, salvaguarda, pericia, iniciativa, percepcaoPassiva,
-    bonusAtaque, exprDano, ataqueMagia, cdMagia, exprMagia,
+    bonusAtaque, exprDano, ataqueMagia, cdMagia, exprMagia, TIPOS_ESPACOS, espacosPorTipo,
+    TIPOS_ARMADURA, maxDestreza, classeArmaduraDe, TIPOS_DESLOCAMENTO, deslocamentoDe, metros, lerMetros,
+    restanteRecurso, textoRecurso, descansarRecursos, limparRecurso,
     nivelTotal, textoDadosDeVida, classeENivelDe, acharClasse, ESPACOS_COMPLETO, espacosDasClasses, aplicarEspacos,
     ganhaAumento, aplicarAumento, escalaTruque, escalarDados, sofrerDano, curar, dadosDeVidaRestantes, descansoLongo,
     mediaDadoVida, ganhoDeNivel, novoPersonagem, limparPersonagem, limparAtaque, limparMagia, exemploPandora, lerImportacao,

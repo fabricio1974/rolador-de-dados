@@ -2,8 +2,5 @@
 'use strict';
 
 desenhar(true);
-const paginaSalva = Math.min(PAGINAS.length - 1, Math.max(0, Number(ler(CHAVE_PAGINA, 0)) || 0));
-paginas.scrollLeft = paginaSalva * paginas.clientWidth;
-paginaAntes = paginaSalva;
-marcarPonto();
+irParaPagina(Math.min(N_PAGINAS - 1, Math.max(0, Number(ler(CHAVE_PAGINA, 0)) || 0)), false);
 limparFotosSoltas();

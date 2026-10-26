@@ -134,6 +134,17 @@ CC-BY-4.0): as 12 classes com os 20 níveis e a subclasse do SRD, 339 magias, 9 
 - **Classes**: tocar na classe edita as classes (multiclasse); num personagem novo, "Aplicar o nível 1"
   preenche salvaguardas, PV, características, proficiências e espaços.
 
+- **Páginas sem fim**: depois da última página vem a primeira (e ao contrário); arrastar é feito
+  pelo próprio app (as páginas giram numa roda), a rolagem vertical continua a do navegador.
+- **Criador de Personagem** (pasta → Novo Personagem): espécie e linhagem, classe e antecedente →
+  atributos (Personalizado, Padrão, Compra de Pontos 27 ou Rolar 4d6) → bônus do antecedente →
+  perícias → PV do primeiro nível, com Voltar/Próximo.
+- **Diálogos de edição** como os do app de referência: Iniciativa, Deslocamento (5 tipos), Classe de
+  Armadura (armadura, escudo, tipo, atributo adicional, lista de armaduras), atributos e salvaguardas,
+  perícia, Dados de Vida, Ataque Mágico/CD e **recursos de classe** (caixa da direita em Ataques).
+- **Fonte Roboto** junto com o app (`ficha/fontes/`, licença Apache 2.0): fica igual em qualquer
+  aparelho, mesmo sem internet.
+
 Os JSON traduzidos ficam em `ficha/dados/`; depois de mudar algum, rode
 `node scripts/montar-dados5e.js` para gerar o `ficha/dados5e.js`.
 

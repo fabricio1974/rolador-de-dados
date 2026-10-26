@@ -296,15 +296,16 @@ function contagemMagias() {
   return { truques, preparadas };
 }
 
-// Espaços de magia, atributo e nível de conjurador seguem as classes do SRD.
+// Espaços de magia, atributo e nível de conjurador seguem as classes do SRD (ou o tipo
+// escolhido no diálogo de conjuração; "Manual" não mexe nos espaços).
 function atualizarConjuracao() {
-  const novos = espacosDasClasses(p.classes, D5);
-  if (novos) p.espacos = aplicarEspacos(p.espacos, novos);
   const conjuradoras = p.classes.filter(c => { const d = classeDoSRD(c.id); return d && d.conjuracao; });
   if (conjuradoras.length) {
     p.conjuracao.nivel = conjuradoras.reduce((s, c) => s + c.nivel, 0);
     if (!p.magias.length) p.conjuracao.atributo = classeDoSRD(conjuradoras[0].id).conjuracao.atributo;
   }
+  const novos = espacosPorTipo(p, D5);
+  if (novos) p.espacos = aplicarEspacos(p.espacos, novos);
 }
 
 // ---------- Classes (editar à mão) ----------
@@ -380,33 +381,4 @@ function aplicarNivel1() {
   if (d.armas) p.textos.profArmas = [p.textos.profArmas, d.armas].filter(Boolean).join('\n');
   if (d.armaduras) p.textos.profArmaduras = [p.textos.profArmaduras, d.armaduras].filter(Boolean).join('\n');
   if (d.ferramentas) p.textos.profFerramentas = [p.textos.profFerramentas, d.ferramentas].filter(Boolean).join('\n');
-}
-
-// ---------- Dados de Vida (um botão por classe) ----------
-function folhaDadosVida() {
-  abrirFolha('Dados de Vida', (corpo) => {
-    const con = modDe(p, 'con');
-    corpo.append(dica(`No descanso curto, cada dado gasto cura o valor rolado ${comSinal(con)} (Constituição). O descanso longo devolve todos.`));
-    p.classes.forEach((c, i) => {
-      const resta = c.nivel - c.gastos;
-      const linha = el('div', 'linha-dv');
-      linha.append(el('span', '', `${c.nome || 'Classe'}: ${resta} de ${c.nivel} (d${c.dadoVida})`));
-      const gastar = botaoFolha(`Gastar 1d${c.dadoVida}${comSinal(con)}`, 'principal', () => {
-        const antes = structuredClone(p);
-        const rol = rolarExpr('Dado de Vida', `1d${c.dadoVida}${comSinal(con)}`);
-        if (!rol) return;
-        const cura = Math.max(0, rol.partes[0].res.total);
-        p.classes[i].gastos += 1;
-        p.pv = curar(p, cura);
-        salvar();
-        desenhar();
-        avisar(`+${cura} PV (${p.pv}/${p.pvMax})`, 'Desfazer', () => {
-          const k = personagens.indexOf(p); personagens[k] = antes; p = antes; salvar(); desenhar(true);
-        });
-      });
-      gastar.disabled = !resta;
-      const devolver = c.gastos ? botaoFolha('Devolver', '', () => { p.classes[i].gastos -= 1; salvar(); fecharFolha(() => desenhar()); }) : null;
-      corpo.append(linha, linhaBotoes(gastar, devolver));
-    });
-  });
 }

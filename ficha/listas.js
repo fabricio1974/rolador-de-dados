@@ -172,7 +172,7 @@ function escolherEspecie() {
       d.append(botaoFolha(`Escolher ${e.nome}`, 'principal', () => {
         fecharFolha(() => comDesfazer(`Espécie: ${e.nome}`, () => {
           p.raca = e.nome;
-          p.deslocamento = e.deslocamento;
+          p.deslocamentos.andar.base = lerMetros(e.deslocamento) ?? 9;
           p.caracteristicas = p.caracteristicas.filter(c => !c.origem.startsWith('Espécie'));
           for (const t of e.tracos) p.caracteristicas.push({ nome: t.nome, origem: `Espécie: ${e.nome}`, descricao: t.descricao });
           desenharDetalhes();
