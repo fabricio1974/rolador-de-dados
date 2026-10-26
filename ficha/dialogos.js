@@ -200,8 +200,7 @@ async function editarCA() {
       }
       calcular();
     });
-    corpo.append(azul, linhaCampos(base, escudo, des, maxDes, mod), tipo, extra, nome, escolher,
-      el('p', 'dialogo-dica', 'Sem armadura: deixe Nenhuma e 10. Defesa sem Armadura: escolha Constituição ou Sabedoria em Atributo Adicional.'));
+    corpo.append(azul, linhaCampos(base, escudo, des, maxDes, mod), tipo, extra, nome, escolher);
     calcular();
     ctx.ler = () => { ler(); p.armadura = limparPersonagem({ ...p, armadura: a }).armadura; return true; };
   }, [{ texto: 'Concluído', valor: (ctx) => ctx.ler() }]);
@@ -248,8 +247,8 @@ async function editarConjuracao() {
     };
     corpo.addEventListener('input', calcular);
     corpo.addEventListener('change', calcular);
-    corpo.append(topo, linhaCampos(prof, mod, bAtq, bCD, nivel), atr, tipo,
-      el('p', 'dialogo-dica', '"Pelas classes" calcula os espaços pelas classes do SRD (multiclasse também). "Manual" deixa você mudar à mão.'));
+    topo.classList.add('titulos');
+    corpo.append(topo, linhaCampos(prof, mod, bAtq, bCD, nivel), atr, tipo);
     calcular();
     ctx.ler = () => {
       const n = numeroDe(nivel.input, -1);
@@ -279,11 +278,12 @@ async function dialogoDadosVida() {
       const gastar = el('button', 'botao-texto-android', `Gastar 1 dado (1d${c.dadoVida}${comSinal(con)})`);
       gastar.type = 'button';
       gastar.disabled = c.nivel - c.gastos <= 0;
+      dado.addEventListener('change', () => { gastar.textContent = `Gastar 1 dado (1d${dado.value}${comSinal(con)})`; });
       gastar.addEventListener('click', () => { ctx.ler(); ctx.fechar({ gastar: i }); });
       corpo.append(linha, gastar);
       linhas.push({ qtd, dado });
     });
-    corpo.append(el('p', 'dialogo-dica', `O número é quantos restam (de ${p.nivel}). No descanso curto, cada dado gasto cura o valor rolado ${comSinal(con)}; o descanso longo devolve todos.`));
+
     ctx.ler = () => {
       linhas.forEach(({ qtd, dado }, i) => {
         const c = p.classes[i];
@@ -332,11 +332,15 @@ async function editarDestaque() {
     const tipoR = radios([['g', 'Gastável'], ['f', 'Fixo']], 'g', (v) => { gastavel = v === 'g'; atualizarCinza(); });
     tipoR.classList.add('radios-linha');
     const resetR = radios([['curto', 'Curto'], ['longo', 'Longo'], ['nunca', 'Nunca']], 'longo', (v) => { reset = v; atualizarCinza(); });
-    resetR.classList.add('radios-linha');
+    resetR.classList.add('radios-linha', 'radios-em-pe');
     const recC = campoSub('Recupera no Curto', 0);
     const recL = campoSub('Recupera no Longo', 0);
     const campos = el('div', 'campos-recurso');
-    campos.append(linhaCampos(nome, textoCx), linhaCampos(max, dado, resta), tipoR, el('h3', 'sub-titulo', 'Volta no descanso:'), resetR, linhaCampos(recC, recL));
+    const linhaReset = el('div', 'linha-reset');
+    const colReset = el('div');
+    colReset.append(el('span', 'rotulo-reset', 'Volta no descanso:'), resetR);
+    linhaReset.append(colReset, recC, recL);
+    campos.append(linhaCampos(nome, textoCx), linhaCampos(max, dado, resta), tipoR, linhaReset);
     function atualizarCinza() {
       const cinza = (c, sim) => { c.input.readOnly = sim; c.input.classList.toggle('apagado', sim); };
       cinza(resta, !gastavel);
@@ -374,8 +378,7 @@ async function editarDestaque() {
       nome.input.focus(); nome.input.select();
     });
     menos.addEventListener('click', () => { recs.splice(atual, 1); atual = Math.max(0, atual - 1); mostrar(); });
-    corpo.append(atr, el('h3', 'sub-titulo', 'Recurso de Classe na Caixa:'), linhaSel, campos,
-      el('p', 'dialogo-dica', 'Ex.: Fúria 3 (gastável, volta no longo), Inspiração de Bardo d6, Sorte 2d20. Tocar na caixa gasta um e rola o dado.'));
+    corpo.append(atr, el('h3', 'sub-titulo', 'Recurso de Classe na Caixa:'), linhaSel, campos);
     mostrar();
     ctx.ler = () => {
       guardar();

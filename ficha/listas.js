@@ -119,7 +119,12 @@ function temProficienciaArma(a) {
   if (!t.trim()) return true;
   if (t.includes(semAcento(a.nome))) return true;
   if (/^simples/i.test(semAcento(a.categoria))) return /simples/.test(t);
-  return /marcia/.test(t);
+  if (!/marcia/.test(t)) return false;
+  // "armas marciais com a propriedade Acuidade ou Leve" (Ladino, Monge): precisa ter uma delas.
+  const m = t.match(/marciais com a propriedade ([a-z ]+?)(?:[.,;\n]|$)/);
+  if (!m) return true;
+  const props = semAcento(a.propriedades || '');
+  return m[1].split(/ ou | e /).some(x => x.trim() && props.includes(x.trim()));
 }
 function escolherArma() {
   abrirFolha('Nova arma', (corpo) => {
@@ -235,8 +240,12 @@ async function aplicarAntecedente(a, completo) {
     p.antecedente = a.nome;
     if (!completo) return;
     desfazerAntecedente();
-    for (const id of a.pericias) p.pericias[id] = Math.max(1, p.pericias[id] || 0);
-    p.antecedenteAplicado = { aumentos: aumentos || {}, pericias: a.pericias.filter(id => !(p.pericias[id] > 1)), ferramenta: a.ferramenta || '' };
+    const novas = a.pericias.filter(id => !p.pericias[id]);          // as que o personagem ainda não tinha
+    for (const id of novas) p.pericias[id] = 1;
+    const deu = {};                                                   // aumento real (o teto de 20 pode cortar)
+    for (const [x, n] of Object.entries(aumentos || {})) { const antes = p.atributos[x]; p.atributos[x] = Math.min(20, antes + n); if (p.atributos[x] > antes) deu[x] = p.atributos[x] - antes; }
+    aumentos = null;
+    p.antecedenteAplicado = { aumentos: deu, pericias: novas, ferramenta: a.ferramenta || '' };
     const t = D5.talentos.find(x => x.id === a.talento);
     p.caracteristicas = p.caracteristicas.filter(c => !c.origem.startsWith('Antecedente'));
     if (t) p.caracteristicas.push({ nome: t.nome, origem: `Antecedente: ${a.nome}`, descricao: t.descricao });

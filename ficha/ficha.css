@@ -615,3 +615,60 @@ input.sublinhado.grande { width: 56px; font-size: 1.4rem; }
 .caixa-pv .temp, .linha-dv { font-weight: 700; }
 .folha header h2, .botao { font-weight: 500; }
 .grupo-azul .rot { white-space: nowrap; font-size: clamp(.8rem, 4.1vw, 1.12rem); }
+
+/* ======================================================================
+   Versão 3c: ajustes da revisão 2
+   ====================================================================== */
+.encaixar { display: block; max-width: 100%; min-width: 0; overflow: hidden; white-space: nowrap; }
+.pericia .encaixar { flex: 1; }
+.magia .encaixar, .nivel-magia .encaixar { display: block; }
+/* Principal: as duas pílulas dividem a linha; HP mais alto, alinhado por baixo */
+.linha .pilula-nome, .pilula-nome.classe, .pilula-nome.classe.longo { flex: 1 1 0; min-width: 30%; font-size: clamp(1.1rem, 5.4vw, 1.4rem); }
+.trio { align-items: end; }
+.caixa-pv { min-height: 22.5vw; justify-content: center; margin-top: 0; }
+.grupo-verde { gap: 4px; padding: 5px; }
+.atributo { padding: 1px 4px 2px; }
+.atributo h3 { line-height: 1.1; }
+.atributo .rot-it { line-height: 1.1; }
+.atributo .valor { line-height: 1.05; }
+/* Perícias: colunas que não passam da tela */
+.colunas { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.coluna, .cartao-pericias, .pericia { min-width: 0; }
+/* Ataques */
+.caixas-amarelas { grid-template-columns: repeat(3, minmax(0, 27vw)); justify-content: center; gap: 2.7vw; padding: 2px 0 4px; }
+.arma-topo { margin-right: 18px; }
+.arma-baixo { display: flex; justify-content: center; width: auto; margin: 0 0 0 30px; }
+.arma-baixo span { flex: none; min-width: 23vw; }
+.arma-baixo span + span { min-width: 35vw; max-width: 62vw; }
+/* Magias */
+.caixas-roxas { grid-template-columns: repeat(3, auto); justify-content: center; padding: 0; gap: 8px; }
+.caixa-roxa { padding: 2px 10px 4px; }
+.nivel-magia { margin: 4px 22px 0; }
+.lista-magias { margin: -5px 48px 0; gap: 4px; }
+.magia { line-height: 1.2; padding: 1px 14px; }
+/* Detalhes */
+#pg-detalhes { padding-left: 16px; padding-right: 16px; }
+.cartao-texto input, .cartao-texto textarea, .cartao-texto .valor-texto { font-size: clamp(.95rem, 4.2vw, 1.1rem); }
+.moedas { gap: 2px; }
+/* Diálogos */
+.campo-sub input.sublinhado { max-width: 46px; }
+.grade-sub { grid-template-columns: repeat(3, 88px); justify-content: center; gap: 10px 4px; }
+.grade-sub .campo-sub { max-width: 88px; }
+.grade-marcar { gap: 4px 16px; }
+.dialogo.edicao h2 { font-size: 1.35rem; }
+.pv-colunas.titulos span { font-size: 1.3rem; font-weight: 700; }
+.linha-selecao.centro b { white-space: nowrap; }
+.botao-icone { width: 34px; height: 32px; font-size: 1.25rem; }
+.linha-reset { display: flex; align-items: flex-end; justify-content: center; gap: 8px; }
+.rotulo-reset { display: block; text-align: center; font-size: .95rem; }
+.radios-em-pe .radio { flex-direction: column; gap: 2px; font-size: .95rem; padding: 2px 4px; }
+.radios-em-pe { gap: 0 6px; }
+/* Criador */
+.linha-aumento.tres { grid-template-columns: 1fr auto 2.5em; }
+.linha-aumento.tres b { text-align: right; }
+.botao-android.pequeno { width: 28px; height: 26px; font-size: 1.1rem; }
+.radios-metodo .radio { font-size: .88rem; }
+.linha-criador { padding: 0; }
+.linha-criador select, .linha-criador input { padding-top: 3px; padding-bottom: 3px; }
+.encaixar.quebrado { white-space: normal; overflow-wrap: anywhere; line-height: 1.1; }
+.grupo-azul .num-grande, .caixa-amarela .num-grande { margin-block: auto; }

@@ -31,7 +31,7 @@ function dialogo(titulo, montar, botoes) {
     fundo.append(caixa);
     document.body.append(fundo);
     if (montar) montar(corpo, ctx);
-    if (corpo.querySelector('.valor-azul, .pv-colunas')) caixa.classList.add('edicao');
+    if (corpo.querySelector('.valor-azul, .pv-colunas, .linha-dados-vida')) caixa.classList.add('edicao');
     fundo.addEventListener('click', (ev) => { if (ev.target === fundo) fechar(null); });
     abrirCamada(() => { fundo.remove(); resolve(resultado); });
   });
@@ -62,10 +62,14 @@ function requisitoMulticlasse(id) {
   const d = classeDoSRD(id);
   return d ? d.atributoPrincipal : [];
 }
+// Multiclasse 2024: Monge, Paladino e Patrulheiro pedem 13 nos DOIS atributos; Guerreiro em um deles.
+const REQUISITO_AMBOS = ['monge', 'paladino', 'patrulheiro'];
 const temRequisito = (id) => {
   const req = requisitoMulticlasse(id);
-  return !req.length || req.some(a => p.atributos[a] >= 13);
+  if (!req.length) return true;
+  return REQUISITO_AMBOS.includes(id) ? req.every(a => p.atributos[a] >= 13) : req.some(a => p.atributos[a] >= 13);
 };
+const textoRequisito = (id) => requisitoMulticlasse(id).map(a => NOME_ATRIBUTO[a]).join(REQUISITO_AMBOS.includes(id) ? ' e ' : ' ou ') + ' 13';
 
 async function subirDeNivel() {
   if (p.nivel >= 20) { avisar('Nível 20 é o máximo.'); return; }
@@ -85,7 +89,7 @@ async function subirDeNivel() {
     const id = await dialogo('Nova classe', (corpo, ctx) => {
       corpo.append(el('p', 'dialogo-dica', 'Multiclasse (regra 2024): pede 13 ou mais no atributo principal da classe nova e das suas classes.'));
       corpo.append(radios(lista.map(c => [c.id, c.nome,
-        `d${c.dadoVida} · ${c.atributoPrincipal.map(a => NOME_ATRIBUTO[a]).join(' ou ')} 13` + (temRequisito(c.id) ? '' : ' ✗')]),
+        `d${c.dadoVida} · ${textoRequisito(c.id)}` + (temRequisito(c.id) ? '' : ' ✗')]),
         null, (v) => { ctx.valor = v; }));
     }, [{ texto: 'Cancelar', valor: null }, { texto: 'Aplicar', valor: (ctx) => ctx.valor || undefined }]);
     if (!id) return;
@@ -94,7 +98,7 @@ async function subirDeNivel() {
     if (faltam.length) {
       const seguir = await dialogo('Requisito de multiclasse', (corpo) => {
         corpo.append(el('p', 'dialogo-dica', 'Para multiclasse é preciso 13 ou mais no atributo principal da classe nova e de cada classe que você já tem. Falta em: ' +
-          faltam.map(x => { const d = classeDoSRD(x); return `${d.nome} (${d.atributoPrincipal.map(a => NOME_ATRIBUTO[a]).join(' ou ')} 13)`; }).join(', ') + '.'));
+          faltam.map(x => `${classeDoSRD(x).nome} (${textoRequisito(x)})`).join(', ') + '.'));
       }, [{ texto: 'Cancelar', valor: false }, { texto: 'Continuar assim', valor: true }]);
       if (!seguir) return;
     }
@@ -135,11 +139,15 @@ async function subirDeNivel() {
   p.nivel = nivelTotal(p.classes);
   p.pvMax += ganhoPV;
   p.pv += ganhoPV;
+  const conAntes = modDe(p, 'con');
   if (aumento && aumento.atributos) p.atributos = aplicarAumento(p.atributos, aumento.atributos, aumento.max || 20);
   if (aumento && aumento.talento) {
     p.caracteristicas.push({ nome: aumento.talento.nome, origem: `Talento (${c.nome} ${nivelClasse})`, descricao: aumento.talento.descricao });
     if (aumento.talentoAtributo) p.atributos[aumento.talentoAtributo] = Math.min(aumento.talento.aumento.max || 20, p.atributos[aumento.talentoAtributo] + aumento.talento.aumento.qtd);
   }
+  // Constituição subiu de modificador: os PV máximos sobem 1 por nível (todos os níveis).
+  const ganhoCon = (modDe(p, 'con') - conAntes) * p.nivel;
+  if (ganhoCon) { p.pvMax += ganhoCon; p.pv += ganhoCon; }
   const novas = caracteristicasDoNivel(dados, nivelClasse, c.subclasse);
   for (const x of novas) p.caracteristicas.push({ nome: x.nome, origem: `${c.nome} ${nivelClasse}`, descricao: x.descricao });
   atualizarConjuracao();

@@ -235,7 +235,7 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'ArrowRight') irParaPagina(paginaIdx + 1);
   if (ev.key === 'ArrowLeft') irParaPagina(paginaIdx - 1);
 });
-new ResizeObserver(() => posicionarPaginas(false)).observe(paginas);
+new ResizeObserver(() => { posicionarPaginas(false); encaixarTextos(); }).observe(paginas);
 // A caixa das páginas nunca rola sozinha (o navegador tenta, ao focar um campo de uma página
 // vizinha): se rolar, volta e mostra a página daquele campo.
 paginas.addEventListener('scroll', () => {
@@ -253,18 +253,28 @@ paginas.addEventListener('focusin', (ev) => {
 // Tocar faz a ação principal (quase sempre rolar); segurar meio segundo abre a edição.
 function tocavel(no, aoTocar, aoSegurar = null) {
   no.classList.add('tocavel');
-  let timer = null, segurou = false, x0 = 0, y0 = 0;
+  // O toque vale no "soltar o dedo" (pointerup): logo depois de passar a página com um
+  // arrasto rápido, o Android/Chrome às vezes não gera o "click", mas o pointerup chega.
+  let timer = null, segurou = false, apertado = false, mexeu = false, x0 = 0, y0 = 0;
   const cancelar = () => clearTimeout(timer);
   no.addEventListener('pointerdown', (ev) => {
-    segurou = false; x0 = ev.clientX; y0 = ev.clientY;
+    if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+    segurou = false; mexeu = false; apertado = true; x0 = ev.clientX; y0 = ev.clientY;
     if (aoSegurar) timer = setTimeout(() => { segurou = true; vibrar(); aoSegurar(); }, 500);
   });
-  no.addEventListener('pointermove', (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) cancelar(); });
-  for (const tipo of ['pointerup', 'pointercancel', 'pointerleave']) no.addEventListener(tipo, cancelar);
+  no.addEventListener('pointermove', (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) { mexeu = true; cancelar(); } });
+  no.addEventListener('pointerup', (ev) => {
+    cancelar();
+    const valeu = apertado && !segurou && !mexeu && performance.now() - fimDoArrasto > 150;
+    apertado = false;
+    if (valeu) aoTocar(ev);
+  });
+  for (const tipo of ['pointercancel', 'pointerleave']) no.addEventListener(tipo, () => { cancelar(); apertado = false; });
+  // O "click" só vale quando vem do teclado (Enter/Espaço), sem dedo nem mouse.
   no.addEventListener('click', (ev) => {
     ev.stopPropagation();
-    if (segurou) { segurou = false; return; }
-    aoTocar(ev);
+    if (ev.detail === 0 && !segurou) aoTocar(ev);
+    segurou = false;
   });
   if (aoSegurar) no.addEventListener('contextmenu', (ev) => ev.preventDefault());
   return no;
@@ -476,15 +486,36 @@ function desenhar(tudo = false) {
   if (tudo || !$('pg-detalhes').childElementCount || !$('pg-detalhes').contains(document.activeElement)) desenharDetalhes();
   else { $('det-classe').textContent = classeENivel(); desenharCaracteristicas(); }
   if (tudo) desenharGaleria();
+  requestAnimationFrame(() => encaixarTextos());
 }
 const classeENivel = () => classeENivelDe(p);
+// Texto que não cabe na caixa encolhe até caber (como os campos do app de referência):
+// "1d12+3d10+1d8", nomes compridos, "Perfurante"...
+function encaixarTextos(raiz = document) {
+  for (const no of raiz.querySelectorAll('.encaixar')) {
+    no.style.fontSize = '';
+    no.classList.remove('quebrado');
+    if (!no.clientWidth) continue;
+    let tam = parseFloat(getComputedStyle(no).fontSize);
+    // Encolhe na proporção do que passou e depois acerta aos poucos (no mínimo 8 px).
+    for (let i = 0; i < 6 && no.scrollWidth > no.clientWidth + 1 && tam > 8; i++) {
+      tam = Math.max(8, tam * Math.min(0.97, no.clientWidth / no.scrollWidth));
+      no.style.fontSize = tam.toFixed(1) + 'px';
+    }
+    // Nem pequeno coube (ex.: quatro classes numa tela estreita): quebra em duas linhas.
+    if (no.scrollWidth > no.clientWidth + 1) {
+      no.classList.add('quebrado');
+      no.style.fontSize = Math.max(10, tam).toFixed(1) + 'px';
+    }
+  }
+}
 // Como na ficha de papel: positivo sem "+" (3), negativo com "-" (-1).
 const semMais = (n) => String(n);
 
 // Caixa com rótulo e número grande; textos compridos ("9 m", "2d20+1") ficam menores.
 function caixaNumero(classe, rotulo, numero, aoTocar, aoSegurar) {
   const n = String(numero);
-  return botao(classe, [el('span', 'rot', rotulo), el('span', 'num-grande' + (n.length > 3 ? ' longo' : ''), n)], aoTocar, aoSegurar);
+  return botao(classe, [el('span', 'rot encaixar', rotulo), el('span', 'num-grande encaixar' + (n.length > 3 ? ' longo' : ''), n)], aoTocar, aoSegurar);
 }
 
 function desenharPrincipal() {
@@ -492,8 +523,8 @@ function desenharPrincipal() {
   pg.replaceChildren();
   const linha = el('div', 'linha');
   linha.append(
-    botao('pilula-nome', [p.nome], editarNome),
-    botao('pilula-nome classe' + (classeENivel().length > 12 ? ' longo' : ''), [classeENivel()], editarClasse),
+    botao('pilula-nome', [el('span', 'encaixar', p.nome)], editarNome),
+    botao('pilula-nome classe', [el('span', 'encaixar', classeENivel())], editarClasse),
   );
   pg.append(linha);
 
@@ -511,7 +542,7 @@ function desenharPrincipal() {
 
   const azul = el('div', 'grupo-azul');
   const textoDV = textoDadosDeVida(p);
-  const dv = botao('', [el('span', 'rot', 'Dados de Vida'), el('span', 'num-grande' + (textoDV.length > 9 ? ' muito-longo' : textoDV.length > 4 ? ' longo' : ''), textoDV)],
+  const dv = botao('', [el('span', 'rot encaixar', 'Dados de Vida'), el('span', 'num-grande encaixar', textoDV)],
     dialogoDadosVida, dialogoDadosVida);
   if (dadosDeVidaRestantes(p) < p.nivel) dv.append(el('small', '', `de ${p.nivel}`));
   azul.append(
@@ -533,7 +564,7 @@ function cartaoAtributo(id) {
   const teste = () => rolarExpr(`Teste de ${nome}`, '1d20' + comSinal(modDe(p, id)), editarAtributos);
   const salv = () => rolarExpr(`Salvaguarda de ${nome}`, '1d20' + comSinal(salvaguarda(p, id)), editarAtributos);
   const editar = editarAtributos;
-  const titulo = tocavel(el('h3', '', nome), teste, editar);
+  const titulo = tocavel(el('h3', 'encaixar', nome), teste, editar);
   const col = (rot, valor, classe = '') => {
     const c = el('span', classe);
     c.append(el('div', 'rot-it', rot), el('div', 'valor', valor));
@@ -564,7 +595,7 @@ function desenharPericias() {
         const nivel = p.pericias[s.id] || 0;
         const valor = pericia(p, s.id);
         cartao.append(botao('pericia' + (nivel === 1 ? ' prof' : nivel === 2 ? ' espec' : ''),
-          [el('span', '', s.nome), el('span', '', semMais(valor))],
+          [el('span', 'encaixar', s.nome), el('span', '', semMais(valor))],
           () => rolarExpr(s.nome, '1d20' + comSinal(pericia(p, s.id)), () => editarPericia(s.id)),
           () => editarPericia(s.id)));
       }
@@ -583,7 +614,7 @@ function desenharAtaques() {
   const rec = p.recursos[p.recursoDestaque];
   const textoRec = rec ? textoRecurso(rec) : '+';
   const caixaRec = botao('caixa-amarela' + (rec && rec.gastavel && !restanteRecurso(rec) ? ' esgotado' : ''),
-    [el('span', 'rot', rec ? rec.texto : 'Recurso'), el('span', 'num-grande' + (textoRec.length > 4 ? ' longo' : ''), textoRec)],
+    [el('span', 'rot encaixar', rec ? rec.texto : 'Recurso'), el('span', 'num-grande encaixar', textoRec)],
     () => (rec ? usarRecurso(p.recursoDestaque) : editarDestaque()), editarDestaque);
   caixas.append(
     caixaNumero('caixa-amarela', 'Proficiência', comSinal(profDe(p)), folhaProficiencia, folhaProficiencia),
@@ -598,7 +629,7 @@ function desenharAtaques() {
     const linha = el('div', 'arma');
     const atacar = () => rolarAtaque(i);
     const editar = () => editarArma(i);
-    const topo = botao('arma-topo', [el('span', '', a.nome), el('span', '', a.alcance || '—'), el('span', '', a.tipo || '—')], atacar, editar);
+    const topo = botao('arma-topo', [el('span', 'encaixar', a.nome), el('span', 'encaixar', a.alcance || '—'), el('span', 'encaixar', a.tipo || '—')], atacar, editar);
     const baixo = botao('arma-baixo', [el('span', '', comSinal(bonusAtaque(p, a))), el('span', '', exprDano(p, a))], atacar, editar);
     const tirar = el('button', 'tirar');
     tirar.type = 'button';
@@ -649,7 +680,7 @@ function desenharMagias() {
     const esp = p.espacos[n];
     if (n > 0 && !esp && !doNivel.length) continue;
     const cab = el('div', 'nivel-magia');
-    cab.append(botao('', [ORDINAIS[n]], () => editarNivelMagia(n), () => editarNivelMagia(n)));
+    cab.append(botao('', [el('span', 'encaixar', ORDINAIS[n])], () => editarNivelMagia(n), () => editarNivelMagia(n)));
     if (esp) {
       const resta = esp.max - esp.usados;
       cab.append(botao('espacos' + (resta ? '' : ' acabou'), [`${resta} / ${esp.max}`], () => gastarEspaco(n), () => editarNivelMagia(n)));
@@ -657,7 +688,7 @@ function desenharMagias() {
     pg.append(cab);
     const lista = el('div', 'lista-magias');
     for (const [m, i] of doNivel) {
-      const b = botao('magia' + (m.preparada ? '' : ' nao-preparada'), [m.nome], () => folhaMagia(i), () => editarMagia(i));
+      const b = botao('magia' + (m.preparada ? '' : ' nao-preparada'), [el('span', 'encaixar', m.nome)], () => folhaMagia(i), () => editarMagia(i));
       lista.append(b);
     }
     const nova = botao('magia nova', ['+'], () => escolherMagia(n));
@@ -770,7 +801,9 @@ function folhaPV() {
         if (tipo === 'dano') {
           // Dano massivo (2024): o dano que sobra depois de chegar a 0 PV é igual ou maior que o máximo.
           const sobra = n - p.pvTemp - p.pv;
-          const msg = sobra >= p.pvMax ? `−${n} PV · Dano massivo: morte instantânea!` : p.pv + p.pvTemp - n <= 0 ? `−${n} PV · 0 PV: Inconsciente` : `−${n} PV`;
+          const msg = sobra >= p.pvMax ? `−${n} PV · Dano massivo: morte instantânea!`
+            : p.pv === 0 ? `−${n} PV · Já em 0 PV: 1 falha na salvaguarda contra a morte (2 se for crítico)`
+            : p.pv + p.pvTemp - n <= 0 ? `−${n} PV · 0 PV: Inconsciente` : `−${n} PV`;
           comDesfazer(msg, () => { Object.assign(p, sofrerDano(p, n)); });
         } else if (tipo === 'cura') comDesfazer(`+${n} PV`, () => { p.pv = curar(p, n); });
         else comDesfazer(`${Math.max(n, p.pvTemp)} PV temporários`, () => { p.pvTemp = Math.max(p.pvTemp, n); });

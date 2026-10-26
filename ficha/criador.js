@@ -78,7 +78,7 @@ function passoBasico(e) {
     corpo.append(tabela);
     ctx.ler = () => {
       if (!nome.value.trim()) { avisar('Escreva o nome do personagem.'); nome.focus(); return undefined; }
-      if (classe.value !== e.classe) { e.pericias = []; e.valores = null; e.pv = null; }
+      if (classe.value !== e.classe) { e.pericias = []; e.pv = null; if (e.metodo === 'padrao') e.valores = null; }
       if (ant.value !== e.antecedente) e.aumentos = null;
       Object.assign(e, { nome: nome.value.trim(), especie: especie.value, sub: linhaSub.hidden ? '' : sub.value, classe: classe.value, antecedente: ant.value });
       return true;
@@ -98,7 +98,7 @@ function passoAtributos(e) {
     let valores = e.valores ? { ...e.valores } : comConjunto(CONJUNTO_PADRAO);
     if (!e.valores && metodo === 'compra') valores = Object.fromEntries(ordem.map(a => [a, 8]));
     let rolados = null;
-    const metodos = radios([['livre', 'Personalizado'], ['padrao', 'Padrão'], ['compra', 'Compra de Pontos'], ['rolar', 'Rolar']], metodo, (v) => {
+    const metodos = radios([['livre', 'Livre'], ['padrao', 'Padrão'], ['compra', 'Compra de Pontos'], ['rolar', 'Rolar']], metodo, (v) => {
       metodo = v;
       if (v === 'padrao') valores = comConjunto(CONJUNTO_PADRAO);
       if (v === 'compra') valores = Object.fromEntries(ordem.map(a => [a, 8]));
@@ -176,7 +176,7 @@ function passoAumentos(e) {
   return dialogo(`Atributos de ${a.nome}`, (corpo, ctx) => {
     ctx.valor = e.aumentos ? { ...e.aumentos } : Object.fromEntries(a.atributos.map(x => [x, 1]));
     for (const x of a.atributos) {
-      const linha = el('div', 'linha-aumento');
+      const linha = el('div', 'linha-aumento tres');
       const final = el('b');
       const mostrar = () => { final.textContent = `${Math.min(20, e.valores[x] + ctx.valor[x])}`; };
       linha.append(el('span', '', NOME_ATRIBUTO[x]),
