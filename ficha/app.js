@@ -166,8 +166,13 @@ function irParaPagina(i, animar = true) {
   marcarPonto();
   gravar(CHAVE_PAGINA, paginaIdx);
 }
+let pontosTimer = null;
 function marcarPonto() {
-  [...$('pontos').children].forEach((b, i) => b.classList.toggle('ativo', i === paginaIdx));
+  const pontos = $('pontos');
+  [...pontos.children].forEach((b, i) => b.classList.toggle('ativo', i === paginaIdx));
+  pontos.classList.add('visivel');
+  clearTimeout(pontosTimer);
+  pontosTimer = setTimeout(() => pontos.classList.remove('visivel'), 1400);
 }
 PAGINAS.forEach((pg, i) => {
   const b = el('button');
@@ -222,7 +227,7 @@ function cancelarGesto() {
 }
 // Depois de arrastar, o toque não vale como clique (não rola dado sem querer).
 paginas.addEventListener('click', (ev) => {
-  if (performance.now() - fimDoArrasto < 400) { ev.stopPropagation(); ev.preventDefault(); }
+  if (performance.now() - fimDoArrasto < 150) { ev.stopPropagation(); ev.preventDefault(); }
 }, true);
 // Setas do teclado (no computador) também passam as páginas.
 document.addEventListener('keydown', (ev) => {
@@ -467,7 +472,8 @@ function desenhar(tudo = false) {
   desenharPericias();
   desenharAtaques();
   desenharMagias();
-  if (tudo || !$('pg-detalhes').childElementCount) desenharDetalhes();
+  // Detalhes é refeita sempre, menos enquanto alguém digita nela (para não perder o cursor).
+  if (tudo || !$('pg-detalhes').childElementCount || !$('pg-detalhes').contains(document.activeElement)) desenharDetalhes();
   else { $('det-classe').textContent = classeENivel(); desenharCaracteristicas(); }
   if (tudo) desenharGaleria();
 }
@@ -487,7 +493,7 @@ function desenharPrincipal() {
   const linha = el('div', 'linha');
   linha.append(
     botao('pilula-nome', [p.nome], editarNome),
-    botao('pilula-nome classe', [classeENivel()], editarClasse),
+    botao('pilula-nome classe' + (classeENivel().length > 12 ? ' longo' : ''), [classeENivel()], editarClasse),
   );
   pg.append(linha);
 
@@ -498,19 +504,19 @@ function desenharPrincipal() {
     [el('span', 'rot', 'PV'), el('span', 'num-grande', String(p.pv))], folhaPV, folhaPV);
   if (p.pvTemp) pv.append(el('span', 'temp', `+${p.pvTemp} temp.`));
   trio.append(pv);
-  const desl = caixaNumero('caixa-verde', 'Deslocamento', metros(deslocamentoDe(p)), editarDeslocamento, editarDeslocamento);
+  const desl = caixaNumero('caixa-verde', 'Desloc.', metros(deslocamentoDe(p)), editarDeslocamento, editarDeslocamento);
   desl.querySelector('.num-grande').append(el('small', 'unidade', 'm'));
   trio.append(desl);
   pg.append(trio);
 
   const azul = el('div', 'grupo-azul');
   const textoDV = textoDadosDeVida(p);
-  const dv = botao('', [el('span', 'rot', 'Dados de Vida'), el('span', 'num-grande' + (textoDV.length > 4 ? ' longo' : ''), textoDV)],
+  const dv = botao('', [el('span', 'rot', 'Dados de Vida'), el('span', 'num-grande' + (textoDV.length > 9 ? ' muito-longo' : textoDV.length > 4 ? ' longo' : ''), textoDV)],
     dialogoDadosVida, dialogoDadosVida);
   if (dadosDeVidaRestantes(p) < p.nivel) dv.append(el('small', '', `de ${p.nivel}`));
   azul.append(
     dv,
-    caixaNumero('', 'Classe de Armadura', classeArmaduraDe(p), editarCA, editarCA),
+    caixaNumero('', 'CA', classeArmaduraDe(p), editarCA, editarCA),
     caixaNumero('', 'Proficiência', comSinal(profDe(p)), folhaProficiencia, folhaProficiencia),
   );
   pg.append(azul);
@@ -597,7 +603,8 @@ function desenharAtaques() {
     const tirar = el('button', 'tirar');
     tirar.type = 'button';
     tirar.setAttribute('aria-label', `Tirar ${a.nome}`);
-    tirar.append(icone('fechar'));
+    tirar.classList.add('letra');
+    tirar.textContent = 'X';
     tirar.addEventListener('click', () => comDesfazer(`${a.nome} tirada`, () => p.ataques.splice(i, 1)));
     linha.append(topo, baixo, tirar);
     pg.append(linha);
@@ -651,7 +658,6 @@ function desenharMagias() {
     const lista = el('div', 'lista-magias');
     for (const [m, i] of doNivel) {
       const b = botao('magia' + (m.preparada ? '' : ' nao-preparada'), [m.nome], () => folhaMagia(i), () => editarMagia(i));
-      if (exprMagia(p, m)) b.append(el('span', 'dado-mini', '🎲'));
       lista.append(b);
     }
     const nova = botao('magia nova', ['+'], () => escolherMagia(n));
@@ -762,10 +768,10 @@ function folhaPV() {
       if (n <= 0) { erro.textContent = 'Digite a quantidade.'; qtd.focus(); return; }
       fecharFolha(() => {
         if (tipo === 'dano') {
-          comDesfazer(`−${n} PV`, () => {
-            Object.assign(p, sofrerDano(p, n));
-            if (n >= p.pvMax * 2 && p.pv === 0) avisar('Dano massivo: o dano que sobrou passou do máximo de PV. Morte instantânea (regra 2024).');
-          });
+          // Dano massivo (2024): o dano que sobra depois de chegar a 0 PV é igual ou maior que o máximo.
+          const sobra = n - p.pvTemp - p.pv;
+          const msg = sobra >= p.pvMax ? `−${n} PV · Dano massivo: morte instantânea!` : p.pv + p.pvTemp - n <= 0 ? `−${n} PV · 0 PV: Inconsciente` : `−${n} PV`;
+          comDesfazer(msg, () => { Object.assign(p, sofrerDano(p, n)); });
         } else if (tipo === 'cura') comDesfazer(`+${n} PV`, () => { p.pv = curar(p, n); });
         else comDesfazer(`${Math.max(n, p.pvTemp)} PV temporários`, () => { p.pvTemp = Math.max(p.pvTemp, n); });
       });

@@ -79,7 +79,9 @@ async function editarPericia(id) {
     temProf.caixa.addEventListener('change', () => { if (!temProf.caixa.checked) dupla.caixa.checked = false; calcular(); });
     dupla.caixa.addEventListener('change', () => { if (dupla.caixa.checked) temProf.caixa.checked = true; calcular(); });
     bonus.input.addEventListener('input', calcular);
-    corpo.append(azul, linhaCampos(prof, atr, bonus), temProf, dupla);
+    const marcas = el('div', 'coluna-marcar');
+    marcas.append(temProf, dupla);
+    corpo.append(azul, linhaCampos(prof, atr, bonus), marcas);
     calcular();
     ctx.ler = () => {
       if (nivel()) p.pericias[id] = nivel(); else delete p.pericias[id];
@@ -111,7 +113,9 @@ async function editarIniciativa() {
     metade.caixa.addEventListener('change', () => { if (metade.caixa.checked) inteira.caixa.checked = false; calcular(); });
     bonus.input.addEventListener('input', calcular);
     extra.select.addEventListener('change', calcular);
-    corpo.append(previa, linhaCampos(des, bonus), inteira, metade, extra);
+    const marcas = el('div', 'coluna-marcar');
+    marcas.append(inteira, metade);
+    corpo.append(previa, linhaCampos(des, bonus), marcas, extra);
     calcular();
     ctx.ler = () => {
       p.iniciativaBonus = Math.max(-20, Math.min(30, numeroDe(bonus.input, 0)));
@@ -275,7 +279,7 @@ async function dialogoDadosVida() {
       const gastar = el('button', 'botao-texto-android', `Gastar 1 dado (1d${c.dadoVida}${comSinal(con)})`);
       gastar.type = 'button';
       gastar.disabled = c.nivel - c.gastos <= 0;
-      gastar.addEventListener('click', () => ctx.fechar({ gastar: i }));
+      gastar.addEventListener('click', () => { ctx.ler(); ctx.fechar({ gastar: i }); });
       corpo.append(linha, gastar);
       linhas.push({ qtd, dado });
     });
@@ -292,11 +296,12 @@ async function dialogoDadosVida() {
   if (!r) return;
   if (r.salvar) { aplicarEdicao(); return; }
   // Gastar um dado: rola, cura e oferece Desfazer.
+  salvar();
   const c = p.classes[r.gastar];
   const antes = structuredClone(p);
   const rol = rolarExpr('Dado de Vida', `1d${c.dadoVida}${comSinal(con)}`, dialogoDadosVida);
   if (!rol) return;
-  const cura = Math.max(0, rol.partes[0].res.total);
+  const cura = Math.max(1, rol.partes[0].res.total);   // mínimo de 1 PV (SRD 5.2.1)
   c.gastos += 1;
   p.pv = curar(p, cura);
   salvar();
@@ -394,11 +399,13 @@ async function dialogoPersonagens() {
       const tirar = el('button', 'tirar');
       tirar.type = 'button';
       tirar.setAttribute('aria-label', `Apagar ${x.nome}`);
-      tirar.append(icone('fechar'));
+      tirar.classList.add('letra');
+      tirar.textContent = 'X';
       tirar.addEventListener('click', () => ctx.fechar({ apagar: x }));
       linha.append(abrir, tirar);
       corpo.append(linha);
     }
+    corpo.parentNode.classList.add('lista');
   }, [{ texto: 'Duplicar', valor: { duplicar: true } }, { texto: 'Novo Personagem', valor: { novo: true } }]);
   if (!r) return;
   if (r.abrir) trocarPara(r.abrir);

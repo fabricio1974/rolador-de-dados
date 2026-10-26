@@ -110,7 +110,16 @@ function armaParaFicha(a) {
   const mod = (x) => modDe(p, x);
   const atributo = a.distancia ? 'des' : a.acuidade ? (mod('des') >= mod('for') ? 'des' : 'for') : 'for';
   const notas = [a.propriedades, a.maestria && `Maestria: ${a.maestria}`].filter(Boolean).join(' · ');
-  return { nome: a.nome, alcance: a.alcance, tipo: a.tipo, atributo, prof: true, dano: a.dano, notas };
+  return { nome: a.nome, alcance: a.alcance, tipo: a.tipo, atributo, prof: temProficienciaArma(a), dano: a.dano, notas };
+}
+// Proficiente com a arma? Pelo texto de Proficiência em Armas (simples, marciais ou o nome dela).
+// Sem nada escrito, supõe que sim.
+function temProficienciaArma(a) {
+  const t = semAcento(p.textos.profArmas || '');
+  if (!t.trim()) return true;
+  if (t.includes(semAcento(a.nome))) return true;
+  if (/^simples/i.test(semAcento(a.categoria))) return /simples/.test(t);
+  return /marcia/.test(t);
 }
 function escolherArma() {
   abrirFolha('Nova arma', (corpo) => {
@@ -225,7 +234,9 @@ async function aplicarAntecedente(a, completo) {
   comDesfazer(`Antecedente: ${a.nome}`, () => {
     p.antecedente = a.nome;
     if (!completo) return;
+    desfazerAntecedente();
     for (const id of a.pericias) p.pericias[id] = Math.max(1, p.pericias[id] || 0);
+    p.antecedenteAplicado = { aumentos: aumentos || {}, pericias: a.pericias.filter(id => !(p.pericias[id] > 1)), ferramenta: a.ferramenta || '' };
     const t = D5.talentos.find(x => x.id === a.talento);
     p.caracteristicas = p.caracteristicas.filter(c => !c.origem.startsWith('Antecedente'));
     if (t) p.caracteristicas.push({ nome: t.nome, origem: `Antecedente: ${a.nome}`, descricao: t.descricao });
@@ -233,6 +244,15 @@ async function aplicarAntecedente(a, completo) {
     for (const [x, n] of Object.entries(aumentos || {})) p.atributos[x] = Math.min(20, p.atributos[x] + n);
     desenharDetalhes();
   });
+}
+
+// Tira o que o antecedente anterior deu (atributos, perícias e ferramenta).
+function desfazerAntecedente() {
+  const v = p.antecedenteAplicado;
+  for (const [x, n] of Object.entries(v.aumentos)) p.atributos[x] = Math.max(1, p.atributos[x] - n);
+  for (const id of v.pericias) if (p.pericias[id] === 1) delete p.pericias[id];
+  if (v.ferramenta) p.textos.profFerramentas = p.textos.profFerramentas.split('\n').filter(l => l.trim() !== v.ferramenta).join('\n');
+  p.antecedenteAplicado = { aumentos: {}, pericias: [], ferramenta: '' };
 }
 
 // ---------- Características da ficha (classe, espécie, antecedente, talentos) ----------

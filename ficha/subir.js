@@ -4,6 +4,7 @@
 
 // ---------- Diálogo (devolve uma Promise com o valor do botão; voltar/fora = null) ----------
 function dialogo(titulo, montar, botoes) {
+  esconderAviso();
   return new Promise((resolve) => {
     let resultado = null;
     const fundo = el('div', 'dialogo-fundo');
@@ -30,6 +31,7 @@ function dialogo(titulo, montar, botoes) {
     fundo.append(caixa);
     document.body.append(fundo);
     if (montar) montar(corpo, ctx);
+    if (corpo.querySelector('.valor-azul, .pv-colunas')) caixa.classList.add('edicao');
     fundo.addEventListener('click', (ev) => { if (ev.target === fundo) fechar(null); });
     abrirCamada(() => { fundo.remove(); resolve(resultado); });
   });
@@ -87,6 +89,15 @@ async function subirDeNivel() {
         null, (v) => { ctx.valor = v; }));
     }, [{ texto: 'Cancelar', valor: null }, { texto: 'Aplicar', valor: (ctx) => ctx.valor || undefined }]);
     if (!id) return;
+    // Multiclasse (2024): 13 no atributo principal da classe nova E de cada classe que já tem.
+    const faltam = [id, ...p.classes.map(c => c.id)].filter(x => classeDoSRD(x) && !temRequisito(x));
+    if (faltam.length) {
+      const seguir = await dialogo('Requisito de multiclasse', (corpo) => {
+        corpo.append(el('p', 'dialogo-dica', 'Para multiclasse é preciso 13 ou mais no atributo principal da classe nova e de cada classe que você já tem. Falta em: ' +
+          faltam.map(x => { const d = classeDoSRD(x); return `${d.nome} (${d.atributoPrincipal.map(a => NOME_ATRIBUTO[a]).join(' ou ')} 13)`; }).join(', ') + '.'));
+      }, [{ texto: 'Cancelar', valor: false }, { texto: 'Continuar assim', valor: true }]);
+      if (!seguir) return;
+    }
     const d = classeDoSRD(id);
     alvo = { id, nome: d.nome, nivel: 0, dadoVida: d.dadoVida, subclasse: '', gastos: 0, nova: true };
   } else {
@@ -361,7 +372,7 @@ function editarClasse() {
         atualizarConjuracao();
         salvar();
         fecharFolha(() => {
-          desenhar();
+          desenhar(true);
           avisar('Classes salvas', 'Desfazer', () => { const i = personagens.indexOf(p); personagens[i] = antes; p = antes; salvar(); desenhar(true); });
         });
       })));

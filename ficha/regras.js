@@ -314,6 +314,14 @@ function limparRecurso(r) {
     usados: inteiro(r.usados, 0, 0, max),
   };
 }
+function limparAplicado(a) {
+  a = a && typeof a === 'object' ? a : {};
+  return {
+    aumentos: bonusPor(a.aumentos, ATRIBUTOS.map(x => x.id)),
+    pericias: Array.isArray(a.pericias) ? a.pericias.filter(id => PERICIAS.some(s => s.id === id)) : [],
+    ferramenta: texto(a.ferramenta, 200),
+  };
+}
 const bonusPor = (x, ids) => {
   const r = {};
   for (const id of ids) { const n = inteiro(x && x[id], 0, -30, 30); if (n) r[id] = n; }
@@ -430,6 +438,8 @@ function limparPersonagem(x) {
     salvaguardaExtra: NOME_ATRIBUTO[x.salvaguardaExtra] ? x.salvaguardaExtra : '',
     periciasBonus: bonusPor(x.periciasBonus, PERICIAS.map(s => s.id)),
     recursos,
+    // O que o antecedente deu (para desfazer ao trocar de antecedente, sem somar duas vezes).
+    antecedenteAplicado: limparAplicado(x.antecedenteAplicado),
     recursoDestaque: inteiro(x.recursoDestaque, 0, 0, Math.max(0, recursos.length - 1)),
     atributoDestaque: NOME_ATRIBUTO[x.atributoDestaque] ? x.atributoDestaque : 'des',
     ataques: Array.isArray(x.ataques) ? x.ataques.slice(0, 40).map(limparAtaque) : [],

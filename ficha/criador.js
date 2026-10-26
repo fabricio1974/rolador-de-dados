@@ -34,12 +34,16 @@ async function novoPersonagemComCriador() {
     nome: '', especie: D5.especies[0].id, sub: '', classe: D5.classes[0].id, antecedente: D5.antecedentes[0].id,
     metodo: 'compra', valores: null, aumentos: null, pericias: [], pv: null,
   };
-  const passos = [passoBasico, passoAtributos, passoAumentos, passoPericias, passoPV];
-  let i = 0;
+  const passos = [passoBasico, passoAtributos, passoAumentos, passoPericias, passoEspecie, passoPV];
+  let i = 0, sentido = 1;
   while (i < passos.length) {
+    // Passo que não se aplica (ex.: escolhas de espécie para quem não tem): segue no mesmo sentido.
+    if (passos[i] === passoEspecie && !ESCOLHAS_ESPECIE[e.especie]) { i += sentido; continue; }
     const r = await passos[i](e);
-    if (r === null) return;                 // cancelou (ou voltou do primeiro passo)
-    i += r === VOLTAR ? -1 : 1;
+    // O botão voltar do celular (ou tocar fora) volta um passo; no primeiro, cancela.
+    if (r === null && i === 0) return;
+    sentido = r === VOLTAR || r === null ? -1 : 1;
+    i += sentido;
     if (i < 0) return;
   }
   criarPersonagem(e);
@@ -74,7 +78,7 @@ function passoBasico(e) {
     corpo.append(tabela);
     ctx.ler = () => {
       if (!nome.value.trim()) { avisar('Escreva o nome do personagem.'); nome.focus(); return undefined; }
-      if (classe.value !== e.classe) { e.pericias = []; e.valores = null; }
+      if (classe.value !== e.classe) { e.pericias = []; e.valores = null; e.pv = null; }
       if (ant.value !== e.antecedente) e.aumentos = null;
       Object.assign(e, { nome: nome.value.trim(), especie: especie.value, sub: linhaSub.hidden ? '' : sub.value, classe: classe.value, antecedente: ant.value });
       return true;
@@ -222,6 +226,33 @@ function passoPericias(e) {
   }, [{ texto: 'Voltar', valor: VOLTAR }, { texto: 'Próximo', valor: (ctx) => ctx.ler() }]);
 }
 
+// Escolhas que mudam números na ficha: Humano (Habilidoso: 1 perícia; Versátil: 1 talento de
+// Origem) e Elfo (Sentidos Aguçados: Intuição, Percepção ou Sobrevivência).
+const ESCOLHAS_ESPECIE = {
+  humano: { pericia: null, talento: true },
+  elfo: { pericia: ['intuicao', 'percepcao', 'sobrevivencia'], talento: false },
+};
+function passoEspecie(e) {
+  const esc = ESCOLHAS_ESPECIE[e.especie];
+  const especie = D5.especies.find(x => x.id === e.especie);
+  const ant = D5.antecedentes.find(x => x.id === e.antecedente);
+  const ja = new Set([...ant.pericias, ...e.pericias]);
+  const opcoes = (esc.pericia || PERICIAS.map(s => s.id)).filter(id => !ja.has(id));
+  return dialogo(`Escolhas de ${especie.nome}`, (corpo, ctx) => {
+    const per = selecao(opcoes.map(id => [id, PERICIAS.find(s => s.id === id).nome]), opcoes.includes(e.periciaEspecie) ? e.periciaEspecie : opcoes[0]);
+    const lp = el('label', 'linha-criador'); lp.append(el('span', '', e.especie === 'elfo' ? 'Sentidos Aguçados:' : 'Habilidoso (perícia):'), per);
+    corpo.append(lp);
+    let tal = null;
+    if (esc.talento) {
+      const origem = D5.talentos.filter(t => t.categoria === 'Origem' && t.id !== ant.talento);
+      tal = selecao(origem.map(t => [t.id, t.nome]), e.talentoEspecie || origem[0].id);
+      const lt = el('label', 'linha-criador'); lt.append(el('span', '', 'Versátil (talento):'), tal);
+      corpo.append(lt);
+    }
+    ctx.ler = () => { e.periciaEspecie = per.value; e.talentoEspecie = tal ? tal.value : ''; return true; };
+  }, [{ texto: 'Voltar', valor: VOLTAR }, { texto: 'Próximo', valor: (ctx) => ctx.ler() }]);
+}
+
 // 5) Pontos de Vida do primeiro nível (o máximo do dado + CON, ou rolar/média)
 function passoPV(e) {
   const classe = classeDoSRD(e.classe);
@@ -288,6 +319,10 @@ function criarPersonagem(e) {
   const talento = D5.talentos.find(x => x.id === ant.talento);
   if (talento) p.caracteristicas.push({ nome: talento.nome, origem: `Antecedente: ${ant.nome}`, descricao: talento.descricao });
   for (const id of [...ant.pericias, ...e.pericias]) p.pericias[id] = 1;
+  if (ESCOLHAS_ESPECIE[especie.id] && e.periciaEspecie) p.pericias[e.periciaEspecie] = 1;
+  const talEsp = ESCOLHAS_ESPECIE[especie.id] && e.talentoEspecie && D5.talentos.find(x => x.id === e.talentoEspecie);
+  if (talEsp) p.caracteristicas.push({ nome: talEsp.nome, origem: `Espécie: ${especie.nome} (Versátil)`, descricao: talEsp.descricao });
+  p.antecedenteAplicado = { aumentos: e.aumentos || {}, pericias: [...ant.pericias], ferramenta: ant.ferramenta || '' };
   if (ant.ferramenta) p.textos.profFerramentas = [p.textos.profFerramentas, ant.ferramenta].filter(Boolean).join('\n');
   p.textos.equipamento = [`${classe.nome}: ${classe.equipamento}`, `${ant.nome}: ${ant.equipamento}`].join('\n\n');
   p.textos.idiomas = 'Comum e mais dois idiomas à sua escolha.';

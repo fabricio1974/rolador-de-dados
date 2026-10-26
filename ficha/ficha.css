@@ -492,3 +492,126 @@ input.sublinhado.esquerda { text-align: left; width: 100%; font-size: 1.15rem; }
 .caixa-amarela.esgotado .num-grande { color: #999; }
 .dialogo h2:empty { display: none; }
 .dialogo-corpo:first-child { padding-top: 16px; }
+
+/* ======================================================================
+   Versão 3b: ajustes de proporção para ficar como o app de referência
+   (medidas tiradas das fotos: tela de ~412 px de largura)
+   ====================================================================== */
+/* Barra de cima mais baixa e conteúdo logo abaixo dela */
+.barra { height: calc(46px + var(--seg-topo)); }
+.barra h1 { font-size: 1.45rem; }
+.pagina { padding-top: 3px; }
+/* Bolinhas das páginas: só aparecem um instante ao trocar de página */
+.pontos { opacity: 0; transition: opacity .35s; pointer-events: none; }
+.pontos.visivel { opacity: 1; pointer-events: auto; }
+
+/* Principal */
+.linha .pilula-nome { font-size: clamp(1.1rem, 5.4vw, 1.4rem); padding: 4px 8px; }
+.pilula-nome.classe.longo { font-size: clamp(.85rem, 4vw, 1.1rem); flex: 1 1 auto; }
+.trio { grid-template-columns: repeat(3, minmax(0, 23vw)); justify-content: center; column-gap: 6vw; padding: 4px 0; }
+.caixa-verde, .caixa-pv { padding: 4px 2px 6px; }
+.trio .rot { font-size: clamp(.95rem, 4.6vw, 1.2rem); white-space: nowrap; }
+.trio .num-grande { font-size: clamp(2.2rem, 10.7vw, 2.8rem); }
+.caixa-pv .num-grande { font-weight: 700; }
+.grupo-azul { margin: 0 14px; padding: 8px; gap: 6px; }
+.grupo-azul .rot { font-size: clamp(.95rem, 4.6vw, 1.2rem); min-height: 0; }
+.grupo-azul .num-grande { font-size: clamp(2.3rem, 11.5vw, 3rem); }
+.grupo-azul .num-grande.longo { font-size: clamp(1.1rem, 6vw, 1.7rem); line-height: 2; }
+.grupo-azul .num-grande.muito-longo { font-size: clamp(.9rem, 4.6vw, 1.3rem); line-height: 2.6; }
+.atributo h3 { font-size: clamp(1.2rem, 6vw, 1.6rem); }
+.atributo .valor { font-size: clamp(1.5rem, 7.3vw, 1.9rem); }
+.atributo .rot-it { font-size: clamp(.8rem, 3.5vw, .92rem); }
+.atributo .salv.prof { background: none; }
+
+/* Perícias: linhas mais baixas e letra maior */
+.cartao-pericias h3 { font-size: clamp(1.1rem, 5.4vw, 1.4rem); margin: 0; }
+.pericia { padding: 0 6px; font-size: clamp(1rem, 5.1vw, 1.32rem); line-height: 1.3; }
+.pericia.espec { background: var(--prof); }
+.pericia.espec span:first-child::after { content: none; }
+.passiva { font-size: .8rem; color: #777; }
+
+/* Ataques */
+.caixa-amarela .rot { font-size: clamp(.8rem, 4.6vw, 1.2rem); }
+.caixa-amarela .num-grande { font-size: clamp(2.2rem, 11.4vw, 2.95rem); }
+.arma { grid-template-columns: 1fr 30px; }
+.arma-topo { grid-template-columns: 2fr 1fr .9fr; }
+.arma-topo span { font-size: clamp(.85rem, 4.6vw, 1.2rem); padding: 3px 6px; }
+.arma-baixo { margin: 0 0 0 19%; width: 61%; grid-template-columns: 95fr 143fr; }
+.arma-baixo span { font-size: clamp(1.15rem, 5.8vw, 1.5rem); padding: 1px 4px; }
+.tirar { width: 25px; height: 25px; font-size: 1rem; font-family: inherit; line-height: 1; }
+.botao-novo { padding: 2px 14px; font-size: 1.3rem; }
+
+/* Magias */
+.caixa-roxa .rot { font-size: clamp(.95rem, 5.1vw, 1.3rem); }
+.nivel-magia { margin: 6px 25px 0; overflow: visible; }
+.nivel-magia > button:first-child { padding: 0 12px; }
+.espacos { border: 3px solid var(--roxo); border-radius: 12px; margin: -3px -3px -3px 0; padding: 0 10px; }
+.lista-magias { margin: 2px 50px 0; gap: 2px; }
+.magia { min-height: 0; padding: 0 14px; font-size: clamp(1.15rem, 5.8vw, 1.5rem); line-height: 1.45; }
+.magia.nova { line-height: 1.45; }
+
+/* Detalhes: cartões mais baixos */
+.cartao-texto { padding: 2px 6px 4px; }
+.cartao-texto h3 { line-height: 1.15; margin: 0 0 2px; }
+.cartao-texto input, .cartao-texto textarea, .cartao-texto .valor-texto { padding: 0 2px 2px; line-height: 1.2; }
+.cartao-texto h3:has(.escolher) { padding: 0 28px; }
+.cartao-texto .escolher { top: -6px; right: -6px; }
+
+/* Diálogos: proporções do Android */
+.dialogo { width: min(100%, 360px); }
+.dialogo-fundo { padding: 16px 26px; }
+.dialogo h2 { font-size: 1.08rem; padding: 14px 18px 4px; }
+.dialogo.edicao h2 { font-size: 1.4rem; }
+.dialogo-botoes button { font-size: 1rem; padding: 18px 8px; }
+.valor-azul { font-size: 1.7rem; margin: 0 0 4px; }
+.pv-colunas b { font-size: 1.7rem; }
+.pv-colunas span { font-size: 1rem; }
+.campo-sub input.sublinhado { max-width: 56px; font-size: 1.3rem; }
+.campo-sub.largo input.sublinhado { max-width: 150px; }
+.campo-sub { font-size: .95rem; max-width: 92px; }
+input.sublinhado.grande { width: 56px; font-size: 1.4rem; }
+.pv-extras input.sublinhado { width: 56px; font-size: 1.3rem; }
+.botoes-android button { min-width: 0; width: 64px; padding: 5px 4px; font-size: 1rem; }
+.radio, .marcar-android { font-size: 1.08rem; }
+/* Listas de marcar e de bolinhas: uma coluna centralizada, alinhada à esquerda */
+.radios, .lista-pericias-criador, .coluna-marcar { display: grid; justify-content: center; justify-items: start; gap: 0; }
+.radios-linha { display: flex; }
+.radios-metodo { display: flex; }
+.radio, .marcar-android { min-width: 0; }
+
+/* Caixas de marcar, bolinhas e listas com cara de Android */
+.dialogo input[type="checkbox"], .folha input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none; width: 20px; height: 20px; margin: 0 2px; flex: none;
+  border: 2px solid #5f5f5f; border-radius: 2px; background: transparent; display: inline-grid; place-content: center;
+}
+.dialogo input[type="checkbox"]:checked, .folha input[type="checkbox"]:checked { background: #2a8a78; border-color: #2a8a78; }
+.dialogo input[type="checkbox"]:checked::after, .folha input[type="checkbox"]:checked::after {
+  content: ''; width: 5px; height: 10px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg);
+}
+.dialogo input[type="checkbox"]:disabled { border-color: #c4c4c4; }
+.dialogo input[type="checkbox"]:checked:disabled { background: #c4c4c4; border-color: #c4c4c4; }
+.dialogo input[type="radio"] {
+  appearance: none; -webkit-appearance: none; width: 22px; height: 22px; margin: 0 2px; flex: none;
+  border: 2px solid #5f5f5f; border-radius: 50%; background: transparent;
+}
+.dialogo input[type="radio"]:checked { border-color: #2a8a78; background: radial-gradient(#2a8a78 0 5px, transparent 5.5px); }
+.dialogo select, .linha-criador select {
+  appearance: none; -webkit-appearance: none; border: 0; background: transparent no-repeat right 4px center / 10px 6px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%23555'/%3E%3C/svg%3E");
+  padding: 6px 26px 6px 2px; font-size: 1.08rem; color: #111;
+}
+.dialogo input[type="number"]::-webkit-inner-spin-button, .dialogo input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.dialogo input[type="number"] { -moz-appearance: textfield; }
+
+/* Menu ⋮ e lista de personagens */
+.menu { min-width: 210px; }
+.menu button { padding: 14px 17px; font-size: 1.1rem; }
+.linha-personagem .abrir { font-size: 1.3rem; padding: 16px 0; }
+.linha-personagem.atual .abrir { font-weight: 400; }
+.dialogo.lista .dialogo-corpo { padding-bottom: 0; }
+.tirar.letra { color: var(--ruim); font-size: 1.05rem; }
+
+/* Sem peso 600 (não tem arquivo da fonte): usa 500 ou 700 */
+.caixa-pv .temp, .linha-dv { font-weight: 700; }
+.folha header h2, .botao { font-weight: 500; }
+.grupo-azul .rot { white-space: nowrap; font-size: clamp(.8rem, 4.1vw, 1.12rem); }
