@@ -10,3 +10,4 @@ jobs:
         with:
           node-version: 22
       - run: node testes.js
+      - run: node ficha/testes.js

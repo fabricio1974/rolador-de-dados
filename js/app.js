@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '19';
+const VERSAO = '20';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -877,6 +877,7 @@ $('gaveta').querySelector('nav').addEventListener('click', (ev) => {
     else if (acao === 'importar') $('arquivo-backup').click();
     else if (acao === 'compartilhar') compartilharApp();
     else if (acao === 'atualizar') verificarAtualizacao(true);
+    else if (acao === 'ficha') location.href = 'ficha/index.html';   // o app da ficha, na pasta ficha/
   };
   voltar();
 });

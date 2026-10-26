@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#212121">
+<title>Ficha de Personagem</title>
+<link rel="icon" href="icone.svg">
+<link rel="stylesheet" href="ficha.css?v=1">
+</head>
+<body>
+<!-- ===== BARRA DE CIMA: nome do personagem, pasta (trocar), lixeira e menu ⋮ ===== -->
+<header class="barra">
+  <h1 id="titulo">Ficha</h1>
+  <button class="icone" id="abrir-personagens" aria-label="Personagens"><i data-icone="pasta"></i></button>
+  <button class="icone" id="apagar-personagem" aria-label="Apagar personagem"><i data-icone="lixeira"></i></button>
+  <button class="icone" id="abrir-menu" aria-label="Mais opções"><i data-icone="pontos"></i></button>
+</header>
+
+<!-- Menu ⋮ (cartão branco que abre por cima, como no Android) -->
+<div class="menu-fundo" id="menu" hidden>
+  <nav class="menu">
+    <button data-menu="nivel">Subir de nível</button>
+    <button data-menu="descanso">Descanso curto / longo</button>
+    <button data-menu="exportar">Exportar ficha</button>
+    <button data-menu="importar">Importar ficha</button>
+    <button data-menu="restaurar">Restaurar personagem</button>
+    <button data-menu="rolador">Rolador de Dados</button>
+    <button data-menu="ajuda">Ajuda</button>
+    <button data-menu="sobre">Sobre</button>
+  </nav>
+</div>
+
+<!-- ===== PÁGINAS: arraste para o lado para passar de uma para outra ===== -->
+<main class="paginas" id="paginas">
+  <section class="pagina" id="pg-principal" aria-label="Principal"></section>
+  <section class="pagina" id="pg-pericias" aria-label="Perícias"></section>
+  <section class="pagina" id="pg-ataques" aria-label="Ataques"></section>
+  <section class="pagina" id="pg-magias" aria-label="Magias"></section>
+  <section class="pagina" id="pg-detalhes" aria-label="Detalhes"></section>
+</main>
+<nav class="pontos" id="pontos" aria-label="Páginas"></nav>
+
+<!-- Resultado da última rolagem (aparece embaixo) -->
+<div class="rolagem" id="rolagem" hidden aria-live="polite"></div>
+
+<!-- Folha que sobe de baixo: editar, PV, listas... -->
+<div class="folha-fundo" id="folha" hidden>
+  <div class="folha" role="dialog" aria-labelledby="folha-titulo">
+    <header>
+      <h2 id="folha-titulo"></h2>
+      <button class="icone" id="fechar-folha" aria-label="Fechar"><i data-icone="fechar"></i></button>
+    </header>
+    <div class="folha-corpo" id="folha-corpo"></div>
+  </div>
+</div>
+
+<input type="file" id="arquivo-importar" accept="application/json,.json" hidden>
+
+<!-- O parser de dados é o mesmo do Rolador (../js/logica.js) -->
+<script src="../js/logica.js?v=19"></script>
+<script src="regras.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

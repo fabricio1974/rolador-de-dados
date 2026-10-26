@@ -3,7 +3,10 @@
 Rolador de dados para RPG no celular: calculadora de expressões, fichas de personagens
 e monstros com imagem e rolagens com nome, 10 temas de cores. Funciona offline.
 
-**Abrir no celular:** https://fabricio1974.github.io/rolador-de-dados/ (depois de ativar o GitHub Pages)
+**Abrir no celular:** https://fabricio1974.github.io/rolador-de-dados/
+
+**Ficha de Personagem** (app irmão, na pasta `ficha/`): https://fabricio1974.github.io/rolador-de-dados/ficha/
+— também abre pelo menu ☰ do Rolador → Ficha de Personagem (no site e no APK).
 
 ## Notação
 
@@ -98,6 +101,35 @@ larga, listas em cartões e menu lateral. Tema padrão **Material** com fundo **
 outros temas (Espectro, Grafite, Índigo, Menta, Âmbar, Coral, Oceano, Aurora, Sakura, Areia) e
 fundos (Preto, Carvão, Grafite) continuam em ☰ → Configurações. Quem vinha de uma versão
 anterior passa uma vez para o visual novo.
+
+## Ficha de Personagem (`ficha/`)
+
+Ficha de D&D 2024 no estilo das fichas de 5ª edição para Android: fundo preto, cartões com
+bordas coloridas e **cinco páginas que passam arrastando para o lado**:
+
+- **Principal**: nome, classe e nível, Iniciativa, PV, Deslocamento, Dados de Vida, CA,
+  Proficiência e os seis atributos (Valor, Modificador e Salvaguarda).
+- **Perícias**: as 18 perícias por atributo; verde = proficiente, verde forte com ★ = especialista.
+- **Ataques**: Proficiência, um atributo em destaque, uma rolagem rápida (ex.: Sorte 2d20) e as
+  armas (nome, alcance, tipo, ataque e dano), com ✕ para tirar e **Nova** para criar.
+- **Magias**: nível de conjurador, Ataque Mágico e CD; truques e magias por nível, com os
+  espaços (3 / 3). Cinza = não preparada.
+- **Detalhes**: classe, espécie, antecedente, alinhamento, XP, características, proficiências,
+  idiomas, equipamento, moedas (PL, PO, PE, PP, PC), personalidade, ideais, vínculos e defeitos.
+
+**Tocar rola** (atributo, salvaguarda, perícia, iniciativa, arma: ataque e dano juntos, com
+crítico de 2024) e **segurar abre a edição**. A barra de cima tem a pasta (trocar/criar
+personagens), a lixeira e o menu ⋮ (Subir de nível, Descanso curto/longo, Exportar/Importar,
+Restaurar personagem, Rolador de Dados, Ajuda e Sobre). Os dados rolam com o mesmo parser do
+Rolador (`../js/logica.js`). Na primeira vez vem a Pandora (Maga nível 2) de exemplo.
+
+```
+ficha/index.html  estrutura
+ficha/ficha.css   visual
+ficha/regras.js   funções PURAS: modificadores, proficiência, perícias, ataques, magias, descansos
+ficha/app.js      a interface: páginas, toques, rolagens, edição; salva no localStorage (ficha.*)
+ficha/testes.js   testes da lógica (node ficha/testes.js)
+```
 
 ## Organização do código
 
