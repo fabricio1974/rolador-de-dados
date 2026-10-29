@@ -37,6 +37,10 @@ Barra de cima com o menu **☰** e seis abas só com ícones:
 - **Simples**: dados em blocos coloridos (d100, d20, d12, d10 / d8, d6, d4, d3, d2), números e − +.
   Tocar no mesmo dado de novo aumenta a quantidade (d6 → 2d6). Embaixo, a barra **ROLAR**
   com ⊗ (limpar) e ♥ (salvar nos favoritos). ROLAR com o visor vazio repete a última rolagem.
+  Segurar o **⌫** apaga a expressão inteira (com DESFAZER). A linha **mín · média · máx** fica
+  acima da expressão, com altura fixa, para a expressão não pular enquanto você digita.
+- **Painel da direita (rolagens salvas)**: toque na abinha da borda direita ou puxe da borda para a
+  esquerda; aparecem os favoritos (por grupo) e as rolagens recentes. Um toque rola na hora.
 - **Avançado**: dN (dado de qualquer tamanho), Vant/Desv, parênteses, colchetes, ×, kh/kl e
   `:`/`;` para rolagens em partes.
 - **Favoritos**: agrupados por **Grupo** (ex.: o nome do personagem), cada um com um quadradinho

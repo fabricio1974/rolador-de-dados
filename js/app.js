@@ -3,7 +3,7 @@
 // localStorage. Organizado em seções numeradas, de cima para baixo.
 
 // Versão do app: aumente a cada mudança (e o ?v= no index.html) para saber qual está aberta.
-const VERSAO = '22';
+const VERSAO = '23';
 
 // ---------- 1. Utilidades ----------
 const $ = (id) => document.getElementById(id);
@@ -519,6 +519,7 @@ function executarRolagem() {
 function apertarTecla(ev) {
   const b = ev.target.closest('button');
   if (!b) return;
+  if (b.dataset.segurou) { delete b.dataset.segurou; return; }   // ⌫ segurado: já apagou tudo
   vibrar('clique');  // "clique" curtinho, como teclado do Android
   const d = b.dataset;
   let v = visor.value;
@@ -540,7 +541,33 @@ function apertarTecla(ev) {
 document.querySelectorAll('.teclado').forEach(t => t.addEventListener('click', apertarTecla));
 
 $('rolar').addEventListener('click', executarRolagem);
-$('apagar-tecla').addEventListener('click', () => { visor.value = visor.value.slice(0, -1); tituloVisor = ''; atualizarPrevia(); });
+$('apagar-tecla').addEventListener('click', (ev) => {
+  if (ev.currentTarget.dataset.segurou) { delete ev.currentTarget.dataset.segurou; return; }   // foi um "segurar"
+  visor.value = visor.value.slice(0, -1); tituloVisor = ''; atualizarPrevia();
+});
+
+// Segurar a tecla de apagar (⌫) por meio segundo apaga a expressão inteira (com DESFAZER).
+function limparTudo() {
+  const antes = visor.value, tituloAntes = tituloVisor;
+  if (!antes) return;
+  visor.value = '';
+  tituloVisor = '';
+  atualizarPrevia();
+  vibrar(30);
+  avisar('Expressão apagada', 'DESFAZER', () => { visor.value = antes; tituloVisor = tituloAntes; atualizarPrevia(); });
+}
+function segurarParaLimpar(botao) {
+  let timer = null;
+  const parar = () => clearTimeout(timer);
+  botao.addEventListener('pointerdown', () => {
+    delete botao.dataset.segurou;
+    timer = setTimeout(() => { botao.dataset.segurou = '1'; limparTudo(); }, 500);
+  });
+  for (const t of ['pointerup', 'pointerleave', 'pointercancel']) botao.addEventListener(t, parar);
+  botao.addEventListener('contextmenu', (ev) => ev.preventDefault());
+}
+segurarParaLimpar($('apagar-tecla'));
+document.querySelectorAll('.teclado [data-acao="apagar"]').forEach(segurarParaLimpar);
 $('limpar-visor').addEventListener('click', () => { visor.value = ''; tituloVisor = ''; atualizarPrevia(); });
 visor.addEventListener('input', () => { tituloVisor = ''; atualizarPrevia(); });
 visor.addEventListener('keydown', (ev) => {
@@ -832,6 +859,9 @@ function desenharAjuda(corpo) {
     ['dN', 'dado de qualquer tamanho: dN, 7 → d7'],
     ['A: 1d20+5; D: 1d8+3', 'partes com nome; 20 natural dobra os dados do dano'],
   ]));
+  secaoAjuda('Atalhos',
+    'Segure o ⌫ (apagar) para apagar a expressão inteira; o DESFAZER embaixo devolve.',
+    'Rolagens salvas: toque na abinha da borda direita (ou puxe da borda para a esquerda) e toque numa rolagem para rolar na hora, de qualquer aba.');
   secaoAjuda('Favoritos',
     'Salve com o ♥ da calculadora ou com o + da aba. O Grupo junta as rolagens de um mesmo personagem; a cor do quadradinho é a do primeiro dado. A setinha ▾ abre Editar e Apagar.');
   secaoAjuda('Fichas',
@@ -851,6 +881,66 @@ function desenharSobre(corpo) {
     el('p', 'ajuda', 'Monstros e regras: SRD 5.2.1 (D&D 2024). Sorteio com crypto.getRandomValues.'),
   );
 }
+
+// ----- Painel da direita: rolagens salvas -----
+// Puxe da borda direita (ou toque na abinha) e toque numa rolagem para rolar na hora.
+function desenharPainelLado() {
+  const lista = $('lado-lista');
+  lista.replaceChildren();
+  const atalhos = montarAtalhos(favoritos, historico, 8);
+  if (!favoritos.length) lista.append(el('p', 'vazio', 'Salve rolagens com o ♥ da calculadora e elas aparecem aqui.'));
+  let tipoAntes = null, grupoAntes = null;
+  for (const a of atalhos) {
+    const fav = a.tipo === 'favorito' ? favoritos.find(f => f.expr === a.expr && f.nome === a.nome) : null;
+    const grupo = a.tipo === 'favorito' ? (fav && fav.grupo) || 'Sem grupo' : 'Recentes';
+    if (a.tipo !== tipoAntes || grupo !== grupoAntes) {
+      lista.append(el('div', 'lado-grupo', grupo));
+      tipoAntes = a.tipo; grupoAntes = grupo;
+    }
+    const b = el('button', 'lado-item' + (a.tipo === 'recente' ? ' recente' : ''));
+    b.type = 'button';
+    const textos = el('span', 'lado-textos');
+    textos.append(el('b', '', a.nome || nomeCurto(a.expr)), el('small', '', a.expr));
+    const cor = el('span', 'cor');
+    cor.style.background = corDaExpr(a.expr);
+    b.append(cor, textos);
+    b.addEventListener('click', () => rolarNoVisor(a.expr, a.nome));
+    lista.append(b);
+  }
+}
+function abrirPainelLado() {
+  if (!$('painel-lado').hidden) return;
+  desenharPainelLado();
+  $('painel-lado').hidden = false;
+  $('puxador').hidden = true;
+  abrirCamada(() => { $('painel-lado').hidden = true; $('puxador').hidden = false; });
+}
+$('puxador').addEventListener('click', abrirPainelLado);
+$('painel-lado').addEventListener('click', (ev) => { if (ev.target.id === 'painel-lado') voltar(); });
+// Gestos: arrastar da borda direita para a esquerda abre; arrastar o painel para a direita fecha.
+// Com o dedo usa os eventos de toque (os de ponteiro o navegador cancela quando acha que é
+// rolagem); com o mouse, os de ponteiro.
+(() => {
+  let ini = null;
+  const comecar = (x, y) => {
+    const aberto = !$('painel-lado').hidden;
+    const naBorda = x > window.innerWidth - 28 && !camadas.length;
+    ini = aberto || naBorda ? { x, y, aberto } : null;
+  };
+  const mover = (x, y) => {
+    if (!ini) return;
+    const dx = x - ini.x, dy = y - ini.y;
+    if (Math.abs(dy) > Math.abs(dx) * 1.2 && Math.abs(dy) > 12) { ini = null; return; }   // rolando a lista
+    if (!ini.aberto && dx < -30) { ini = null; abrirPainelLado(); }
+    else if (ini.aberto && dx > 50) { ini = null; voltar(); }
+  };
+  document.addEventListener('touchstart', (ev) => { const t = ev.touches[0]; if (ev.touches.length === 1) comecar(t.clientX, t.clientY); else ini = null; }, { passive: true, capture: true });
+  document.addEventListener('touchmove', (ev) => { const t = ev.touches[0]; if (t) mover(t.clientX, t.clientY); }, { passive: true, capture: true });
+  document.addEventListener('touchend', () => { ini = null; }, { passive: true, capture: true });
+  document.addEventListener('pointerdown', (ev) => { if (ev.pointerType === 'mouse') comecar(ev.clientX, ev.clientY); }, true);
+  document.addEventListener('pointermove', (ev) => { if (ev.pointerType === 'mouse' && ev.buttons) mover(ev.clientX, ev.clientY); }, true);
+  document.addEventListener('pointerup', (ev) => { if (ev.pointerType === 'mouse') ini = null; }, true);
+})();
 
 // ----- Menu lateral (☰) -----
 function abrirMenu() {

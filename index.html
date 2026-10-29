@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#3a3e44">
 <title>Rolador de Dados</title>
 <link rel="icon" href="icones/icone-192.png">
-<link rel="stylesheet" href="css/estilo.css?v=22">
+<link rel="stylesheet" href="css/estilo.css?v=23">
 </head>
 <body>
 <div class="app">
@@ -28,12 +28,13 @@
     <section class="display">
       <div class="resultado" id="resultado" aria-live="polite">
       </div>
+      <!-- mín · média · máx: linha de altura fixa ACIMA da expressão (não empurra o visor) -->
+      <div class="previa" id="previa"></div>
       <div class="visor">
         <input id="expr" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
                autocorrect="off" spellcheck="false" placeholder="" aria-label="Expressão">
-        <button id="apagar-tecla" aria-label="Apagar o último"><i data-icone="backspace"></i></button>
+        <button id="apagar-tecla" aria-label="Apagar o último (segure para apagar tudo)"><i data-icone="backspace"></i></button>
       </div>
-      <div class="previa" id="previa"></div>
     </section>
 
     <!-- Teclado SIMPLES: dados em blocos + números -->
@@ -135,6 +136,15 @@
 </div>
 
 <!-- ===== MENU LATERAL (☰) ===== -->
+<!-- ===== PAINEL DA DIREITA: rolagens salvas (puxe da borda direita ou toque na aba) ===== -->
+<button class="puxador" id="puxador" aria-label="Rolagens salvas"></button>
+<div class="gaveta-fundo" id="painel-lado" hidden>
+  <nav class="gaveta lado-direito" aria-label="Rolagens salvas">
+    <div class="lado-cabeca"><i data-icone="coracao"></i>Rolagens salvas</div>
+    <div class="lado-lista" id="lado-lista"></div>
+  </nav>
+</div>
+
 <div class="gaveta-fundo" id="gaveta" hidden>
   <nav class="gaveta" aria-label="Menu">
     <div class="gaveta-cabeca">
@@ -256,9 +266,9 @@
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 
 <!-- A ordem importa: dados e lógica primeiro, a interface por último. -->
-<script src="js/temas.js?v=22"></script>
-<script src="js/monstros.js?v=22"></script>
-<script src="js/logica.js?v=22"></script>
-<script src="js/app.js?v=22"></script>
+<script src="js/temas.js?v=23"></script>
+<script src="js/monstros.js?v=23"></script>
+<script src="js/logica.js?v=23"></script>
+<script src="js/app.js?v=23"></script>
 </body>
 </html>
