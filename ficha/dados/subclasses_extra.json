@@ -1,0 +1,20 @@
+{
+  "_fonte": "Resumos próprios (não é tradução literal) das regras do Livro do Jogador 2024, conferidas nos dados do 5e.tools (fonte XPHB). Fora do SRD: só o necessário para jogar.",
+  "mago": [
+    {
+      "id": "adivinho", "nome": "Adivinho", "en": "Diviner", "fonte": "Livro do Jogador 2024 (resumo)",
+      "caracteristicas": [
+        { "nivel": 3, "nome": "Sábio da Adivinhação", "acao": "",
+          "descricao": "Escolha duas magias de Mago da escola de Adivinhação, de nível 2 ou menor, e copie no seu grimório de graça.\n\nSempre que ganhar acesso a um novo nível de espaço de magia nesta classe, copie de graça mais uma magia de Adivinhação de um nível que você já possa conjurar." },
+        { "nivel": 3, "nome": "Portento", "acao": "livre",
+          "descricao": "Ao terminar um Descanso Longo, role dois d20 e anote os valores. Você pode trocar qualquer Teste de d20 feito por você ou por uma criatura que você veja por um desses valores; decida antes da rolagem e no máximo uma vez por turno.\n\nCada valor só pode ser usado uma vez; os que sobrarem se perdem no próximo Descanso Longo. (Na página Ações, toque num valor para marcar como usado.)" },
+        { "nivel": 6, "nome": "Adivinhação Especialista", "acao": "",
+          "descricao": "Ao conjurar uma magia de Adivinhação usando um espaço de nível 2 ou maior, você recupera um espaço de magia gasto de nível menor que o usado (no máximo nível 5)." },
+        { "nivel": 10, "nome": "O Terceiro Olho", "acao": "bonus",
+          "descricao": "Como Ação Bônus, escolha um benefício, que dura até você começar um Descanso Curto ou Longo:\n\nVisão no Escuro: alcance de 36 m.\nCompreensão Maior: você lê qualquer idioma.\nVer o Invisível: você conjura Ver o Invisível sem gastar espaço de magia.\n\nDepois de usar, só de novo ao terminar um Descanso Curto ou Longo." },
+        { "nivel": 14, "nome": "Portento Maior", "acao": "",
+          "descricao": "Role três d20 no Portento em vez de dois." }
+      ]
+    }
+  ]
+}

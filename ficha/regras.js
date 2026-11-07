@@ -472,6 +472,9 @@ function limparPersonagem(x) {
     espacos,
     magias: Array.isArray(x.magias) ? x.magias.slice(0, 300).map(limparMagia) : [],
     moedas, textos,
+    // Portento (Adivinho): os d20 rolados no descanso longo, cada um usado uma vez.
+    portento: Array.isArray(x.portento) ? x.portento.filter(v => v && typeof v === 'object').slice(0, 3)
+      .map(v => ({ valor: inteiro(v.valor, 10, 1, 20), usado: v.usado === true })) : [],
     equipamentos: Array.isArray(x.equipamentos) ? x.equipamentos.slice(0, 500).map(limparItem) : [],
     // Características ganhas (classe, espécie, antecedente, talentos), cada uma com sua descrição.
     caracteristicas: Array.isArray(x.caracteristicas) ? x.caracteristicas.filter(c => c && typeof c === 'object').slice(0, 300).map(c => ({

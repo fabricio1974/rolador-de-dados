@@ -766,3 +766,57 @@ body.com-rolagem .pagina { padding-bottom: calc(var(--altura-rolagem, 160px) + 2
 }
 /* Tablet: a caixa de PV não estica */
 .caixa-pv { min-height: min(22.5vw, 104px); }
+
+/* ======================================================================
+   Versão 7: página Ações (Ação, Ação Bônus, Reação) e Portento
+   ====================================================================== */
+#pg-acoes { --cor-acao: #d9822b; --fundo-acao: #fbe3c8; --cor-bonus: #3f8a50; --fundo-bonus: #d6ead2; --cor-reacao: #2f6fe0; --fundo-reacao: #d3e1fa; --cor-livre: #6a6a6a; --fundo-livre: #e2e2e2; }
+.secao-acao {
+  margin: 8px 22px 0; padding: 2px 12px; border: 3px solid var(--cor); border-radius: 12px; background: var(--fundo);
+  font-size: clamp(1.25rem, 6.2vw, 1.65rem);
+}
+.secao-acao.acao { --cor: var(--cor-acao); --fundo: var(--fundo-acao); }
+.secao-acao.bonus { --cor: var(--cor-bonus); --fundo: var(--fundo-bonus); }
+.secao-acao.reacao { --cor: var(--cor-reacao); --fundo: var(--fundo-reacao); }
+.secao-acao.livre { --cor: var(--cor-livre); --fundo: var(--fundo-livre); }
+.lista-acoes { display: flex; flex-direction: column; gap: 4px; margin: -4px 40px 0; }
+.secao-acao.acao + .lista-acoes { --cor: var(--cor-acao); }
+.secao-acao.bonus + .lista-acoes { --cor: var(--cor-bonus); }
+.secao-acao.reacao + .lista-acoes { --cor: var(--cor-reacao); }
+.secao-acao.livre + .lista-acoes { --cor: var(--cor-livre); }
+.pilula-acao {
+  display: flex; flex-direction: column; align-items: center; min-height: 40px; justify-content: center;
+  background: #f4f4f4; border: 3px solid var(--cor); border-radius: 999px; padding: 2px 16px; text-align: center;
+}
+.pilula-acao .acao-nome { font-size: clamp(1.02rem, 5vw, 1.32rem); max-width: 100%; }
+.pilula-acao small { font-size: .78rem; color: #555; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acao-vazia { color: #999; text-align: center; margin: 6px 0 2px; font-size: .9rem; }
+.acoes-padrao { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-top: 4px; }
+.chip-acao {
+  padding: 7px 12px; border-radius: 999px; border: 2px solid var(--cor); color: #eee; background: transparent;
+  font-size: .92rem; min-height: 36px;
+}
+.chip-acao:active { background: rgba(255,255,255,.12); }
+.regra-acao { margin: 0; line-height: 1.45; font-size: 1.02rem; }
+.caixa-portento {
+  margin: 4px 22px 0; padding: 6px 10px 10px; border: 3px solid #b38b1d; border-radius: 14px; background: #f7ecc9;
+}
+.portento-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.portento-cab b { font-size: 1.35rem; }
+.portento-valores { display: flex; justify-content: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+.portento-valor {
+  width: 58px; height: 58px; border-radius: 50%; border: 3px solid #b38b1d; background: #fff; font-size: 1.7rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: #222;
+}
+.portento-valor.usado { background: #d9d0b4; color: #8a826b; text-decoration: line-through; border-style: dashed; }
+.portento-vazio { color: #6b5a26; font-size: .92rem; }
+.atalhos-acao { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 22px 0; }
+.atalho-acao {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; border-radius: 999px;
+  border: 3px solid var(--cor); background: var(--fundo); font-size: clamp(.95rem, 4.6vw, 1.15rem); color: #111;
+}
+.atalho-acao small { background: var(--cor); color: #fff; border-radius: 999px; padding: 0 7px; font-size: .78rem; font-weight: 700; }
+.atalho-acao.acao { --cor: var(--cor-acao); --fundo: var(--fundo-acao); }
+.atalho-acao.bonus { --cor: var(--cor-bonus); --fundo: var(--fundo-bonus); }
+.atalho-acao.reacao { --cor: var(--cor-reacao); --fundo: var(--fundo-reacao); }
+.pilula-acao { min-height: 36px; padding: 1px 16px; }

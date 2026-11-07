@@ -15,6 +15,9 @@ const dados = {
   magias: [1, 2, 3, 4].flatMap(n => ler(`magias_${n}.json`)),
   ...origens,
 };
+// Subclasses fora do SRD (resumos próprios): cada classe passa a ter a lista "subclasses".
+const extras = ler('subclasses_extra.json');
+for (const c of dados.classes) c.subclasses = [c.subclasse, ...(extras[c.id] || [])];
 const ids = new Set();
 for (const m of dados.magias) { if (ids.has(m.id)) throw new Error('magia repetida: ' + m.id); ids.add(m.id); }
 const cabecalho = '// GERADO por scripts/montar-dados5e.js a partir de ficha/dados/*.json. Não edite à mão.\n' +

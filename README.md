@@ -121,6 +121,12 @@ bordas coloridas e **cinco páginas que passam arrastando para o lado**:
 - **Detalhes**: classe, espécie e antecedente (▾ escolhe da lista), alinhamento, XP, o cartão
   **Características e Talentos**, proficiências, idiomas, equipamento, moedas (PL, PO, PE, PP, PC),
   personalidade, ideais, vínculos e defeitos.
+- **Ações** (depois de Ataques): o que dá para fazer com **Ação**, **Ação Bônus** e **Reação** — armas,
+  magias preparadas pelo tempo de conjuração, características, poções do inventário (beber é Ação
+  Bônus e já rola a cura) e as ações de todo mundo de 2024, com a regra de cada uma. No topo, o
+  **Portento** do Adivinho (2d20 a cada descanso longo; toque marca como usado).
+- **Equipamento** (em Detalhes): abas Armas, Armaduras, Mágicos, Consumíveis, Ferramentas e Diversos,
+  com quantidade (− +), sintonização (até 3), itens da lista do SRD e anotações.
 - **Galeria**: fotos e desenhos do personagem (ficam no IndexedDB do aparelho, reduzidas a 1600 px;
   não vão no arquivo exportado). Toque para ver em tela cheia e passar arrastando.
 
@@ -148,6 +154,10 @@ CC-BY-4.0): as 12 classes com os 20 níveis e a subclasse do SRD, 339 magias, 9 
   perícia, Dados de Vida, Ataque Mágico/CD e **recursos de classe** (caixa da direita em Ataques).
 - **Fonte Roboto** junto com o app (`ficha/fontes/`, licença Apache 2.0): fica igual em qualquer
   aparelho, mesmo sem internet.
+
+**Fora do SRD**: o **Adivinho** (Mago, Livro do Jogador 2024) entra como resumo próprio em português
+(`ficha/dados/subclasses_extra.json`), conferido nos dados do 5e.tools (fonte XPHB) — não é tradução
+literal do livro.
 
 Os JSON traduzidos ficam em `ficha/dados/`; depois de mudar algum, rode
 `node scripts/montar-dados5e.js` para gerar o `ficha/dados5e.js`.

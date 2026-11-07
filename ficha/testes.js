@@ -175,6 +175,18 @@ teste('equipamento por categoria', () => {
   assert.deepStrictEqual(R.limparPersonagem(x).equipamentos, x.equipamentos);
 });
 
+teste('portento e subclasses extras', () => {
+  const x = R.limparPersonagem({ ...pandora, portento: [{ valor: 25 }, { valor: 7, usado: true }, null, { valor: 3 }, { valor: 1 }] });
+  assert.deepStrictEqual(x.portento, [{ valor: 20, usado: false }, { valor: 7, usado: true }, { valor: 3, usado: false }]);
+  const D = require('./dados5e.js');
+  const mago = D.classes.find(c => c.id === 'mago');
+  assert.deepStrictEqual(mago.subclasses.map(s => s.id), ['evocador', 'adivinho']);
+  const adiv = mago.subclasses[1];
+  assert.deepStrictEqual(adiv.caracteristicas.map(c => c.nivel), [3, 3, 6, 10, 14]);
+  // os níveis do Adivinho batem com os de "Característica de Subclasse" do Mago
+  for (const nv of [6, 10, 14]) assert.ok(mago.niveis[nv - 1].caracteristicas.some(c => /Subclasse/.test(c.nome)), 'mago ' + nv);
+});
+
 teste('dados do SRD em português: completos e coerentes', () => {
   const D = require('./dados5e.js');
   assert.strictEqual(D.classes.length, 12);

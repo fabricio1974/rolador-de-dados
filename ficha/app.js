@@ -250,7 +250,7 @@ new ResizeObserver(() => {
   posicionarPaginas(false);
   if (paginas.clientWidth === larguraObservada) return;
   larguraObservada = paginas.clientWidth;
-  for (let i = 0; i < 5; i++) paginasSujas.add(i);
+  for (let i = 0; i < DESENHOS.length - 1; i++) paginasSujas.add(i);
   desenharPagina(paginaIdx);
   agendarPaginas();
 }).observe(paginas);
@@ -506,7 +506,7 @@ function selecao(opcoes, atual) {
 const paginasSujas = new Set();
 let detalhesTudo = false;
 const DESENHOS = [
-  () => desenharPrincipal(), () => desenharPericias(), () => desenharAtaques(), () => desenharMagias(),
+  () => desenharPrincipal(), () => desenharPericias(), () => desenharAtaques(), () => desenharAcoes(), () => desenharMagias(),
   () => {
     // Detalhes é refeita sempre, menos enquanto alguém digita nela (para não perder o cursor).
     const pg = $('pg-detalhes');
@@ -519,7 +519,7 @@ const DESENHOS = [
 function desenhar(tudo = false) {
   $('titulo').textContent = p.nome;
   document.title = p.nome + ' · Ficha';
-  for (let i = 0; i < 5; i++) paginasSujas.add(i);
+  for (let i = 0; i < DESENHOS.length - 1; i++) paginasSujas.add(i);   // todas menos a Galeria
   if (tudo) { detalhesTudo = true; desenharGaleria(); }
   desenharPagina(paginaIdx);
   agendarPaginas();
@@ -1088,6 +1088,7 @@ function folhaDescanso() {
         })),
         botaoFolha('Descanso longo', 'principal', () => fecharFolha(() => {
           comDesfazer('Descanso longo: tudo recuperado', () => { Object.assign(p, descansoLongo(p)); });
+          if (temPortento()) rolarPortento();
         }))));
   });
 }
@@ -1139,13 +1140,15 @@ function folhaAjuda() {
     const ajuda = el('div', 'ajuda');
     const secao = (t, ...ps) => { ajuda.append(el('h3', '', t)); for (const x of ps) ajuda.append(el('p', '', x)); };
     secao('Tocar e segurar', 'Tocar rola os dados (atributos, salvaguardas, perícias, iniciativa, armas). Segurar meio segundo abre a edição. O lápis no resultado também abre a edição do que foi rolado.');
-    secao('Páginas', 'Arraste para o lado: Principal, Perícias, Ataques, Magias, Detalhes e Galeria. Não tem fim: depois da Galeria vem a Principal de novo (e ao contrário). As bolinhas embaixo mostram onde você está.');
+    secao('Páginas', 'Arraste para o lado: Principal, Perícias, Ataques, Ações, Magias, Detalhes e Galeria. Não tem fim: depois da Galeria vem a Principal de novo (e ao contrário). As bolinhas embaixo mostram onde você está.');
     secao('Principal', 'Toque nos PV para Dano, Cura e PV temporários. Dados de Vida: gaste no descanso curto. Na caixa do atributo, a coluna Salv. rola a salvaguarda; o resto rola o teste.');
     secao('Perícias', 'Verde = proficiente; verde mais forte com ★ = especialista (dobro da proficiência). Segure para mudar.');
     secao('Ataques', 'Tocar na arma rola o ataque e o dano juntos; com 20 natural o dano rola o dobro de dados (regra 2024). O ✕ tira a arma (dá para desfazer). A caixa da direita é uma rolagem rápida que você escolhe (ex.: Sorte 2d20).');
     secao('Magias', 'Toque no número de espaços para gastar um. Toque na magia para ver, rolar ou lançar; o + cria uma nova. Magias cinza não estão preparadas.');
     secao('Personagem novo', 'Na pasta → Novo Personagem → Usar o Criador de Personagem: nome, espécie (e linhagem), classe e antecedente; valores de atributo (Personalizado, Padrão 15/14/13/12/10/8, Compra de Pontos 27 ou Rolar 4d6); bônus do antecedente; perícias da classe; PV do primeiro nível.');
     secao('Editar segurando', 'Segure Iniciativa (proficiência, metade, atributo extra), Deslocamento (andar, voo, natação, escavação, escalada), CA (armadura, escudo, tipo, atributo adicional, Selecionar Armadura), um atributo (todos os valores, proficiências e bônus de salvaguarda), uma perícia (proficiência, dobrada, bônus), Dados de Vida e o Ataque Mágico/CD (bônus extras, tipo de espaços).');
+    secao('Ações', 'A página Ações junta o que dá para fazer com Ação, Ação Bônus e Reação: armas (toque rola), magias preparadas pelo tempo de conjuração, características, poções do inventário (beber é Ação Bônus e já cura) e as ações de todo mundo (toque para ler a regra). Os atalhos no topo pulam para cada parte.');
+    secao('Adivinho', 'Mago da escola de Adivinhação (resumo do Livro do Jogador 2024): escolha no nível 3 ou escreva a subclasse no editor de classes. O Portento rola 2d20 (3 no nível 14) a cada descanso longo; na página Ações, toque num valor para marcar como usado.');
     secao('Recursos de classe', 'Na página de ataques, a caixa da direita mostra um recurso (Fúria, Inspiração de Bardo, Sorte 2d20...). Tocar gasta um e rola o dado dele; segurar abre a lista de recursos (+ cria, ✕ apaga), com máximo, dado, gastável ou fixo e quando volta (descanso curto, longo ou nunca).');
     secao('Subir de nível', '⋮ → Subir de nível: escolha a classe (ou Multiclasse), os PV (Máx., Média ou Rolar), o aumento de atributos ou um talento nos níveis 4, 8, 12, 16 e 19, a subclasse no nível 3. As características novas, os espaços de magia e a proficiência entram sozinhos (dá para desfazer).');
     secao('Listas do D&D 2024', 'Ao criar arma (Nova) ou magia (+), escolha da lista em português (SRD 5.2.1) ou crie uma personalizada. Em Detalhes, o ▾ de Espécie e Antecedente abre a lista; as características aparecem no cartão Características e Talentos (toque para ler).');

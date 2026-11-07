@@ -266,13 +266,26 @@ async function dialogoAumento(epico) {
   }
 }
 
+// Subclasses conhecidas de uma classe (a do SRD e as extras, como o Adivinho do Mago).
+const subclassesDe = (dados) => (dados && (dados.subclasses || [dados.subclasse])) || [];
+// Acha a subclasse pelo nome escrito: "Adivinho", "Adivinhação", "Diviner", "Escola de Adivinhação"...
+function subclasseConhecida(dados, nome) {
+  const n = semAcento(String(nome || '')).replace(/^(escola|colegio|circulo|caminho|juramento|dominio|patrono) d[aeo]s? /, '').trim();
+  if (n.length < 4) return null;
+  return subclassesDe(dados).find(s => {
+    const a = semAcento(s.nome), b = semAcento(s.en || '');
+    return n === a || n === b || n.slice(0, 5) === a.slice(0, 5) || (b && n.slice(0, 5) === b.slice(0, 5));
+  }) || null;
+}
+
 async function dialogoSubclasse(dados) {
   const r = await dialogo(`Subclasse de ${dados.nome}`, (corpo, ctx) => {
-    ctx.valor = dados.subclasse.nome;
+    const lista = subclassesDe(dados);
+    ctx.valor = lista[0].nome;
     const outra = entrada('', 'text', { placeholder: 'Nome de outra subclasse', maxLength: 60 });
     outra.className = 'sublinhado';
     outra.hidden = true;
-    corpo.append(radios([[dados.subclasse.nome, dados.subclasse.nome, 'SRD'], ['', 'Outra (escrever)']], ctx.valor, (v) => {
+    corpo.append(radios([...lista.map(s => [s.nome, s.nome, s.fonte || 'SRD']), ['', 'Outra (escrever)']], ctx.valor, (v) => {
       ctx.valor = v; outra.hidden = v !== ''; if (!outra.hidden) outra.focus();
     }), outra);
     ctx.outra = outra;
@@ -288,14 +301,15 @@ function caracteristicasDoNivel(dados, nivel, subclasse) {
   const lista = [];
   for (const c of (n ? n.caracteristicas : [])) {
     if (/Aumento no Valor de Atributo|Dádiva Épica/i.test(c.nome)) continue;
+    const sub = subclasseConhecida(dados, subclasse);
     if (/Característica de Subclasse/i.test(c.nome)) {
-      if (subclasse === dados.subclasse.nome) lista.push(...dados.subclasse.caracteristicas.filter(s => s.nivel === nivel));
-      else lista.push({ nome: `Característica de ${subclasse || 'Subclasse'}`, descricao: 'Característica da sua subclasse (fora do SRD): escreva o que ela faz.' });
+      if (sub) lista.push(...sub.caracteristicas.filter(s => s.nivel === nivel));
+      else lista.push({ nome: `Característica de ${subclasse || 'Subclasse'}`, descricao: 'Característica da sua subclasse (fora das listas do app): escreva o que ela faz.' });
       continue;
     }
     if (/^Subclasse de/i.test(c.nome) && subclasse) {
       lista.push({ nome: subclasse, descricao: c.descricao });
-      if (subclasse === dados.subclasse.nome) lista.push(...dados.subclasse.caracteristicas.filter(s => s.nivel === nivel));
+      if (sub) lista.push(...sub.caracteristicas.filter(s => s.nivel === nivel));
       continue;
     }
     lista.push(c);
@@ -340,6 +354,13 @@ function editarClasse() {
       const nivel = entrada(c.nivel, 'number', { min: 1, max: 20, inputMode: 'numeric' });
       const dado = selecao(DADOS_DE_VIDA.map(d => [String(d), 'd' + d]), String(c.dadoVida));
       const sub = entrada(c.subclasse, 'text', { maxLength: 60, placeholder: 'Subclasse' });
+      // Sugestões: as subclasses que o app conhece para a classe escolhida.
+      const sugestoes = el('datalist');
+      sugestoes.id = 'subclasses-' + Math.random().toString(36).slice(2);
+      sub.setAttribute('list', sugestoes.id);
+      const sugerir = () => sugestoes.replaceChildren(...subclassesDe(classeDoSRD(sel.value)).map(s => { const o = el('option'); o.value = s.nome; return o; }));
+      sel.addEventListener('change', sugerir);
+      sugerir();
       sel.addEventListener('change', () => {
         const d = classeDoSRD(sel.value);
         if (d) { nome.value = d.nome; dado.value = String(d.dadoVida); }
@@ -351,7 +372,7 @@ function editarClasse() {
       tirar.addEventListener('click', () => { if (linhas.length > 1) { linhas.splice(linhas.indexOf(reg), 1); linha.remove(); } });
       const l1 = el('div', 'campos-lado'); l1.append(campo('Classe', sel), campo('Nível', nivel));
       const l2 = el('div', 'campos-lado'); l2.append(campo('Nome na ficha', nome), campo('Dado de Vida', dado));
-      linha.append(l1, l2, campo('Subclasse', sub), tirar);
+      linha.append(l1, l2, campo('Subclasse', sub), sugestoes, tirar);
       const reg = { sel, nome, nivel, dado, sub, gastos: c.gastos };
       linhas.push(reg);
       lista.append(linha);
@@ -377,6 +398,7 @@ function editarClasse() {
         p.classes = classes.map(c => ({ ...c, gastos: Math.min(c.gastos, c.nivel) }));
         p.nivel = nivelTotal(p.classes);
         if (aplicar1.caixa.checked) aplicarNivel1();
+        acrescentarCaracteristicasDaSubclasse();
         atualizarConjuracao();
         salvar();
         fecharFolha(() => {
@@ -400,4 +422,18 @@ function aplicarNivel1() {
   if (d.armas) p.textos.profArmas = [p.textos.profArmas, d.armas].filter(Boolean).join('\n');
   if (d.armaduras) p.textos.profArmaduras = [p.textos.profArmaduras, d.armaduras].filter(Boolean).join('\n');
   if (d.ferramentas) p.textos.profFerramentas = [p.textos.profFerramentas, d.ferramentas].filter(Boolean).join('\n');
+}
+
+// Subclasse conhecida (ex.: Adivinho) escrita à mão no editor: põe as características dela que
+// o personagem já deveria ter pelo nível e ainda não tem (sem repetir as que já estão).
+function acrescentarCaracteristicasDaSubclasse() {
+  for (const c of p.classes) {
+    const sub = subclasseConhecida(classeDoSRD(c.id), c.subclasse);
+    if (!sub) continue;
+    const tem = new Set(p.caracteristicas.map(x => semAcento(x.nome)));
+    for (const x of sub.caracteristicas.filter(s => s.nivel <= c.nivel)) {
+      if (tem.has(semAcento(x.nome))) continue;
+      p.caracteristicas.push({ nome: x.nome, origem: `${c.nome} ${x.nivel} (${sub.nome})`, descricao: x.descricao });
+    }
+  }
 }
