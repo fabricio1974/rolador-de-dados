@@ -313,6 +313,7 @@ function limparItem(i) {
     qtd: inteiro(i.qtd, 1, 0, 9999),
     categoria: CATEGORIAS_ITEM.some(c => c[0] === i.categoria) ? i.categoria : 'diversos',
     notas: texto(i.notas, 2000),
+    foto: texto(i.foto, 40),             // id de uma foto da Galeria (imagem do item)
     sintonizado: i.sintonizado === true,
     equipado: i.equipado === true,
   };
@@ -475,6 +476,8 @@ function limparPersonagem(x) {
     // Portento (Adivinho): os d20 rolados no descanso longo, cada um usado uma vez.
     portento: Array.isArray(x.portento) ? x.portento.filter(v => v && typeof v === 'object').slice(0, 3)
       .map(v => ({ valor: inteiro(v.valor, 10, 1, 20), usado: v.usado === true })) : [],
+    // Álbuns da Galeria (nomes), para um álbum vazio continuar existindo.
+    albuns: Array.isArray(x.albuns) ? [...new Set(x.albuns.map(a => texto(a, 40).trim()).filter(Boolean))].slice(0, 40) : [],
     equipamentos: Array.isArray(x.equipamentos) ? x.equipamentos.slice(0, 500).map(limparItem) : [],
     // Características ganhas (classe, espécie, antecedente, talentos), cada uma com sua descrição.
     caracteristicas: Array.isArray(x.caracteristicas) ? x.caracteristicas.filter(c => c && typeof c === 'object').slice(0, 300).map(c => ({

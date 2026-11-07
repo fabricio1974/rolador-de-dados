@@ -15,6 +15,13 @@ const dados = {
   magias: [1, 2, 3, 4].flatMap(n => ler(`magias_${n}.json`)),
   ...origens,
 };
+// Talentos fora do SRD (resumos próprios do Livro do Jogador 2024, conferidos no 5e.tools/XPHB).
+for (const n of ['talentos_extra_geral.json', 'talentos_extra_outros.json']) {
+  const ja = new Set(dados.talentos.map(t => t.en));
+  for (const t of ler(n)) if (!ja.has(t.en)) dados.talentos.push(t);
+}
+const ORDEM_TAL = ['Origem', 'Geral', 'Estilo de Luta', 'Dádiva Épica'];
+dados.talentos.sort((a, b) => ORDEM_TAL.indexOf(a.categoria) - ORDEM_TAL.indexOf(b.categoria) || a.nome.localeCompare(b.nome, 'pt'));
 // Subclasses fora do SRD (resumos próprios): cada classe passa a ter a lista "subclasses".
 const extras = ler('subclasses_extra.json');
 for (const c of dados.classes) c.subclasses = [c.subclasse, ...(extras[c.id] || [])];

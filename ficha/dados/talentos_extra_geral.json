@@ -1,0 +1,748 @@
+[
+  {
+    "id": "ator",
+    "nome": "Ator",
+    "en": "Actor",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Carisma 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Carisma em 1 (máximo 20).\n\nPersonificação: enquanto estiver disfarçado de uma pessoa real ou fictícia, você tem Vantagem em testes de Carisma (Enganação ou Atuação) para fazer os outros acreditarem que você é essa pessoa.\n\nImitação: você consegue reproduzir sons de outras criaturas, inclusive fala. Quem ouvir precisa passar num teste de Sabedoria (Intuição) com CD 8 + seu modificador de Carisma + seu Bônus de Proficiência para perceber que é uma imitação.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "atleta",
+    "nome": "Atleta",
+    "en": "Athlete",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Força ou Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nVocê ganha Deslocamento de Escalada igual ao seu Deslocamento.\n\nLevantar-se de Caído custa apenas 1,5 m de movimento.\n\nVocê pode fazer um Salto em Distância ou em Altura com corrida após se mover apenas 1,5 m.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "investida",
+    "nome": "Investida",
+    "en": "Charger",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Força ou Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nDisparada Aprimorada: ao usar a ação Disparada, seu Deslocamento aumenta em 3 m durante essa ação.\n\nAtaque de Investida: se você se mover pelo menos 3 m em linha reta em direção a um alvo imediatamente antes de acertá-lo com uma jogada de ataque corpo a corpo como parte da ação Atacar, escolha um efeito: +1d8 no dano desse ataque, ou empurrar o alvo até 3 m para longe (se ele for no máximo uma categoria de tamanho maior que você). Uma vez por turno.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "chef",
+    "nome": "Chef",
+    "en": "Chef",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "con",
+        "sab"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Constituição ou Sabedoria (máximo 20).\n\nVocê ganha proficiência com Utensílios de Cozinheiro.\n\nRefeição Revigorante: durante um Descanso Curto, tendo ingredientes e os utensílios, você prepara comida para até 4 + seu Bônus de Proficiência criaturas. Ao fim do descanso, cada uma que comer e gastar pelo menos um Dado de Vida recupera 1d8 PV extras.\n\nPetiscos Fortificantes: com 1 hora de trabalho ou ao terminar um Descanso Longo, você prepara uma quantidade de petiscos igual ao seu Bônus de Proficiência, que duram 8 horas. Uma criatura pode comer um com uma Ação Bônus para ganhar Pontos de Vida Temporários iguais ao seu Bônus de Proficiência.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "especialista-em-bestas",
+    "nome": "Especialista em Bestas",
+    "en": "Crossbow Expert",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Destreza em 1 (máximo 20).\n\nVocê ignora a propriedade Recarga das bestas (de mão, leve e pesada) e pode recarregá-las mesmo sem uma mão livre.\n\nEstar a até 1,5 m de um inimigo não impõe Desvantagem às suas jogadas de ataque com bestas.\n\nAo fazer o ataque extra da propriedade Leve com uma besta Leve, você pode somar o modificador de atributo ao dano desse ataque, se ainda não o estiver somando.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "esmagador",
+    "nome": "Esmagador",
+    "en": "Crusher",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "con"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Constituição (máximo 20).\n\nEmpurrão: uma vez por turno, ao acertar uma criatura com um ataque que cause dano de Concussão, você pode movê-la 1,5 m para um espaço desocupado, se ela for no máximo uma categoria de tamanho maior que você.\n\nCrítico Aprimorado: ao obter um Acerto Crítico que cause dano de Concussão a uma criatura, jogadas de ataque contra ela têm Vantagem até o início do seu próximo turno.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "duelista-defensivo",
+    "nome": "Duelista Defensivo",
+    "en": "Defensive Duelist",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Destreza em 1 (máximo 20).\n\nAparar: se estiver empunhando uma arma com Acuidade e uma criatura acertar você com um ataque corpo a corpo, você pode usar sua Reação para somar seu Bônus de Proficiência à sua CA, possivelmente fazendo o ataque errar. O bônus vale contra ataques corpo a corpo até o início do seu próximo turno.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "combatente-com-duas-armas",
+    "nome": "Combatente com Duas Armas",
+    "en": "Dual Wielder",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Força ou Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nAo usar a ação Atacar e atacar com uma arma Leve, você pode, mais tarde no mesmo turno, fazer um ataque extra com uma Ação Bônus usando outra arma, que deve ser corpo a corpo e sem a propriedade Duas Mãos. Você não soma o modificador de atributo ao dano desse ataque extra, a menos que seja negativo.\n\nSaque Rápido: você pode sacar ou guardar duas armas sem a propriedade Duas Mãos no momento em que normalmente sacaria ou guardaria apenas uma.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "duravel",
+    "nome": "Durável",
+    "en": "Durable",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "con"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Constituição em 1 (máximo 20).\n\nVocê tem Vantagem em Salvaguardas contra a Morte.\n\nRecuperação Rápida: com uma Ação Bônus, você pode gastar um Dado de Vida, rolá-lo e recuperar PV iguais ao resultado.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "adepto-elemental",
+    "nome": "Adepto Elemental",
+    "en": "Elemental Adept",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; característica Conjuração ou Magia de Pacto",
+    "repetivel": true,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nEscolha um tipo de dano: Ácido, Frio, Fogo, Elétrico ou Trovejante. Suas magias ignoram Resistência a esse tipo de dano e, ao rolar dano de uma magia sua desse tipo, você pode tratar qualquer 1 nos dados de dano como 2.\n\nRepetível: pode ser pego mais de uma vez, escolhendo um tipo de dano diferente a cada vez.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "tocado-pelas-fadas",
+    "nome": "Tocado pelas Fadas",
+    "en": "Fey-Touched",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nEscolha uma magia de nível 1 da escola de Adivinhação ou Encantamento. Ela e Passo Nebuloso ficam sempre preparadas. Você pode conjurar cada uma delas uma vez sem gastar espaço de magia, recuperando esse uso ao terminar um Descanso Longo; também pode conjurá-las com seus espaços de magia. O atributo de conjuração é o atributo aumentado por este talento.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "mestre-de-armas-grandes",
+    "nome": "Mestre de Armas Grandes",
+    "en": "Great Weapon Master",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Força 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Força em 1 (máximo 20).\n\nAo acertar uma criatura com uma arma Pesada como parte da ação Atacar no seu turno, você pode causar dano extra igual ao seu Bônus de Proficiência.\n\nGolpe Seguido: imediatamente após obter um Acerto Crítico com uma arma corpo a corpo, ou reduzir uma criatura a 0 PV com ela, você pode fazer um ataque com a mesma arma usando uma Ação Bônus.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "armadura-pesada-treinamento",
+    "nome": "Armadura Pesada (Treinamento)",
+    "en": "Heavily Armored",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; treinamento com Armadura Média",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "con",
+        "for"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Constituição ou Força (máximo 20).\n\nVocê ganha treinamento com Armadura Pesada.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "mestre-de-armaduras-pesadas",
+    "nome": "Mestre de Armaduras Pesadas",
+    "en": "Heavy Armor Master",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; treinamento com Armadura Pesada",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "con",
+        "for"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Constituição ou Força (máximo 20).\n\nRedução de Dano: enquanto usar Armadura Pesada, quando for atingido por um ataque, o dano de Concussão, Perfurante e Cortante desse ataque é reduzido em um valor igual ao seu Bônus de Proficiência.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "lider-inspirador",
+    "nome": "Líder Inspirador",
+    "en": "Inspiring Leader",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Sabedoria ou Carisma 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Sabedoria ou Carisma (máximo 20).\n\nAo terminar um Descanso Curto ou Longo, você pode fazer uma apresentação inspiradora (discurso, canção ou dança). Até seis aliados a até 9 m de você que a presenciem (você pode ser um deles) ganham Pontos de Vida Temporários iguais ao seu nível de personagem + o modificador do atributo aumentado por este talento.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "mente-agucada",
+    "nome": "Mente Aguçada",
+    "en": "Keen Mind",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Inteligência 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Inteligência em 1 (máximo 20).\n\nEscolha uma perícia entre Arcanismo, História, Investigação, Natureza ou Religião: você ganha proficiência nela ou, se já a tiver, ganha Especialização.\n\nEstudo Rápido: você pode usar a ação Estudar como Ação Bônus.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "armadura-leve-treinamento",
+    "nome": "Armadura Leve (Treinamento)",
+    "en": "Lightly Armored",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nVocê ganha treinamento com Armadura Leve e Escudos.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "matador-de-magos",
+    "nome": "Matador de Magos",
+    "en": "Mage Slayer",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nQuebra-Concentração: quando você causa dano a uma criatura que está se Concentrando, ela tem Desvantagem na salvaguarda para manter a Concentração.\n\nMente Protegida: se você falhar numa salvaguarda de Inteligência, Sabedoria ou Carisma, pode transformá-la em sucesso. Depois de usar, só volta a poder ao terminar um Descanso Curto ou Longo.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "treinamento-com-armas-marciais",
+    "nome": "Treinamento com Armas Marciais",
+    "en": "Martial Weapon Training",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nVocê ganha proficiência com armas Marciais.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "mestre-de-armaduras-medias",
+    "nome": "Mestre de Armaduras Médias",
+    "en": "Medium Armor Master",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; treinamento com Armadura Média",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nEnquanto usar Armadura Média, você pode somar até 3 (em vez de 2) de Destreza à CA, se seu valor de Destreza for 16 ou mais.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "armadura-media-treinamento",
+    "nome": "Armadura Média (Treinamento)",
+    "en": "Moderately Armored",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; treinamento com Armadura Leve",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nVocê ganha treinamento com Armadura Média.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "combatente-montado",
+    "nome": "Combatente Montado",
+    "en": "Mounted Combatant",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "sab"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força, Destreza ou Sabedoria (máximo 20).\n\nGolpe Montado: enquanto montado, você tem Vantagem em jogadas de ataque contra criaturas não montadas a até 1,5 m da sua montaria que sejam pelo menos uma categoria de tamanho menores que ela.\n\nDesvio: se sua montaria sofrer um efeito com salvaguarda de Destreza para receber metade do dano, ela não sofre dano se passar e sofre metade se falhar. Exige que você a esteja montando e que nenhum dos dois esteja Incapacitado.\n\nInterceptar: enquanto montado e sem estar Incapacitado, você pode fazer um ataque que acertaria sua montaria acertar você no lugar dela.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "observador",
+    "nome": "Observador",
+    "en": "Observant",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Inteligência ou Sabedoria 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência ou Sabedoria (máximo 20).\n\nEscolha uma perícia entre Intuição, Investigação ou Percepção: você ganha proficiência nela ou, se já a tiver, ganha Especialização.\n\nBusca Rápida: você pode usar a ação Procurar como Ação Bônus.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "perfurador",
+    "nome": "Perfurador",
+    "en": "Piercer",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nPerfurar: uma vez por turno, ao acertar uma criatura com um ataque que cause dano Perfurante, você pode rolar novamente um dos dados de dano desse ataque, ficando com o novo resultado.\n\nCrítico Aprimorado: ao obter um Acerto Crítico que cause dano Perfurante, você rola um dado de dano adicional para o dano Perfurante extra.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "envenenador",
+    "nome": "Envenenador",
+    "en": "Poisoner",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "des",
+        "int"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Destreza ou Inteligência (máximo 20).\n\nVeneno Potente: seu dano Venenoso ignora Resistência a dano Venenoso.\n\nPreparar Veneno: você ganha proficiência com o Kit de Envenenador. Com 1 hora de trabalho e 50 PO em materiais, cria doses de veneno iguais ao seu Bônus de Proficiência. Com uma Ação Bônus, aplica uma dose a uma arma ou munição; ela dura 1 minuto ou até você causar dano com o item. A criatura que sofrer dano dele faz uma salvaguarda de Constituição (CD 8 + modificador do atributo aumentado por este talento + Bônus de Proficiência); se falhar, sofre 2d8 de dano Venenoso e fica com a condição Envenenado até o fim do seu próximo turno.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "mestre-de-armas-de-haste",
+    "nome": "Mestre de Armas de Haste",
+    "en": "Polearm Master",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Força ou Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "des",
+        "for"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Destreza ou Força (máximo 20).\n\nGolpe com a Haste: imediatamente após usar a ação Atacar com um Bordão, uma Lança ou uma arma com as propriedades Pesada e Alcance, você pode usar uma Ação Bônus para fazer um ataque corpo a corpo com a outra ponta da arma, causando dano de Concussão com dado de dano d4.\n\nGolpe Reativo: empunhando uma dessas armas, você pode usar sua Reação para fazer um ataque corpo a corpo contra uma criatura que entre no alcance que você tem com ela.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "resiliente",
+    "nome": "Resiliente",
+    "en": "Resilient",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 um atributo à sua escolha no qual você não tenha proficiência em salvaguarda (máximo 20).\n\nVocê ganha proficiência em salvaguardas do atributo escolhido.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "conjurador-ritualista",
+    "nome": "Conjurador Ritualista",
+    "en": "Ritual Caster",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Inteligência, Sabedoria ou Carisma 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nMagias Rituais: escolha magias de nível 1 com o marcador Ritual em quantidade igual ao seu Bônus de Proficiência. Elas ficam sempre preparadas e podem ser conjuradas com qualquer espaço de magia seu; o atributo de conjuração é o aumentado por este talento. Sempre que seu Bônus de Proficiência aumentar, adicione mais uma magia de nível 1 com Ritual.\n\nRitual Rápido: uma vez por Descanso Longo, você pode conjurar uma magia de Ritual preparada no tempo de conjuração normal (sem o tempo extra do ritual) e sem gastar espaço de magia.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "sentinela",
+    "nome": "Sentinela",
+    "en": "Sentinel",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Força ou Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nGuardião: imediatamente após uma criatura a até 1,5 m de você usar a ação Desengajar ou acertar com um ataque um alvo que não seja você, você pode fazer um Ataque de Oportunidade contra ela.\n\nParada: ao acertar uma criatura com um Ataque de Oportunidade, o Deslocamento dela se torna 0 pelo resto do turno atual.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "tocado-pelas-sombras",
+    "nome": "Tocado pelas Sombras",
+    "en": "Shadow-Touched",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nEscolha uma magia de nível 1 da escola de Ilusão ou Necromancia. Ela e Invisibilidade ficam sempre preparadas. Você pode conjurar cada uma delas uma vez sem gastar espaço de magia, recuperando esse uso ao terminar um Descanso Longo; também pode conjurá-las com seus espaços de magia. O atributo de conjuração é o atributo aumentado por este talento.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "atirador-de-elite",
+    "nome": "Atirador de Elite",
+    "en": "Sharpshooter",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Destreza em 1 (máximo 20).\n\nSeus ataques à distância com armas ignoram Meia Cobertura e Cobertura de Três Quartos.\n\nEstar a até 1,5 m de um inimigo não impõe Desvantagem aos seus ataques com armas à Distância.\n\nAtacar no alcance longo não impõe Desvantagem aos seus ataques com armas à Distância.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "mestre-de-escudos",
+    "nome": "Mestre de Escudos",
+    "en": "Shield Master",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; treinamento com Escudo",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Força em 1 (máximo 20).\n\nGolpe de Escudo: uma vez por turno, ao acertar uma criatura a até 1,5 m com uma arma corpo a corpo como parte da ação Atacar, você pode golpeá-la com o Escudo equipado. Ela faz uma salvaguarda de Força (CD 8 + seu modificador de Força + Bônus de Proficiência); se falhar, você a empurra 1,5 m ou a deixa Caída (à sua escolha).\n\nInterpor o Escudo: se sofrer um efeito com salvaguarda de Destreza para receber metade do dano e estiver segurando um Escudo, você pode usar sua Reação para não sofrer dano algum caso passe na salvaguarda.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "especialista-em-pericia",
+    "nome": "Especialista em Perícia",
+    "en": "Skill Expert",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 um atributo à sua escolha (máximo 20).\n\nVocê ganha proficiência em uma perícia à sua escolha.\n\nEscolha uma perícia em que tenha proficiência mas não Especialização: você ganha Especialização nela.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "espreitador",
+    "nome": "Espreitador",
+    "en": "Skulker",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Destreza 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente Destreza em 1 (máximo 20).\n\nVocê tem Percepção às Cegas com alcance de 3 m.\n\nNévoa da Guerra: durante o combate, você tem Vantagem nos testes de Destreza (Furtividade) feitos como parte da ação Esconder-se.\n\nFranco-atirador: se você fizer uma jogada de ataque enquanto escondido e errar, o ataque não revela sua posição.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "retalhador",
+    "nome": "Retalhador",
+    "en": "Slasher",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nJarrete: uma vez por turno, ao acertar uma criatura com um ataque que cause dano Cortante, você pode reduzir o Deslocamento dela em 3 m até o início do seu próximo turno.\n\nCrítico Aprimorado: ao obter um Acerto Crítico que cause dano Cortante a uma criatura, ela tem Desvantagem nas jogadas de ataque até o início do seu próximo turno.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "veloz",
+    "nome": "Veloz",
+    "en": "Speedy",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; Destreza ou Constituição 13+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "des",
+        "con"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Destreza ou Constituição (máximo 20).\n\nSeu Deslocamento aumenta em 3 m.\n\nAo usar a ação Disparada no seu turno, Terreno Difícil não custa movimento extra pelo resto desse turno.\n\nAtaques de Oportunidade contra você têm Desvantagem.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "atirador-magico",
+    "nome": "Atirador Mágico",
+    "en": "Spell Sniper",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; característica Conjuração ou Magia de Pacto",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nSuas jogadas de ataque de magia ignoram Meia Cobertura e Cobertura de Três Quartos.\n\nEstar a até 1,5 m de um inimigo não impõe Desvantagem às suas jogadas de ataque com magias.\n\nAo conjurar uma magia com alcance de pelo menos 3 m que exija jogada de ataque, você pode aumentar o alcance dela em 18 m.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "telecinetico",
+    "nome": "Telecinético",
+    "en": "Telekinetic",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nTelecinese Menor: você aprende Mão Mágica. Pode conjurá-la sem componentes Verbais ou Somáticos, pode tornar a mão Invisível, e o alcance e a distância máxima da mão aumentam em 9 m. O atributo de conjuração é o aumentado por este talento.\n\nEmpurrão Telecinético: com uma Ação Bônus, escolha uma criatura que você veja a até 9 m. Ela faz uma salvaguarda de Força (CD 8 + modificador do atributo aumentado por este talento + Bônus de Proficiência); se falhar, é movida 1,5 m na sua direção ou para longe de você.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "telepata",
+    "nome": "Telepata",
+    "en": "Telepathic",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nElocução Telepática: você pode falar telepaticamente com qualquer criatura que veja a até 18 m, num idioma que você conheça; ela só entende se conhecer esse idioma e não ganha a capacidade de responder telepaticamente.\n\nDetectar Pensamentos: essa magia fica sempre preparada. Você pode conjurá-la uma vez sem espaço de magia nem componentes, recuperando esse uso ao terminar um Descanso Longo; também pode conjurá-la com seus espaços de magia. O atributo de conjuração é o aumentado por este talento.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "conjurador-de-guerra",
+    "nome": "Conjurador de Guerra",
+    "en": "War Caster",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+; característica Conjuração ou Magia de Pacto",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Inteligência, Sabedoria ou Carisma (máximo 20).\n\nVocê tem Vantagem nas salvaguardas de Constituição para manter Concentração.\n\nMagia Reativa: quando uma criatura provocar um Ataque de Oportunidade seu ao sair do seu alcance, você pode usar sua Reação para conjurar nela uma magia em vez de atacar. A magia deve ter tempo de conjuração de uma ação e ter como alvo apenas essa criatura.\n\nVocê pode realizar componentes Somáticos mesmo com armas ou Escudo em uma ou ambas as mãos.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "mestre-de-armas",
+    "nome": "Mestre de Armas",
+    "en": "Weapon Master",
+    "categoria": "Geral",
+    "prerequisito": "Nível 4+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des"
+      ],
+      "qtd": 1,
+      "max": 20
+    },
+    "descricao": "Aumente em 1 Força ou Destreza (máximo 20).\n\nVocê pode usar a propriedade de maestria de um tipo de arma Simples ou Marcial à sua escolha com o qual tenha proficiência. Ao terminar um Descanso Longo, pode trocar por outro tipo de arma elegível.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  }
+]

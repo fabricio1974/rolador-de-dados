@@ -170,7 +170,8 @@ teste('equipamento por categoria', () => {
   const x = R.limparPersonagem({ ...pandora, equipamentos: [{ nome: 'Poção de Cura', qtd: 3, categoria: 'consumiveis' }, { nome: 'Anel', categoria: 'magicos', sintonizado: true },
     { nome: '', qtd: -2, categoria: 'xyz' }, null] });
   assert.strictEqual(x.equipamentos.length, 4);
-  assert.deepStrictEqual(x.equipamentos[2], { nome: 'Item', qtd: 0, categoria: 'diversos', notas: '', sintonizado: false, equipado: false });
+  assert.deepStrictEqual(x.equipamentos[2], { nome: 'Item', qtd: 0, categoria: 'diversos', notas: '', foto: '', sintonizado: false, equipado: false });
+  assert.deepStrictEqual(R.limparPersonagem({ albuns: [' Mapas ', 'Mapas', '', 'Itens', 5] }).albuns, ['Mapas', 'Itens']);
   assert.strictEqual(R.sintonizados(x), 1);
   assert.deepStrictEqual(R.limparPersonagem(x).equipamentos, x.equipamentos);
 });
@@ -185,6 +186,19 @@ teste('portento e subclasses extras', () => {
   assert.deepStrictEqual(adiv.caracteristicas.map(c => c.nivel), [3, 3, 6, 10, 14]);
   // os níveis do Adivinho batem com os de "Característica de Subclasse" do Mago
   for (const nv of [6, 10, 14]) assert.ok(mago.niveis[nv - 1].caracteristicas.some(c => /Subclasse/.test(c.nome)), 'mago ' + nv);
+});
+
+teste('todos os talentos de 2024, com descrição', () => {
+  const D = require('./dados5e.js');
+  const en = new Set(D.talentos.map(t => t.en));
+  for (const n of ['Lucky', 'Tough', 'War Caster', 'Sentinel', 'Great Weapon Master', 'Fey-Touched', 'Dueling', 'Boon of Speed', 'Alert', 'Ability Score Improvement'])
+    assert.ok(en.has(n), 'falta ' + n);
+  assert.ok(D.talentos.length >= 79);
+  for (const t of D.talentos) {
+    assert.ok(t.descricao && t.descricao.length > 30, 'sem descrição: ' + t.id);
+    assert.ok(['Origem', 'Geral', 'Estilo de Luta', 'Dádiva Épica'].includes(t.categoria), t.id);
+  }
+  assert.strictEqual(new Set(D.talentos.map(t => t.id)).size, D.talentos.length);
 });
 
 teste('dados do SRD em português: completos e coerentes', () => {

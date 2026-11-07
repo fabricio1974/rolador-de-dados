@@ -820,3 +820,56 @@ body.com-rolagem .pagina { padding-bottom: calc(var(--altura-rolagem, 160px) + 2
 .atalho-acao.bonus { --cor: var(--cor-bonus); --fundo: var(--fundo-bonus); }
 .atalho-acao.reacao { --cor: var(--cor-reacao); --fundo: var(--fundo-reacao); }
 .pilula-acao { min-height: 36px; padding: 1px 16px; }
+
+/* ======================================================================
+   Versão 8: álbuns da Galeria e imagem dos itens
+   ====================================================================== */
+.albuns { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 4px; touch-action: pan-x; overscroll-behavior-x: contain; }
+.albuns::-webkit-scrollbar { display: none; }
+.chip-album {
+  flex: none; padding: 7px 14px; min-height: 38px; border-radius: 999px; border: 2px solid var(--rosa-magia); color: #eee; background: transparent;
+  font-size: .95rem; white-space: nowrap;
+}
+.chip-album.ativo { background: var(--rosa-magia); color: #222; }
+.chip-album small { margin-left: 6px; opacity: .7; font-size: .8em; }
+.chip-album.novo { border-style: dashed; border-color: #888; color: #bbb; }
+.galeria-opcoes { display: flex; gap: 4px; flex-wrap: wrap; margin: 0 0 4px; }
+.botao-texto-claro { color: #9fd0e0; padding: 8px 10px; font-size: .9rem; min-height: 36px; }
+.foto { position: relative; }
+.legenda-foto {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 6px 3px; font-size: .72rem; color: #fff; text-align: left;
+  background: linear-gradient(transparent, rgba(0,0,0,.75)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.selo-item { position: absolute; top: 4px; left: 4px; max-width: calc(100% - 8px); padding: 1px 6px; border-radius: 6px; background: rgba(43,96,112,.92); color: #fff; font-size: .66rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.foto.marcada { border-color: #7ee07e; }
+.foto.marcada img { opacity: .6; }
+.marca-foto {
+  position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; background: rgba(0,0,0,.35);
+  color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;
+}
+.foto.marcada .marca-foto { background: #2e7d32; }
+.barra-selecao {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10px + var(--seg-baixo)); z-index: 16; width: calc(var(--largura) - 16px);
+  display: flex; align-items: center; gap: 4px; padding: 6px 6px 6px 14px; background: #2a2a2a; color: #eee; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.6);
+}
+.barra-selecao .conta-selecao { flex: 1; }
+.barra-selecao button { padding: 9px 12px; border-radius: 8px; background: #3a3a3a; color: #eee; min-height: 40px; }
+.barra-selecao button.perigo { color: #ff8a8a; }
+.visor-acoes { display: flex; }
+.visor-legenda {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 16px calc(14px + var(--seg-baixo)); color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.8)); display: flex; flex-direction: column; gap: 2px; pointer-events: none;
+}
+.visor-legenda b { font-weight: 500; font-size: 1.05rem; }
+.visor-legenda small { color: #ccc; }
+.lista-albuns { display: flex; flex-direction: column; }
+.galeria.escolher { grid-template-columns: repeat(3, 1fr); }
+/* Imagem do item */
+.mini-item { flex: none; width: 38px; height: 38px; border-radius: 6px; overflow: hidden; border: 2px solid var(--petroleo); padding: 0; background: #ddd; }
+.mini-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.imagem-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.previa-item { width: 120px; height: 120px; border-radius: 10px; overflow: hidden; border: 2px solid var(--petroleo); padding: 0; background: #ddd; }
+.previa-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.imagem-item .botoes-android button { width: auto; padding: 5px 9px; font-size: .9rem; }
+/* Diálogos abertos por cima do visualizador de fotos (editar legenda, álbum...) ficam à frente dele */
+.dialogo-fundo { z-index: 37; }

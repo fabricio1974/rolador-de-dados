@@ -314,7 +314,7 @@ function criarPersonagem(e) {
   for (const t of especie.tracos) p.caracteristicas.push({ nome: t.nome, origem: `Espécie: ${especie.nome}`, descricao: t.descricao });
   if (e.sub) {
     const s = SUBESPECIES[especie.id];
-    p.caracteristicas.push({ nome: e.sub, origem: `${s.rotulo} (${especie.nome})`, descricao: `Escolhida no traço ${s.traco}: veja a descrição dele.` });
+    p.caracteristicas.push({ nome: e.sub, origem: `${s.rotulo} (${especie.nome})`, descricao: (especie.tracos.find(t => t.nome === s.traco) || { descricao: '' }).descricao });
   }
   const talento = D5.talentos.find(x => x.id === ant.talento);
   if (talento) p.caracteristicas.push({ nome: talento.nome, origem: `Antecedente: ${ant.nome}`, descricao: talento.descricao });

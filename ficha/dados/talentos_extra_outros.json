@@ -1,0 +1,266 @@
+[
+  {
+    "id": "artesao",
+    "nome": "Artesão",
+    "en": "Crafter",
+    "categoria": "Origem",
+    "prerequisito": "",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Proficiência com três Ferramentas de Artesão à sua escolha dentre as da tabela de Fabricação Rápida. Você paga 20% a menos em qualquer item não mágico que comprar. Ao terminar um Descanso Longo, pode fabricar um item de equipamento ligado a uma ferramenta em que é proficiente (Carpinteiro: escada, tocha; Coureiro: estojo de virotes, estojo de mapas/pergaminhos, algibeira; Pedreiro: talha; Oleiro: jarro, lamparina; Ferreiro: esferas de metal, balde, estrepes, gancho de escalada, panela de ferro; Funileiro: sino, pá, estojo de pederneira; Tecelão: cesto, corda, rede, tenda; Entalhador: clava, clava grande, bordão). O item se desfaz ao fim do seu próximo Descanso Longo.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "curandeiro",
+    "nome": "Curandeiro",
+    "en": "Healer",
+    "categoria": "Origem",
+    "prerequisito": "",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Médico de Campo: com um Kit de Curandeiro, você gasta um uso dele e, com a ação Utilizar, trata uma criatura a até 1,5 m; ela pode gastar um Dado de Ponto de Vida, que você rola, e recupera PV iguais ao resultado + seu Bônus de Proficiência. Rolagens de Cura: ao rolar um dado para definir PV restaurados por magia ou por este talento, você pode rolar de novo um resultado 1 (e deve usar o novo).",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "sortudo",
+    "nome": "Sortudo",
+    "en": "Lucky",
+    "categoria": "Origem",
+    "prerequisito": "",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Você tem Pontos de Sorte iguais ao seu Bônus de Proficiência e os recupera ao terminar um Descanso Longo. Ao rolar o d20 de um Teste de D20, gaste 1 ponto para ter Vantagem nessa rolagem. Quando uma criatura rolar um d20 para atacar você, gaste 1 ponto para impor Desvantagem a esse ataque.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "musico",
+    "nome": "Músico",
+    "en": "Musician",
+    "categoria": "Origem",
+    "prerequisito": "",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Proficiência com três Instrumentos Musicais à sua escolha. Ao terminar um Descanso Curto ou Longo, você pode tocar uma canção num instrumento em que é proficiente e conceder Inspiração Heroica a aliados que a ouçam, até um número igual ao seu Bônus de Proficiência.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "brigao-de-taverna",
+    "nome": "Brigão de Taverna",
+    "en": "Tavern Brawler",
+    "categoria": "Origem",
+    "prerequisito": "",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Seu Ataque Desarmado que causa dano pode causar 1d4 + modificador de Força de dano Contundente no lugar do dano normal, e você pode rolar de novo um 1 nos dados de dano desse ataque (usando o novo resultado). Você tem proficiência com armas improvisadas. Uma vez por turno, ao acertar uma criatura com Ataque Desarmado como parte da ação Atacar, você pode causar o dano e também empurrá-la 1,5 m para longe de você.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "robusto",
+    "nome": "Robusto",
+    "en": "Tough",
+    "categoria": "Origem",
+    "prerequisito": "",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Ao obter este talento, seu máximo de Pontos de Vida aumenta em duas vezes o seu nível de personagem. A cada nível de personagem que ganhar depois disso, o máximo aumenta em mais 2 PV.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "combate-as-cegas",
+    "nome": "Combate às Cegas",
+    "en": "Blind Fighting",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Característica Estilo de Luta",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Você ganha Percepção às Cegas com alcance de 3 m.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "duelismo",
+    "nome": "Duelismo",
+    "en": "Dueling",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Característica Estilo de Luta",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Enquanto empunhar uma arma corpo a corpo em uma das mãos e nenhuma outra arma, você recebe +2 nas jogadas de dano com essa arma.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "interceptacao",
+    "nome": "Interceptação",
+    "en": "Interception",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Característica Estilo de Luta",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Quando uma criatura que você consegue ver acerta com uma jogada de ataque outra criatura a até 1,5 m de você, você pode usar sua Reação para reduzir o dano sofrido pelo alvo em 1d10 + seu Bônus de Proficiência. É preciso estar empunhando um Escudo ou uma arma Simples ou Marcial.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "protecao",
+    "nome": "Proteção",
+    "en": "Protection",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Característica Estilo de Luta",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Quando uma criatura que você consegue ver ataca um alvo que não seja você e esteja a até 1,5 m de você, você pode usar sua Reação para interpor seu Escudo (precisa empunhar um). Isso impõe Desvantagem a esse ataque e a todos os outros ataques contra o alvo até o início do seu próximo turno, desde que você continue a até 1,5 m dele.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "combate-com-arma-de-arremesso",
+    "nome": "Combate com Arma de Arremesso",
+    "en": "Thrown Weapon Fighting",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Característica Estilo de Luta",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Ao acertar uma jogada de ataque à distância com uma arma que tenha a propriedade Arremesso, você recebe +2 na jogada de dano.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "combate-desarmado",
+    "nome": "Combate Desarmado",
+    "en": "Unarmed Fighting",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Característica Estilo de Luta",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Seu Ataque Desarmado que causa dano pode causar 1d6 + modificador de Força de dano Contundente no lugar do dano normal; se você não estiver empunhando armas nem Escudo ao fazer a jogada de ataque, o dado passa a ser d8. No início de cada um dos seus turnos, você pode causar 1d4 de dano Contundente a uma criatura que esteja Agarrada por você.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "guerreiro-abencoado",
+    "nome": "Guerreiro Abençoado",
+    "en": "Blessed Warrior",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Especial: Estilo de Luta do Paladino (nível 2)",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Você aprende dois truques de Clérigo à sua escolha (sugestões: Orientação e Chama Sagrada). Eles contam como magias de Paladino para você e usam Carisma como atributo de conjuração. Sempre que ganhar um nível de Paladino, pode trocar um deles por outro truque de Clérigo.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "guerreiro-druidico",
+    "nome": "Guerreiro Druídico",
+    "en": "Druidic Warrior",
+    "categoria": "Estilo de Luta",
+    "prerequisito": "Especial: Estilo de Luta do Patrulheiro (nível 2)",
+    "repetivel": false,
+    "aumento": null,
+    "descricao": "Você aprende dois truques de Druida à sua escolha (sugestões: Orientação e Lampejo Estelar). Eles contam como magias de Patrulheiro para você e usam Sabedoria como atributo de conjuração. Sempre que ganhar um nível de Patrulheiro, pode trocar um deles por outro truque de Druida.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "dadiva-da-resistencia-a-energia",
+    "nome": "Dádiva da Resistência a Energia",
+    "en": "Boon of Energy Resistance",
+    "categoria": "Dádiva Épica",
+    "prerequisito": "Nível 19+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 30
+    },
+    "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Você tem Resistência a dois tipos de dano à sua escolha entre Ácido, Elétrico, Frio, Fogo, Necrótico, Psíquico, Radiante, Trovejante e Veneno, podendo trocá-los ao terminar um Descanso Longo. Ao sofrer dano de um desses tipos, você pode usar sua Reação para redirecioná-lo a uma criatura que você veja a até 18 m e que não esteja sob Cobertura Total: ela faz um teste de resistência de Destreza (CD 8 + modificador de Constituição + Bônus de Proficiência) e, se falhar, sofre 2d12 + seu modificador de Constituição de dano daquele tipo.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "dadiva-da-fortitude",
+    "nome": "Dádiva da Fortitude",
+    "en": "Boon of Fortitude",
+    "categoria": "Dádiva Épica",
+    "prerequisito": "Nível 19+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 30
+    },
+    "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Seu máximo de Pontos de Vida aumenta em 40. Sempre que recuperar PV, você pode recuperar PV adicionais iguais ao seu modificador de Constituição; depois disso, não pode repetir até o início do seu próximo turno.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "dadiva-da-recuperacao",
+    "nome": "Dádiva da Recuperação",
+    "en": "Boon of Recovery",
+    "categoria": "Dádiva Épica",
+    "prerequisito": "Nível 19+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 30
+    },
+    "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Último Recurso: quando seria reduzido a 0 PV, você pode ficar com 1 PV e recuperar PV iguais à metade do seu máximo; uma vez por Descanso Longo. Recuperar Vitalidade: você tem uma reserva de dez d10; com uma Ação Bônus, gasta e rola quantos dados quiser da reserva e recupera PV iguais ao total. Os dados gastos voltam ao terminar um Descanso Longo.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "dadiva-da-pericia",
+    "nome": "Dádiva da Perícia",
+    "en": "Boon of Skill",
+    "categoria": "Dádiva Épica",
+    "prerequisito": "Nível 19+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 30
+    },
+    "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Você ganha proficiência em todas as perícias. Além disso, escolha uma perícia em que ainda não tenha Especialização e ganhe Especialização nela.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  },
+  {
+    "id": "dadiva-da-velocidade",
+    "nome": "Dádiva da Velocidade",
+    "en": "Boon of Speed",
+    "categoria": "Dádiva Épica",
+    "prerequisito": "Nível 19+",
+    "repetivel": false,
+    "aumento": {
+      "atributos": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ],
+      "qtd": 1,
+      "max": 30
+    },
+    "descricao": "Aumento no Valor de Atributo: +1 em um atributo à sua escolha, até o máximo de 30. Seu Deslocamento aumenta em 9 m. Com uma Ação Bônus, você pode realizar a ação Desengajar, que também encerra a condição Agarrado em você.",
+    "fonte": "Livro do Jogador 2024 (resumo)"
+  }
+]

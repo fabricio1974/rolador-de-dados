@@ -167,6 +167,7 @@ function irParaPagina(i, animar = true) {
   paginaIdx = ((i % N_PAGINAS) + N_PAGINAS) % N_PAGINAS;
   arrasto = 0;
   desenharPagina(paginaIdx);   // se estava "suja", fica pronta antes de aparecer
+  if (typeof desenharBarraSelecao === 'function') desenharBarraSelecao();
   posicionarPaginas(animar);
   marcarPonto();
   gravar(CHAVE_PAGINA, paginaIdx);

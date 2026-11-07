@@ -297,11 +297,45 @@ function desenharCaracteristicas() {
     add('+ Outra', () => editarCaracteristica(null)));
   caixa.append(novo);
 }
+// Tudo o que o app conhece com nome e descrição: talentos, características de classe e de
+// subclasse, traços de espécie, invocações e metamagias.
+let indiceDescricoes = null;
+const chaveNome = (t) => semAcento(String(t || '')).replace(/[’']/g, '').replace(/\s+/g, ' ').trim();
+function montarIndiceDescricoes() {
+  const lista = [];
+  for (const t of D5.talentos) lista.push({ nome: t.nome, en: t.en, descricao: t.descricao, fonte: `Talento (${t.categoria})` });
+  for (const c of D5.classes) {
+    for (const n of c.niveis) for (const f of n.caracteristicas) lista.push({ nome: f.nome, descricao: f.descricao, fonte: `${c.nome} ${n.nivel}` });
+    for (const s of (c.subclasses || [c.subclasse])) for (const f of s.caracteristicas) lista.push({ nome: f.nome, descricao: f.descricao, fonte: `${s.nome} ${f.nivel}` });
+  }
+  for (const e of D5.especies) for (const t of e.tracos) lista.push({ nome: t.nome, descricao: t.descricao, fonte: `Espécie: ${e.nome}` });
+  for (const x of D5.invocacoes || []) lista.push({ nome: x.nome, en: x.en, descricao: x.descricao, fonte: 'Invocação Mística' });
+  for (const x of D5.metamagias || []) lista.push({ nome: x.nome, en: x.en, descricao: x.descricao, fonte: 'Metamagia' });
+  // Genéricas ("Característica de Subclasse", "Aumento no Valor de Atributo") não servem de descrição.
+  return lista.filter(x => x.descricao && !/^Você ganha uma característica da sua subclasse/.test(x.descricao));
+}
+// Acha a descrição pelo nome: igual, sem o que está entre parênteses, ou em inglês ("Lucky").
+function descricaoConhecida(nome) {
+  if (!indiceDescricoes) indiceDescricoes = montarIndiceDescricoes();
+  const alvo = chaveNome(nome);
+  const semParenteses = alvo.replace(/\s*\(.*?\)\s*/g, ' ').trim();
+  if (!alvo) return null;
+  return indiceDescricoes.find(x => chaveNome(x.nome) === alvo || chaveNome(x.en) === alvo)
+    || indiceDescricoes.find(x => chaveNome(x.nome) === semParenteses || chaveNome(x.en) === semParenteses)
+    || indiceDescricoes.find(x => chaveNome(x.nome).replace(/\s*\(.*?\)\s*/g, ' ').trim() === semParenteses)
+    || null;
+}
+
 function verCaracteristica(i) {
   const c = p.caracteristicas[i];
+  // Sem descrição (escrita à mão, ou de versão antiga): procura na lista pelo nome e guarda na ficha.
+  if (!c.descricao || !c.descricao.trim() || /veja a descrição dele\.$/.test(c.descricao)) {
+    const achou = descricaoConhecida(c.nome);
+    if (achou) { c.descricao = achou.descricao; if (!c.origem) c.origem = achou.fonte; salvarDepois(); }
+  }
   abrirFolha(c.nome, (corpo) => {
     if (c.origem) corpo.append(dica(c.origem));
-    for (const par of (c.descricao || 'Sem descrição.').split(/\n\n+/)) corpo.append(el('p', 'notas-magia', par));
+    for (const par of (c.descricao || 'Sem descrição. Toque em Editar para escrever o que ela faz.').split(/\n\n+/)) corpo.append(el('p', 'notas-magia', par));
     corpo.append(linhaBotoes(
       botaoFolha('Remover', 'perigo', () => fecharFolha(() => comDesfazer(`${c.nome} removida`, () => p.caracteristicas.splice(i, 1)))),
       botaoFolha('Editar', '', () => editarCaracteristica(i))));
@@ -312,9 +346,21 @@ function editarCaracteristica(i) {
   const nome = entrada(c.nome, 'text', { foco: true, maxLength: 80 });
   const origem = entrada(c.origem, 'text', { maxLength: 60, placeholder: 'Ex.: Mago 3, Talento, Item' });
   const desc = areaTexto(c.descricao);
+  // Sugestões de nomes conhecidos; escolher um preenche a descrição (se estiver vazia).
+  if (!indiceDescricoes) indiceDescricoes = montarIndiceDescricoes();
+  const sugestoes = el('datalist');
+  sugestoes.id = 'nomes-caracteristicas';
+  sugestoes.append(...[...new Set(indiceDescricoes.map(x => x.nome))].sort((a, b) => a.localeCompare(b, 'pt')).map(n => { const o = el('option'); o.value = n; return o; }));
+  nome.setAttribute('list', sugestoes.id);
+  nome.addEventListener('change', () => {
+    const achou = descricaoConhecida(nome.value);
+    if (achou && !desc.value.trim()) { desc.value = achou.descricao; if (!origem.value.trim()) origem.value = achou.fonte; }
+  });
+  if (!$('nomes-caracteristicas')) document.body.append(sugestoes);   // uma vez só, no fim da página
   formSimples(i === null ? 'Nova característica' : 'Editar característica', [campo('Nome', nome), campo('De onde vem', origem), campo('Descrição', desc)], () => {
     if (!nome.value.trim()) return 'Escreva o nome.';
-    const nova = { nome: nome.value.trim(), origem: origem.value.trim(), descricao: desc.value };
+    const achou = !desc.value.trim() && descricaoConhecida(nome.value);
+    const nova = { nome: nome.value.trim(), origem: origem.value.trim() || (achou ? achou.fonte : ''), descricao: desc.value.trim() ? desc.value : (achou ? achou.descricao : '') };
     if (i === null) p.caracteristicas.push(nova); else p.caracteristicas[i] = nova;
   });
 }
