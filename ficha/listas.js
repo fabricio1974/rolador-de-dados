@@ -10,22 +10,27 @@ const magiaDoSRD = (id) => D5.magias.find(m => m.id === id) || null;
 const semAcento = (t) => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 // Lista com busca dentro da folha. "itens" = [{ chave (para buscar), no (elemento) }].
-function listaComBusca(corpo, itens, placeholder) {
-  const busca = entrada('', 'search', { placeholder, autocapitalize: 'off', spellcheck: false });
+// Lista com busca dentro da folha. "itens" = [{ chave (para buscar), no (elemento) }].
+// "filtroExtra(item)" soma outro filtro (nível, classe...): mudar o filtro só esconde/mostra,
+// sem refazer a lista (com 339 magias isso faz diferença no celular).
+function listaComBusca(corpo, itens, placeholder, filtroExtra = null) {
+  const busca = entrada('', 'search', { placeholder: typeof placeholder === 'function' ? '' : placeholder, autocapitalize: 'off', spellcheck: false });
   busca.className = 'busca';
   const lista = el('div', 'lista-escolha');
   const vazio = el('p', 'dica', 'Nada encontrado.');
   const filtrar = () => {
     const q = semAcento(busca.value.trim());
-    let algum = false;
+    let quantos = 0;
     for (const it of itens) {
-      const ok = !q || it.chave.includes(q);
-      it.no.hidden = !ok;
-      if (ok && !it.titulo) algum = true;
+      if (it.titulo) continue;
+      const ok = (!q || it.chave.includes(q)) && (!filtroExtra || filtroExtra(it));
+      if (it.no.hidden === ok) it.no.hidden = !ok;
+      if (ok) quantos++;
     }
     // Cabeçalhos de grupo somem quando o grupo fica vazio.
     for (const it of itens.filter(x => x.titulo)) it.no.hidden = !it.membros.some(m => !m.no.hidden);
-    vazio.hidden = algum;
+    vazio.hidden = quantos > 0;
+    if (typeof placeholder === 'function') busca.placeholder = placeholder(quantos);
   };
   busca.addEventListener('input', filtrar);
   lista.append(...itens.map(i => i.no), vazio);
@@ -71,38 +76,47 @@ function magiaParaFicha(m) {
 function escolherMagia(nivel = null) {
   const minhas = new Set(p.classes.map(c => c.id).filter(id => { const d = classeDoSRD(id); return d && d.conjuracao; }));
   let soMinhas = minhas.size > 0, nivelFiltro = nivel;
-  const montarLista = () => abrirFolha('Adicionar magia', (corpo) => {
+  abrirFolha('Adicionar magia', (corpo) => {
     const filtros = el('div', 'filtros');
+    let busca = null;
     const chip = (texto, ativo, f) => { const b = el('button', 'chip' + (ativo ? ' ativo' : ''), texto); b.type = 'button'; b.addEventListener('click', f); return b; };
     if (minhas.size) {
-      filtros.append(chip('Minhas classes', soMinhas, () => { soMinhas = true; montarLista(); }),
-        chip('Todas', !soMinhas, () => { soMinhas = false; montarLista(); }));
+      const minhasB = chip('Minhas classes', soMinhas, () => { soMinhas = true; minhasB.classList.add('ativo'); todasB.classList.remove('ativo'); busca.filtrar(); });
+      const todasB = chip('Todas', !soMinhas, () => { soMinhas = false; todasB.classList.add('ativo'); minhasB.classList.remove('ativo'); busca.filtrar(); });
+      filtros.append(minhasB, todasB);
     }
     const nivelSel = selecao([['', 'Todos os níveis'], ...ORDINAIS.map((o, n) => [String(n), n ? o : 'Truques'])], nivelFiltro === null ? '' : String(nivelFiltro));
     nivelSel.className = 'chip-select';
-    nivelSel.addEventListener('change', () => { nivelFiltro = nivelSel.value === '' ? null : Number(nivelSel.value); montarLista(); });
+    nivelSel.addEventListener('change', () => { nivelFiltro = nivelSel.value === '' ? null : Number(nivelSel.value); busca.filtrar(); });
     filtros.append(nivelSel);
     corpo.append(filtros, linhaBotoes(botaoFolha('Magia personalizada', '', () => editarMagia(null, nivelFiltro ?? 0))));
     if (!D5.magias.length) { corpo.append(dica('A lista de magias não carregou.')); return; }
     const naFicha = new Set(p.magias.map(m => m.ref).filter(Boolean));
-    const itens = D5.magias
-      .filter(m => (nivelFiltro === null || m.nivel === nivelFiltro) && (!soMinhas || m.classes.some(c => minhas.has(c))))
+    // As 339 magias são montadas uma vez; os filtros só escondem e mostram.
+    const itens = [...D5.magias]
       .sort((a, b) => a.nivel - b.nivel || a.nome.localeCompare(b.nome, 'pt'))
-      .map(m => ({ chave: semAcento(m.nome + ' ' + m.en), no: itemLista(m.nome, ESCOLAS_ABREV(m), () => verMagia(m), naFicha.has(m.id) ? '✓' : '') }));
-    listaComBusca(corpo, itens, `Buscar entre ${itens.length} magias`);
+      .map(m => {
+        const it = { m, chave: semAcento(m.nome + ' ' + m.en) };
+        it.no = itemLista(m.nome, ESCOLAS_ABREV(m), () => verMagia(it), naFicha.has(m.id) ? '✓' : '');
+        return it;
+      });
+    busca = listaComBusca(corpo, itens, (n) => `Buscar entre ${n} magias`,
+      (it) => (nivelFiltro === null || it.m.nivel === nivelFiltro) && (!soMinhas || it.m.classes.some(c => minhas.has(c))));
   });
-  const verMagia = (m) => abrirFolha(m.nome, (corpo) => {
-    corpo.append(fichaDaMagia(m), linhaBotoes(
-      botaoFolha('Voltar à lista', '', montarLista),
-      botaoFolha('Adicionar', 'principal', () => {
-        p.magias.push(magiaParaFicha(m));
-        salvar();
-        desenhar();
-        avisar(`${m.nome} adicionada`);
-        montarLista();
-      })));
-  });
-  montarLista();
+  // A magia abre num diálogo por cima da lista: a busca e a rolagem da lista continuam lá.
+  async function verMagia(it) {
+    const m = it.m;
+    const add = await dialogo(m.nome, (corpo) => corpo.append(fichaDaMagia(m)),
+      [{ texto: 'Fechar', valor: false }, { texto: 'Adicionar', valor: true }]);
+    if (!add) return;
+    p.magias.push(magiaParaFicha(m));
+    salvar();
+    desenhar();
+    let marca = it.no.querySelector('.marca');
+    if (!marca) { marca = el('span', 'marca'); it.no.append(marca); }
+    marca.textContent = '✓';
+    avisar(`${m.nome} adicionada`);
+  }
 }
 
 // ---------- Armas ----------

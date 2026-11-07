@@ -38,7 +38,7 @@ async function editarAtributos() {
   const ok = await dialogo('', (corpo, ctx) => {
     const valores = {}, profs = {}, bonus = {};
     const g1 = el('div', 'grade-sub');
-    for (const a of ATRIBUTOS) { valores[a.id] = campoSub(`Valor de ${a.nome}`, p.atributos[a.id]); g1.append(valores[a.id]); }
+    for (const a of ATRIBUTOS) { valores[a.id] = campoSub(a.nome, p.atributos[a.id]); g1.append(valores[a.id]); }
     const g2 = el('div', 'grade-marcar');
     for (const a of ATRIBUTOS) { profs[a.id] = marcarAndroid(ABREV[a.id], p.salvaguardas[a.id]); g2.append(profs[a.id]); }
     const g3 = el('div', 'grade-sub');

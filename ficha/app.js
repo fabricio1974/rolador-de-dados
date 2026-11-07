@@ -149,19 +149,24 @@ function distanciaPagina(i) {
   if (d <= -N_PAGINAS / 2) d += N_PAGINAS;
   return d;
 }
-function posicionarPaginas(animar) {
-  const w = paginas.clientWidth;
+let larguraPaginas = 0;
+function posicionarPaginas(animar, soMover = false) {
+  const w = soMover && larguraPaginas ? larguraPaginas : (larguraPaginas = paginas.clientWidth);
   PAGINAS.forEach((pg, i) => {
     const d = distanciaPagina(i);
+    if (soMover && Math.abs(d) > 1) return;                            // durante o arrasto: só as 3 da tela
     pg.style.transition = animar ? 'transform .3s cubic-bezier(.2,.75,.25,1)' : 'none';
     pg.style.transform = `translate3d(${d * w + arrasto}px,0,0)`;
+    if (soMover) return;
     pg.style.visibility = Math.abs(d) <= 1 ? 'visible' : 'hidden';   // só a atual e as vizinhas
+    pg.classList.toggle('perto', Math.abs(d) <= 1);
     pg.setAttribute('aria-hidden', String(d !== 0));
   });
 }
 function irParaPagina(i, animar = true) {
   paginaIdx = ((i % N_PAGINAS) + N_PAGINAS) % N_PAGINAS;
   arrasto = 0;
+  desenharPagina(paginaIdx);   // se estava "suja", fica pronta antes de aparecer
   posicionarPaginas(animar);
   marcarPonto();
   gravar(CHAVE_PAGINA, paginaIdx);
@@ -196,11 +201,14 @@ paginas.addEventListener('pointermove', (ev) => {
     if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) {
       gesto.modo = 'h';
       try { paginas.setPointerCapture(ev.pointerId); } catch { /* sem captura: segue igual */ }
+      // As vizinhas vão aparecer: se alguma está "suja", desenha agora.
+      desenharPagina((paginaIdx + 1) % N_PAGINAS);
+      desenharPagina((paginaIdx + N_PAGINAS - 1) % N_PAGINAS);
     } else if (Math.abs(dy) > 12) gesto.modo = 'v';
   }
   if (gesto.modo === 'h') {
     arrasto = dx;
-    posicionarPaginas(false);
+    posicionarPaginas(false, true);
   }
 });
 function soltarGesto(ev) {
@@ -235,7 +243,17 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'ArrowRight') irParaPagina(paginaIdx + 1);
   if (ev.key === 'ArrowLeft') irParaPagina(paginaIdx - 1);
 });
-new ResizeObserver(() => { posicionarPaginas(false); encaixarTextos(); }).observe(paginas);
+// Mudou o tamanho: reposiciona; encaixa os textos de novo só se a LARGURA mudou (o teclado
+// do celular muda só a altura).
+let larguraObservada = 0;
+new ResizeObserver(() => {
+  posicionarPaginas(false);
+  if (paginas.clientWidth === larguraObservada) return;
+  larguraObservada = paginas.clientWidth;
+  for (let i = 0; i < 5; i++) paginasSujas.add(i);
+  desenharPagina(paginaIdx);
+  agendarPaginas();
+}).observe(paginas);
 // A caixa das páginas nunca rola sozinha (o navegador tenta, ao focar um campo de uma página
 // vizinha): se rolar, volta e mostra a página daquele campo.
 paginas.addEventListener('scroll', () => {
@@ -256,13 +274,18 @@ function tocavel(no, aoTocar, aoSegurar = null) {
   // O toque vale no "soltar o dedo" (pointerup): logo depois de passar a página com um
   // arrasto rápido, o Android/Chrome às vezes não gera o "click", mas o pointerup chega.
   let timer = null, segurou = false, apertado = false, mexeu = false, x0 = 0, y0 = 0;
-  const cancelar = () => clearTimeout(timer);
+  // Segurando: depois de um instante a caixa escurece aos poucos até abrir a edição.
+  let timerVisual = null;
+  const cancelar = () => { clearTimeout(timer); clearTimeout(timerVisual); no.classList.remove('segurando'); };
   no.addEventListener('pointerdown', (ev) => {
     if (ev.pointerType === 'mouse' && ev.button !== 0) return;
     segurou = false; mexeu = false; apertado = true; x0 = ev.clientX; y0 = ev.clientY;
-    if (aoSegurar) timer = setTimeout(() => { segurou = true; vibrar(); aoSegurar(); }, 500);
+    if (aoSegurar) {
+      timerVisual = setTimeout(() => no.classList.add('segurando'), 120);
+      timer = setTimeout(() => { segurou = true; no.classList.remove('segurando'); vibrar(); aoSegurar(); }, 500);
+    }
   });
-  no.addEventListener('pointermove', (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) { mexeu = true; cancelar(); } });
+  no.addEventListener('pointermove', (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 12) { mexeu = true; cancelar(); } });
   no.addEventListener('pointerup', (ev) => {
     cancelar();
     const valeu = apertado && !segurou && !mexeu && performance.now() - fimDoArrasto > 150;
@@ -379,6 +402,8 @@ function mostrarRolagem(titulo, rolagem, modo) {
   caixa.append(botoes);
   caixa.hidden = false;
   document.body.classList.add('com-rolagem');
+  // As páginas ganham espaço embaixo do tamanho do cartão: o fim delas nunca fica escondido.
+  document.documentElement.style.setProperty('--altura-rolagem', caixa.offsetHeight + 'px');
 }
 function esconderRolagem() {
   $('rolagem').hidden = true;
@@ -475,38 +500,73 @@ function selecao(opcoes, atual) {
 }
 
 // ---------- 8. Desenhar as páginas ----------
+// Desenhar é a parte mais cara: a página que está na tela é refeita na hora e as outras
+// ficam "sujas" e são refeitas no tempo livre do celular (as vizinhas primeiro), ou na hora
+// em que forem aparecer (ao arrastar ou trocar de página).
+const paginasSujas = new Set();
+let detalhesTudo = false;
+const DESENHOS = [
+  () => desenharPrincipal(), () => desenharPericias(), () => desenharAtaques(), () => desenharMagias(),
+  () => {
+    // Detalhes é refeita sempre, menos enquanto alguém digita nela (para não perder o cursor).
+    const pg = $('pg-detalhes');
+    if (detalhesTudo || !pg.childElementCount || !pg.contains(document.activeElement)) desenharDetalhes();
+    else { $('det-classe').textContent = classeENivel(); desenharCaracteristicas(); }
+    detalhesTudo = false;
+  },
+  () => {},   // Galeria: só ao trocar de personagem (desenharGaleria é assíncrona)
+];
 function desenhar(tudo = false) {
   $('titulo').textContent = p.nome;
   document.title = p.nome + ' · Ficha';
-  desenharPrincipal();
-  desenharPericias();
-  desenharAtaques();
-  desenharMagias();
-  // Detalhes é refeita sempre, menos enquanto alguém digita nela (para não perder o cursor).
-  if (tudo || !$('pg-detalhes').childElementCount || !$('pg-detalhes').contains(document.activeElement)) desenharDetalhes();
-  else { $('det-classe').textContent = classeENivel(); desenharCaracteristicas(); }
-  if (tudo) desenharGaleria();
-  requestAnimationFrame(() => encaixarTextos());
+  for (let i = 0; i < 5; i++) paginasSujas.add(i);
+  if (tudo) { detalhesTudo = true; desenharGaleria(); }
+  desenharPagina(paginaIdx);
+  agendarPaginas();
+}
+function desenharPagina(i) {
+  if (!paginasSujas.has(i)) return;
+  paginasSujas.delete(i);
+  DESENHOS[i]();
+  encaixarTextos(PAGINAS[i]);
+}
+let pedidoOcioso = null;
+const quandoLivre = window.requestIdleCallback ? (f) => requestIdleCallback(f, { timeout: 400 }) : (f) => setTimeout(() => f({ timeRemaining: () => 8, didTimeout: true }), 40);
+const cancelarLivre = window.cancelIdleCallback || clearTimeout;
+function agendarPaginas() {
+  if (pedidoOcioso !== null) cancelarLivre(pedidoOcioso);
+  pedidoOcioso = quandoLivre(function vez(prazo) {
+    pedidoOcioso = null;
+    // Vizinhas primeiro (aparecem ao arrastar), depois as outras; uma por vez se o tempo for curto.
+    const ordem = [...paginasSujas].sort((a, b) => Math.abs(distanciaPagina(a)) - Math.abs(distanciaPagina(b)));
+    for (const i of ordem) {
+      desenharPagina(i);
+      if (!prazo.didTimeout && prazo.timeRemaining() < 6) break;
+    }
+    if (paginasSujas.size) pedidoOcioso = quandoLivre(vez);
+  });
 }
 const classeENivel = () => classeENivelDe(p);
 // Texto que não cabe na caixa encolhe até caber (como os campos do app de referência):
 // "1d12+3d10+1d8", nomes compridos, "Perfurante"...
-function encaixarTextos(raiz = document) {
-  for (const no of raiz.querySelectorAll('.encaixar')) {
-    no.style.fontSize = '';
-    no.classList.remove('quebrado');
-    if (!no.clientWidth) continue;
-    let tam = parseFloat(getComputedStyle(no).fontSize);
-    // Encolhe na proporção do que passou e depois acerta aos poucos (no mínimo 8 px).
-    for (let i = 0; i < 6 && no.scrollWidth > no.clientWidth + 1 && tam > 8; i++) {
-      tam = Math.max(8, tam * Math.min(0.97, no.clientWidth / no.scrollWidth));
-      no.style.fontSize = tam.toFixed(1) + 'px';
-    }
-    // Nem pequeno coube (ex.: quatro classes numa tela estreita): quebra em duas linhas.
-    if (no.scrollWidth > no.clientWidth + 1) {
-      no.classList.add('quebrado');
-      no.style.fontSize = Math.max(10, tam).toFixed(1) + 'px';
-    }
+// Para ficar leve, mede em lotes: primeiro lê todos, depois escreve todos (o navegador
+// recalcula o layout só algumas vezes, e não uma vez por texto).
+function encaixarTextos(raiz = PAGINAS[paginaIdx]) {
+  let nos = [...raiz.querySelectorAll('.encaixar')];
+  for (const no of nos) { if (no.style.fontSize) no.style.fontSize = ''; no.classList.remove('quebrado'); }
+  for (let rodada = 0; rodada < 3 && nos.length; rodada++) {
+    const medidas = nos.map(no => [no.clientWidth, no.scrollWidth]);              // leitura (1 layout)
+    const passam = nos.filter((no, k) => medidas[k][0] && medidas[k][1] > medidas[k][0] + 1);
+    if (!passam.length) return;
+    const tamanhos = passam.map(no => parseFloat(getComputedStyle(no).fontSize));
+    passam.forEach((no, k) => {                                                     // escrita
+      const [cw, sw] = medidas[nos.indexOf(no)];
+      const novo = Math.max(8, tamanhos[k] * Math.min(0.97, cw / sw));
+      // Nem pequeno coube (ex.: quatro classes numa tela estreita): quebra em duas linhas.
+      if (rodada === 2 || novo <= 8) { no.classList.add('quebrado'); no.style.fontSize = Math.max(10, novo).toFixed(1) + 'px'; }
+      else no.style.fontSize = novo.toFixed(1) + 'px';
+    });
+    nos = passam.filter(no => !no.classList.contains('quebrado'));
   }
 }
 // Como na ficha de papel: positivo sem "+" (3), negativo com "-" (-1).
@@ -637,7 +697,11 @@ function desenharAtaques() {
     tirar.setAttribute('aria-label', `Tirar ${a.nome}`);
     tirar.classList.add('letra');
     tirar.textContent = 'X';
-    tirar.addEventListener('click', () => comDesfazer(`${a.nome} tirada`, () => p.ataques.splice(i, 1)));
+    // O X fica do lado do dano (que rola): pergunta antes de tirar, para não apagar sem querer.
+    tirar.addEventListener('click', async () => {
+      const sim = await dialogo(`Tirar ${a.nome}?`, null, [{ texto: 'Cancelar', valor: false }, { texto: 'Tirar', valor: true }]);
+      if (sim) comDesfazer(`${a.nome} tirada`, () => p.ataques.splice(i, 1));
+    });
     linha.append(topo, baixo, tirar);
     pg.append(linha);
   });
@@ -708,6 +772,7 @@ function gastarEspaco(n) {
 
 function desenharDetalhes() {
   const pg = $('pg-detalhes');
+  const rolagemAntes = pg.scrollTop;
   pg.replaceChildren();
   const cartao = (titulo, conteudo, escolher = null) => {
     const c = el('div', 'cartao-texto');
@@ -726,13 +791,13 @@ function desenharDetalhes() {
     });
     return i;
   };
-  // Caixas de texto que crescem com o que se escreve.
-  const crescer = (t) => { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; };
+  // Caixas de texto que crescem com o que se escreve: o CSS faz isso (field-sizing: content);
+  // em WebViews antigas, o JS mede (todas juntas, numa leitura só).
+  const crescer = CSS.supports('field-sizing', 'content') ? () => {} : (t) => { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; };
   const campoTexto = (id) => {
     const t = areaTexto(p.textos[id]);
     t.rows = 1;
     t.addEventListener('input', () => { p.textos[id] = t.value; crescer(t); salvarDepois(); });
-    requestAnimationFrame(() => crescer(t));
     return t;
   };
 
@@ -761,8 +826,13 @@ function desenharDetalhes() {
   }
   pg.append(moedas);
   for (const t of TEXTOS_FINAIS) pg.append(cartao(t.nome, campoTexto(t.id)));
-  // Ao trocar de página, as caixas de texto acertam a altura (a página escondida não tem medida certa).
-  requestAnimationFrame(() => pg.querySelectorAll('textarea').forEach(crescer));
+  if (!CSS.supports('field-sizing', 'content')) {
+    const tas = [...pg.querySelectorAll('textarea')];
+    tas.forEach(t => { t.style.height = 'auto'; });
+    const alturas = tas.map(t => t.scrollHeight);
+    tas.forEach((t, k) => { t.style.height = alturas[k] + 'px'; });
+  }
+  pg.scrollTop = rolagemAntes;   // a página não pula para outro lugar depois de editar
 }
 
 // ---------- 9. Edição (folhas) ----------

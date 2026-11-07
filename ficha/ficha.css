@@ -717,3 +717,52 @@ input.sublinhado.grande { width: 56px; font-size: 1.4rem; }
 .dialogo textarea.notas-item { width: 100%; min-height: 70px; border: 1px solid #bbb; border-radius: 6px; padding: 6px; font-size: 1rem; resize: vertical; background: #fff; }
 .stepper { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 4px 0; }
 .stepper input { width: 70px; }
+
+/* ======================================================================
+   Versão 6: fluidez e responsividade (revisão 1)
+   ====================================================================== */
+/* Só as páginas da tela (atual e vizinhas) ficam numa camada da GPU */
+.pagina { will-change: auto; overflow-x: hidden; }
+.pagina.perto { will-change: transform; }
+/* Caixas de texto crescem sozinhas (sem JS medindo) */
+.cartao-texto textarea { field-sizing: content; min-height: 1.6em; }
+/* Listas longas: o navegador só desenha o que está à vista */
+.item-escolha { content-visibility: auto; contain-intrinsic-size: auto 58px; }
+/* O cartão do resultado não esconde o fim da página */
+body.com-rolagem .pagina { padding-bottom: calc(var(--altura-rolagem, 160px) + 24px + var(--seg-baixo)); }
+/* Segurar para editar: escurece aos poucos */
+.tocavel.segurando { animation: segurando .38s linear forwards; }
+@keyframes segurando { to { filter: brightness(.72); } }
+/* Áreas de toque maiores */
+.atributo h3 { padding: 3px 0; }
+.nivel-magia > button:first-child { min-height: 38px; }
+.magia { min-height: 36px; display: flex; align-items: center; justify-content: center; }
+.aba-equip { padding: 7px 12px; }
+.qtd-equip button { width: 34px; height: 34px; }
+#det-classe { min-height: 34px; }
+/* Ataques: a linha nunca passa da tela */
+.arma { grid-template-columns: minmax(0, 1fr) 30px; }
+.arma-topo { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, .9fr); }
+.arma-baixo { max-width: calc(100% - 30px); }
+/* Detalhes: dois cartões lado a lado cabem até em 320 px */
+.dois { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cartao-texto, .cartao-texto h3 { min-width: 0; }
+.cartao-texto h3 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Telas estreitas: diálogos com menos margem */
+@media (max-width: 340px) {
+  .dialogo-fundo { padding: 10px 8px; }
+  .dialogo-corpo { padding-left: 12px; padding-right: 12px; }
+  .grade-sub { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .campo-sub span { overflow-wrap: anywhere; }
+}
+/* Deitado (paisagem): cartão de resultado e diálogos mais largos e baixos */
+@media (orientation: landscape) and (max-height: 500px) {
+  .rolagem { max-height: 46vh; }
+  .parte.unica .total { font-size: 2.1rem; }
+  .dialogo { width: min(94vw, 680px); max-height: 94dvh; }
+  .grade-sub { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .grade-marcar { grid-template-columns: repeat(6, auto); }
+  .caixa-pv { min-height: 0; }
+}
+/* Tablet: a caixa de PV não estica */
+.caixa-pv { min-height: min(22.5vw, 104px); }
