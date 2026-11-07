@@ -173,6 +173,7 @@ async function subirDeNivel() {
     }
     if (!dados) corpo.append(el('p', 'dialogo-dica', 'Classe fora do SRD: escreva as características novas em Detalhes.'));
   }, [{ texto: 'Concluído', valor: true }]);
+  await escolherEstiloSeGanhou(novas);
   avisar(`${p.nome} chegou ao nível ${p.nivel}`, 'Desfazer', () => {
     const i = personagens.indexOf(p);
     personagens[i] = antes; p = antes; salvar(); desenhar(true);
@@ -269,13 +270,39 @@ async function dialogoAumento(epico) {
 // Subclasses conhecidas de uma classe (a do SRD e as extras, como o Adivinho do Mago).
 const subclassesDe = (dados) => (dados && (dados.subclasses || [dados.subclasse])) || [];
 // Acha a subclasse pelo nome escrito: "Adivinho", "Adivinhação", "Diviner", "Escola de Adivinhação"...
+// Tira "Caminho do", "Colégio do", "Domínio da", "School of", "Path of the"... dos DOIS lados
+// (o nome escrito e o nome da lista), para "Berserker" achar "Caminho do Berserker".
+const baseSubclasse = (t) => semAcento(String(t || ''))
+  .replace(/^(escola|colegio|circulo|caminho|juramento|dominio|patrono|patrona)( d[aeo]s?| de)? /, '')
+  .replace(/^(school|college|circle|path|oath|domain|way|warrior) of (the )?/, '').trim();
 function subclasseConhecida(dados, nome) {
-  const n = semAcento(String(nome || '')).replace(/^(escola|colegio|circulo|caminho|juramento|dominio|patrono) d[aeo]s? /, '').trim();
+  const n = baseSubclasse(nome);
   if (n.length < 4) return null;
   return subclassesDe(dados).find(s => {
-    const a = semAcento(s.nome), b = semAcento(s.en || '');
+    const a = baseSubclasse(s.nome), b = baseSubclasse(s.en);
     return n === a || n === b || n.slice(0, 5) === a.slice(0, 5) || (b && n.slice(0, 5) === b.slice(0, 5));
   }) || null;
+}
+
+// Fichas antigas: "Característica de <subclasse>" com o texto "escreva o que ela faz" vira as
+// características de verdade daquele nível, quando a subclasse é conhecida.
+const TEXTO_PROVISORIO = /^Característica da sua subclasse/;
+function repararCaracteristicas(x) {
+  let mudou = false;
+  const nova = [];
+  for (const c of x.caracteristicas) {
+    const m = TEXTO_PROVISORIO.test(c.descricao || '') && c.nome.match(/^Característica de (.+)$/);
+    const nivel = m && Number((c.origem.match(/(\d+)/) || [])[1]);
+    const dados = m && classeDoSRD(acharClasse(c.origem));
+    const sub = dados && subclasseConhecida(dados, m[1]);
+    const reais = sub ? sub.caracteristicas.filter(s => s.nivel === nivel) : [];
+    if (reais.length) {
+      mudou = true;
+      for (const r of reais) if (!nova.some(n => n.nome === r.nome) && !x.caracteristicas.some(n => n.nome === r.nome)) nova.push({ nome: r.nome, origem: c.origem, descricao: r.descricao });
+    } else nova.push(c);
+  }
+  if (mudou) x.caracteristicas = nova;
+  return mudou;
 }
 
 async function dialogoSubclasse(dados) {
@@ -436,4 +463,14 @@ function acrescentarCaracteristicasDaSubclasse() {
       p.caracteristicas.push({ nome: x.nome, origem: `${c.nome} ${x.nivel} (${sub.nome})`, descricao: x.descricao });
     }
   }
+}
+
+// Ganhou "Estilo de Luta" (Guerreiro 1, Paladino 2, Patrulheiro 2...): escolher qual agora.
+async function escolherEstiloSeGanhou(novas) {
+  if (!novas.some(x => /^Estilo de Luta/i.test(x.nome))) return;
+  const t = await escolherTalento('Estilo de Luta');
+  if (!t) return;
+  p.caracteristicas.push({ nome: t.nome, origem: 'Estilo de Luta', descricao: t.descricao });
+  salvar();
+  desenhar();
 }

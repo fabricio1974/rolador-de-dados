@@ -48,16 +48,24 @@ function reduzirFoto(arquivo, lado = 1600) {
 }
 
 // Endereços (blob:) das fotos já abertas, para não criar de novo a cada desenho.
+// A miniatura (~360 px, guardada junto) vai na grade, na escolha e no item; a grande, só na
+// tela cheia — assim o celular não decodifica dezenas de fotos de 1600 px de uma vez.
 const urlsFotos = new Map();
-function urlDe(f) {
-  if (!urlsFotos.has(f.id)) urlsFotos.set(f.id, URL.createObjectURL(f.blob));
-  return urlsFotos.get(f.id);
+function urlDe(f, mini = false) {
+  const blob = mini && f.mini ? f.mini : f.blob;
+  const chave = f.id + (blob === f.mini ? ':m' : '');
+  if (!urlsFotos.has(chave)) urlsFotos.set(chave, URL.createObjectURL(blob));
+  return urlsFotos.get(chave);
 }
-async function urlDaFoto(id) {
+async function urlDaFoto(id, mini = true) {
   if (!id) return null;
-  if (urlsFotos.has(id)) return urlsFotos.get(id);
-  try { const f = await fotosDB.pegar(id); return f ? urlDe(f) : null; } catch { return null; }
+  if (urlsFotos.has(id + ':m')) return urlsFotos.get(id + ':m');
+  if (!mini && urlsFotos.has(id)) return urlsFotos.get(id);
+  try { const f = await fotosDB.pegar(id); return f ? urlDe(f, mini) : null; } catch { return null; }
 }
+// Galeria precisa ser refeita (foto nova, item ligado/desligado...) na próxima vez que aparecer.
+let galeriaSuja = true;
+function marcarGaleria() { galeriaSuja = true; if (typeof paginasSujas !== 'undefined') paginasSujas.add(PAGINAS.indexOf($('pg-galeria'))); }
 const novoIdFoto = () => 'f-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 // Organização: álbum escolhido ('' = Todas, '-' = Sem álbum), ordem e seleção de várias.
@@ -72,6 +80,7 @@ const albunsDoPersonagem = () => [...new Set([...p.albuns, ...fotosTodas.map(f =
 
 async function desenharGaleria() {
   const pg = $('pg-galeria');
+  galeriaSuja = false;
   const minha = ++desenhoGaleria;
   let lista = [];
   try { lista = await fotosDB.doPersonagem(p.id); }
@@ -79,7 +88,11 @@ async function desenharGaleria() {
   if (minha !== desenhoGaleria) return;
   fotosTodas = lista.map(f => ({ album: '', legenda: '', ...f }));
   const vivos = new Set(fotosTodas.map(f => f.id));
-  for (const [id, u] of urlsFotos) if (!vivos.has(id) && !p.equipamentos.some(i => i.foto === id)) { URL.revokeObjectURL(u); urlsFotos.delete(id); }
+  for (const [chave, u] of urlsFotos) {
+    const id = chave.replace(/:m$/, '');
+    if (!vivos.has(id) && !p.equipamentos.some(i => i.foto === id)) { URL.revokeObjectURL(u); urlsFotos.delete(chave); }
+  }
+  if (fotosMarcadas) { for (const id of [...fotosMarcadas]) if (!vivos.has(id)) fotosMarcadas.delete(id); if (!fotosMarcadas.size) fotosMarcadas = null; }
   const albuns = albunsDoPersonagem();
   if (prefGaleria.album && prefGaleria.album !== '-' && !albuns.includes(prefGaleria.album)) prefGaleria.album = '';
   const noAlbum = (f) => prefGaleria.album === '' || (prefGaleria.album === '-' ? !f.album : f.album === prefGaleria.album);
@@ -129,7 +142,7 @@ async function desenharGaleria() {
     const b = el('button', 'foto' + (fotosMarcadas && fotosMarcadas.has(f.id) ? ' marcada' : ''));
     b.type = 'button';
     b.setAttribute('aria-label', f.legenda || `Foto ${i + 1}`);
-    const img = el('img'); img.src = urlDe(f); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+    const img = el('img'); img.src = urlDe(f, true); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
     b.append(img);
     if (f.legenda) b.append(el('span', 'legenda-foto', f.legenda));
     const item = p.equipamentos.find(x => x.foto === f.id);
@@ -138,8 +151,11 @@ async function desenharGaleria() {
     tocavel(b, () => {
       if (!fotosMarcadas) { verFotos(fotosVisiveis, i); return; }
       fotosMarcadas.has(f.id) ? fotosMarcadas.delete(f.id) : fotosMarcadas.add(f.id);
-      if (!fotosMarcadas.size) fotosMarcadas = null;
-      desenharGaleria();
+      if (!fotosMarcadas.size) { fotosMarcadas = null; desenharGaleria(); return; }
+      // Só esta foto muda: marca no lugar (rápido) e atualiza a barra.
+      b.classList.toggle('marcada', fotosMarcadas.has(f.id));
+      b.querySelector('.marca-foto').textContent = fotosMarcadas.has(f.id) ? '✓' : '';
+      desenharBarraSelecao();
     }, () => { fotosMarcadas = fotosMarcadas || new Set(); fotosMarcadas.add(f.id); desenharGaleria(); });
     grade.append(b);
   });
@@ -160,7 +176,10 @@ async function desenharGaleria() {
 // Barra embaixo quando há fotos selecionadas: mover para um álbum ou apagar.
 function desenharBarraSelecao() {
   let barra = $('barra-selecao');
-  if (!fotosMarcadas || paginaAtual() !== PAGINAS.indexOf($('pg-galeria'))) { if (barra) barra.remove(); return; }
+  // Saiu da Galeria: a seleção acaba (não volta sozinha depois).
+  if (fotosMarcadas && paginaAtual() !== PAGINAS.indexOf($('pg-galeria'))) fotosMarcadas = null;
+  document.body.classList.toggle('com-selecao', !!fotosMarcadas);
+  if (!fotosMarcadas) { if (barra) barra.remove(); return; }
   if (!barra) { barra = el('div', 'barra-selecao'); barra.id = 'barra-selecao'; document.body.append(barra); }
   const b = (t, f, cls = '') => { const x = el('button', cls, t); x.type = 'button'; x.addEventListener('click', f); return x; };
   barra.replaceChildren(
@@ -170,8 +189,10 @@ function desenharBarraSelecao() {
     b('✕', () => { fotosMarcadas = null; desenharGaleria(); }));
 }
 
+// O mesmo nome com outras maiúsculas/acentos vira o álbum que já existe.
+const albumExistente = (nome) => albunsDoPersonagem().find(a => semAcento(a) === semAcento(nome)) || nome;
 async function pedirNomeAlbum(titulo, atual) {
-  return dialogo(titulo, (corpo, ctx) => {
+  const r = await dialogo(titulo, (corpo, ctx) => {
     const c = campoSub('Nome do álbum', atual, { tipo: 'text', largo: true });
     c.input.maxLength = 40;
     c.input.dataset.foco = '';
@@ -179,6 +200,7 @@ async function pedirNomeAlbum(titulo, atual) {
     setTimeout(() => c.input.focus(), 60);
     ctx.ler = () => c.input.value.trim() || undefined;
   }, [{ texto: 'Cancelar', valor: null }, { texto: 'Concluído', valor: (ctx) => ctx.ler() }]);
+  return r && semAcento(r) !== semAcento(atual) ? albumExistente(r) : r;
 }
 async function renomearAlbum(antigo) {
   const nome = await pedirNomeAlbum('Renomear álbum', antigo);
@@ -225,10 +247,12 @@ async function apagarSelecionadas() {
   const ok = await dialogo(`Apagar ${escolhidas.length} foto(s)?`, null, [{ texto: 'Cancelar', valor: false }, { texto: 'Apagar', valor: true }]);
   if (!ok) return;
   for (const f of escolhidas) await fotosDB.apagar(f.id);
+  const religar = soltarDosItens(escolhidas.map(f => f.id));
   fotosMarcadas = null;
   desenharGaleria();
   avisar(`${escolhidas.length} foto(s) apagada(s)`, 'Desfazer', async () => {
     for (const f of escolhidas) await fotosDB.gravar(f);
+    religar();
     desenharGaleria();
   });
 }
@@ -239,12 +263,21 @@ async function guardarFotos(arquivos, album = '', legenda = '') {
   for (const arquivo of arquivos) {
     try {
       const blob = await reduzirFoto(arquivo);
+      const mini = await reduzirFoto(arquivo, 360);
       const id = novoIdFoto();
-      await fotosDB.gravar({ id, personagem: p.id, criado: Date.now(), blob, album, legenda });
+      await fotosDB.gravar({ id, personagem: p.id, criado: Date.now(), blob, mini, album, legenda });
       ids.push(id);
     } catch (e) { avisar(e.message || 'Não consegui guardar a foto (memória cheia?)'); }
   }
+  if (ids.length) marcarGaleria();
   return ids;
+}
+// Foto apagada: os itens que usavam ela ficam sem imagem. Devolve a função que desfaz isso.
+function soltarDosItens(ids) {
+  const usados = p.equipamentos.filter(i => ids.includes(i.foto)).map(i => [i, i.foto]);
+  for (const [i] of usados) i.foto = '';
+  if (usados.length) { salvar(); desenhar(); }
+  return () => { for (const [i, id] of usados) i.foto = id; if (usados.length) { salvar(); desenhar(); } };
 }
 $('arquivo-fotos').addEventListener('change', async (ev) => {
   const arquivos = [...ev.target.files];
@@ -270,10 +303,12 @@ function verFotos(lista, inicio) {
   const trilho = el('div', 'visor-trilho');
   for (const f of lista) {
     const s = el('div', 'visor-slide');
-    const img = el('img'); img.src = urlDe(f); img.alt = f.legenda || '';
+    const img = el('img'); img.alt = f.legenda || ''; img.decoding = 'async';
     s.append(img);
     trilho.append(s);
   }
+  // Carrega a foto grande só da atual e das vizinhas (dezenas de fotos de 1600 px pesam).
+  const carregar = () => { const a = atual(); for (let k = a - 1; k <= a + 1; k++) { const im = trilho.children[k] && trilho.children[k].firstChild; if (im && !im.src) im.src = urlDe(lista[k]); } };
   const rodape = el('div', 'visor-legenda');
   fundo.append(trilho, topo, rodape);
   document.body.append(fundo);
@@ -288,9 +323,10 @@ function verFotos(lista, inicio) {
     if (info) rodape.append(el('small', '', info));
     rodape.hidden = !rodape.childElementCount;
   };
-  trilho.addEventListener('scroll', mostrar, { passive: true });
+  trilho.addEventListener('scroll', () => { mostrar(); carregar(); }, { passive: true });
   trilho.scrollLeft = inicio * trilho.clientWidth;
   mostrar();
+  carregar();
   abrirCamada(() => fundo.remove());
   fechar.addEventListener('click', voltar);
   lapis.addEventListener('click', async () => {
@@ -307,8 +343,9 @@ function verFotos(lista, inicio) {
     if (!f) return;
     voltar();
     fotosDB.apagar(f.id).then(() => {
+      const religar = soltarDosItens([f.id]);
       desenharGaleria();
-      avisar('Foto apagada', 'Desfazer', () => fotosDB.gravar(f).then(desenharGaleria));
+      avisar('Foto apagada', 'Desfazer', () => fotosDB.gravar(f).then(() => { religar(); desenharGaleria(); }));
     });
   });
 }
@@ -348,6 +385,7 @@ async function editarFoto(f) {
     salvar();
     desenhar();
   }
+  marcarGaleria();
   return novo;
 }
 

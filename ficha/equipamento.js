@@ -147,28 +147,34 @@ async function editarItem(i) {
     previa.addEventListener('click', () => { if (ctx.foto) verFotoPorId(ctx.foto); });
     const mostrarFoto = () => {
       previa.replaceChildren();
-      previa.hidden = !ctx.foto;
-      tirarFoto.hidden = !ctx.foto;
-      if (!ctx.foto) return;
+      previa.hidden = !ctx.foto && !ctx.arquivo;
+      tirarFoto.hidden = previa.hidden;
+      if (previa.hidden) return;
       const img = el('img'); img.alt = '';
-      urlDaFoto(ctx.foto).then(u => { if (u) img.src = u; });
+      // Foto nova ainda não guardada: mostra direto do arquivo.
+      if (ctx.arquivo) img.src = ctx.urlArquivo;
+      else urlDaFoto(ctx.foto).then(u => { if (u) img.src = u; else { previa.hidden = true; tirarFoto.hidden = true; } });
       previa.append(img);
     };
     const daGaleria = el('button', 'botao-android', 'Da galeria'); daGaleria.type = 'button';
     const novaFoto = el('button', 'botao-android', 'Nova foto'); novaFoto.type = 'button';
     const tirarFoto = el('button', 'botao-android', 'Tirar imagem'); tirarFoto.type = 'button';
-    daGaleria.addEventListener('click', async () => { const id = await escolherFotoDaGaleria(); if (id) { ctx.foto = id; mostrarFoto(); } });
+    const esquecerArquivo = () => { if (ctx.urlArquivo) URL.revokeObjectURL(ctx.urlArquivo); ctx.arquivo = null; ctx.urlArquivo = null; };
+    daGaleria.addEventListener('click', async () => { const id = await escolherFotoDaGaleria(); if (id) { esquecerArquivo(); ctx.foto = id; mostrarFoto(); } });
+    // Foto nova: só vai para a Galeria se o item for salvo (Cancelar não deixa foto sobrando).
     novaFoto.addEventListener('click', () => {
       const arq = el('input'); arq.type = 'file'; arq.accept = 'image/*';
-      arq.addEventListener('change', async () => {
+      arq.addEventListener('change', () => {
         if (!arq.files[0]) return;
-        if (!p.albuns.includes('Itens')) p.albuns.push('Itens');
-        const [id] = await guardarFotos([arq.files[0]], 'Itens', nome.input.value.trim());
-        if (id) { ctx.foto = id; mostrarFoto(); }
+        esquecerArquivo();
+        ctx.arquivo = arq.files[0];
+        ctx.urlArquivo = URL.createObjectURL(ctx.arquivo);
+        ctx.foto = '';
+        mostrarFoto();
       });
       arq.click();
     });
-    tirarFoto.addEventListener('click', () => { ctx.foto = ''; mostrarFoto(); });
+    tirarFoto.addEventListener('click', () => { esquecerArquivo(); ctx.foto = ''; mostrarFoto(); });
     const botoesFoto = el('div', 'botoes-android'); botoesFoto.append(daGaleria, novaFoto, tirarFoto);
     imagem.append(previa, botoesFoto);
     mostrarFoto();
@@ -185,6 +191,7 @@ async function editarItem(i) {
         item: limparItem({ nome: n, qtd: numeroDe(qtd, 1), categoria: c, notas: notas.value, foto: ctx.foto,
           sintonizado: c === 'magicos' && sint.caixa.checked, equipado: !equip.hidden && equip.caixa.checked }),
         ataque: novo && c === 'armas' && atacar.caixa.checked ? (ctx.escolhido || null) : undefined,
+        arquivo: ctx.arquivo, urlArquivo: ctx.urlArquivo,
       };
     };
   }, novo
@@ -196,6 +203,13 @@ async function editarItem(i) {
     comDesfazer(`${nomeItem} apagado`, () => { p.equipamentos.splice(i, 1); });
     return;
   }
+  if (r.arquivo) {
+    if (!p.albuns.some(a => semAcento(a) === 'itens')) p.albuns.push('Itens');
+    const [id] = await guardarFotos([r.arquivo], 'Itens', r.item.nome);
+    URL.revokeObjectURL(r.urlArquivo);
+    if (id) r.item.foto = id;
+  }
+  marcarGaleria();
   comDesfazer(novo ? `${r.item.nome} adicionado` : `${r.item.nome} salvo`, () => {
     if (novo) p.equipamentos.push(r.item); else p.equipamentos[i] = r.item;
     abaEquip = r.item.categoria;
@@ -217,7 +231,7 @@ async function escolherFotoDaGaleria() {
       const b = el('button', 'foto');
       b.type = 'button';
       b.setAttribute('aria-label', f.legenda || 'Foto');
-      const img = el('img'); img.src = urlDe(f); img.alt = ''; img.loading = 'lazy';
+      const img = el('img'); img.src = urlDe(f, true); img.alt = ''; img.loading = 'lazy';
       b.append(img);
       if (f.legenda) b.append(el('span', 'legenda-foto', f.legenda));
       b.addEventListener('click', () => ctx.fechar(f.id));

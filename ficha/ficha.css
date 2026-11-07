@@ -873,3 +873,16 @@ body.com-rolagem .pagina { padding-bottom: calc(var(--altura-rolagem, 160px) + 2
 .imagem-item .botoes-android button { width: auto; padding: 5px 9px; font-size: .9rem; }
 /* Diálogos abertos por cima do visualizador de fotos (editar legenda, álbum...) ficam à frente dele */
 .dialogo-fundo { z-index: 37; }
+
+/* ---------- Versão 8b: correções da rodada 1 ---------- */
+/* Visualizador e diálogos no mesmo nível: o que abriu por último fica na frente */
+.visor-fotos { z-index: 37; }
+/* Galeria: mais colunas em tela larga (deitado, tablet) */
+.galeria { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+.albuns { padding-top: 6px; }
+/* Mensagem rápida sobe acima da barra de seleção */
+body.com-selecao .snackbar { bottom: calc(76px + var(--seg-baixo)); }
+/* Escolher talento: categorias e busca ficam paradas no alto */
+.topo-talentos { position: sticky; top: -6px; z-index: 2; background: #f4f4f4; padding: 6px 0 6px; display: flex; flex-direction: column; gap: 6px; }
+.marca-talento { margin-left: 6px; font-size: .75rem; color: var(--bom); font-weight: 700; }
+.talento.ja-tem summary b { color: #555; }

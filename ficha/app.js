@@ -511,17 +511,23 @@ const DESENHOS = [
   () => {
     // Detalhes é refeita sempre, menos enquanto alguém digita nela (para não perder o cursor).
     const pg = $('pg-detalhes');
-    if (detalhesTudo || !pg.childElementCount || !pg.contains(document.activeElement)) desenharDetalhes();
+    const digitando = pg.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    if (detalhesTudo || !pg.childElementCount || !digitando) desenharDetalhes();
     else { $('det-classe').textContent = classeENivel(); desenharCaracteristicas(); }
     detalhesTudo = false;
   },
-  () => {},   // Galeria: só ao trocar de personagem (desenharGaleria é assíncrona)
+  () => desenharGaleria(),   // Galeria: só quando "suja" (foto nova, item ligado...), ver galeria.js
 ];
 function desenhar(tudo = false) {
   $('titulo').textContent = p.nome;
   document.title = p.nome + ' · Ficha';
   for (let i = 0; i < DESENHOS.length - 1; i++) paginasSujas.add(i);   // todas menos a Galeria
-  if (tudo) { detalhesTudo = true; desenharGaleria(); }
+  if (tudo) {
+    detalhesTudo = true;
+    if (typeof repararCaracteristicas === 'function' && repararCaracteristicas(p)) salvar();
+    if (typeof fotosMarcadas !== 'undefined') fotosMarcadas = null;
+    marcarGaleria();
+  } else if (galeriaSuja) paginasSujas.add(DESENHOS.length - 1);
   desenharPagina(paginaIdx);
   agendarPaginas();
 }
@@ -585,7 +591,7 @@ function desenharPrincipal() {
   const linha = el('div', 'linha');
   linha.append(
     botao('pilula-nome', [el('span', 'encaixar', p.nome)], editarNome),
-    botao('pilula-nome classe', [el('span', 'encaixar', classeENivel())], editarClasse),
+    botao('pilula-nome classe', [el('span', 'encaixar', classeENivel())], () => editarClasse()),
   );
   pg.append(linha);
 
@@ -802,7 +808,7 @@ function desenharDetalhes() {
     return t;
   };
 
-  const classe = botao('valor-texto', [classeENivel()], editarClasse);
+  const classe = botao('valor-texto', [classeENivel()], () => editarClasse());
   classe.id = 'det-classe';
   pg.append(cartao('Classe', classe));
   const dois1 = el('div', 'dois');
@@ -906,7 +912,7 @@ function folhaPV() {
 function folhaProficiencia() {
   abrirFolha('Bônus de Proficiência', (corpo) => {
     corpo.append(dica(`${comSinal(profDe(p))} no nível ${p.nivel}. Ele muda sozinho com o nível: +2 (1–4), +3 (5–8), +4 (9–12), +5 (13–16), +6 (17–20).`),
-      linhaBotoes(botaoFolha('Mudar classe e nível', 'principal', () => fecharFolha(editarClasse))));
+      linhaBotoes(botaoFolha('Mudar classe e nível', 'principal', () => fecharFolha(() => editarClasse()))));
   });
 }
 
