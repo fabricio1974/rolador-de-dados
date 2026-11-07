@@ -97,7 +97,7 @@ function salvarDepois() { clearTimeout(salvarTimer); salvarTimer = setTimeout(sa
 window.addEventListener('pagehide', () => { clearTimeout(salvarTimer); salvar(); });
 
 // Muda algo no personagem e oferece "Desfazer" (volta a cópia de antes).
-function comDesfazer(mensagem, mudar) {
+function comDesfazer(mensagem, mudar, aoDesfazer) {
   const antes = structuredClone(p);
   mudar();
   salvar();
@@ -109,6 +109,7 @@ function comDesfazer(mensagem, mudar) {
     p = antes;
     salvar();
     desenhar(true);
+    if (aoDesfazer) aoDesfazer();
   });
 }
 
@@ -247,10 +248,12 @@ document.addEventListener('keydown', (ev) => {
 // Mudou o tamanho: reposiciona; encaixa os textos de novo só se a LARGURA mudou (o teclado
 // do celular muda só a altura).
 let larguraObservada = 0;
+let fichaPronta = false;
 new ResizeObserver(() => {
   posicionarPaginas(false);
   if (paginas.clientWidth === larguraObservada) return;
   larguraObservada = paginas.clientWidth;
+  if (!fichaPronta) return;            // os outros arquivos ainda estão carregando (inicio.js desenha)
   for (let i = 0; i < DESENHOS.length - 1; i++) paginasSujas.add(i);
   desenharPagina(paginaIdx);
   agendarPaginas();

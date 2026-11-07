@@ -60,7 +60,7 @@ function urlDe(f, mini = false) {
 async function urlDaFoto(id, mini = true) {
   if (!id) return null;
   if (urlsFotos.has(id + ':m')) return urlsFotos.get(id + ':m');
-  if (!mini && urlsFotos.has(id)) return urlsFotos.get(id);
+  if (urlsFotos.has(id)) return urlsFotos.get(id);
   try { const f = await fotosDB.pegar(id); return f ? urlDe(f, mini) : null; } catch { return null; }
 }
 // Galeria precisa ser refeita (foto nova, item ligado/desligado...) na próxima vez que aparecer.
@@ -90,8 +90,9 @@ async function desenharGaleria() {
   const vivos = new Set(fotosTodas.map(f => f.id));
   for (const [chave, u] of urlsFotos) {
     const id = chave.replace(/:m$/, '');
-    if (!vivos.has(id) && !p.equipamentos.some(i => i.foto === id)) { URL.revokeObjectURL(u); urlsFotos.delete(chave); }
+    if (!vivos.has(id)) { URL.revokeObjectURL(u); urlsFotos.delete(chave); }
   }
+  criarMiniaturasQueFaltam(fotosTodas.filter(f => !f.mini));
   if (fotosMarcadas) { for (const id of [...fotosMarcadas]) if (!vivos.has(id)) fotosMarcadas.delete(id); if (!fotosMarcadas.size) fotosMarcadas = null; }
   const albuns = albunsDoPersonagem();
   if (prefGaleria.album && prefGaleria.album !== '-' && !albuns.includes(prefGaleria.album)) prefGaleria.album = '';
@@ -145,10 +146,11 @@ async function desenharGaleria() {
     const img = el('img'); img.src = urlDe(f, true); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
     b.append(img);
     if (f.legenda) b.append(el('span', 'legenda-foto', f.legenda));
-    const item = p.equipamentos.find(x => x.foto === f.id);
-    if (item) b.append(el('span', 'selo-item', item.nome));
+    const itens = p.equipamentos.filter(x => x.foto === f.id);
+    if (itens.length) b.append(el('span', 'selo-item', itens[0].nome + (itens.length > 1 ? ` +${itens.length - 1}` : '')));
     if (fotosMarcadas) b.append(el('span', 'marca-foto', fotosMarcadas.has(f.id) ? '✓' : ''));
     tocavel(b, () => {
+      if (!b.isConnected) return;                       // a grade foi refeita entre o toque e o soltar
       if (!fotosMarcadas) { verFotos(fotosVisiveis, i); return; }
       fotosMarcadas.has(f.id) ? fotosMarcadas.delete(f.id) : fotosMarcadas.add(f.id);
       if (!fotosMarcadas.size) { fotosMarcadas = null; desenharGaleria(); return; }
@@ -211,7 +213,7 @@ async function renomearAlbum(antigo) {
 }
 async function apagarAlbum(nome) {
   const n = fotosTodas.filter(x => x.album === nome).length;
-  const ok = await dialogo(`Apagar o álbum ${nome}?`, (corpo) => corpo.append(el('p', 'dialogo-dica', n ? `As ${n} fotos dele não são apagadas: ficam em "Sem álbum".` : 'O álbum está vazio.')),
+  const ok = await dialogo(`Apagar o álbum ${nome}?`, (corpo) => corpo.append(el('p', 'dialogo-dica', n === 1 ? 'A foto dele não é apagada: fica em "Sem álbum".' : n ? `As ${n} fotos dele não são apagadas: ficam em "Sem álbum".` : 'O álbum está vazio.')),
     [{ texto: 'Cancelar', valor: false }, { texto: 'Apagar', valor: true }]);
   if (!ok) return;
   p.albuns = p.albuns.filter(a => a !== nome);
@@ -238,19 +240,19 @@ async function moverSelecionadas() {
   const destino = await escolherAlbum('Mover para o álbum');
   if (destino === null) return;
   for (const f of fotosTodas.filter(x => fotosMarcadas.has(x.id))) await fotosDB.gravar({ ...f, album: destino });
-  avisar(`${fotosMarcadas.size} foto(s) movida(s) para ${destino || 'Sem álbum'}`);
+  avisar(`${fotosEm(fotosMarcadas.size)} ${fotosMarcadas.size === 1 ? 'movida' : 'movidas'} para ${destino || 'Sem álbum'}`);
   fotosMarcadas = null;
   desenharGaleria();
 }
 async function apagarSelecionadas() {
   const escolhidas = fotosTodas.filter(x => fotosMarcadas.has(x.id));
-  const ok = await dialogo(`Apagar ${escolhidas.length} foto(s)?`, null, [{ texto: 'Cancelar', valor: false }, { texto: 'Apagar', valor: true }]);
+  const ok = await dialogo(`Apagar ${escolhidas.length === 1 ? 'esta foto' : escolhidas.length + ' fotos'}?`, null, [{ texto: 'Cancelar', valor: false }, { texto: 'Apagar', valor: true }]);
   if (!ok) return;
   for (const f of escolhidas) await fotosDB.apagar(f.id);
   const religar = soltarDosItens(escolhidas.map(f => f.id));
   fotosMarcadas = null;
   desenharGaleria();
-  avisar(`${escolhidas.length} foto(s) apagada(s)`, 'Desfazer', async () => {
+  avisar(`${fotosEm(escolhidas.length)} ${escolhidas.length === 1 ? 'apagada' : 'apagadas'}`, 'Desfazer', async () => {
     for (const f of escolhidas) await fotosDB.gravar(f);
     religar();
     desenharGaleria();
@@ -271,6 +273,21 @@ async function guardarFotos(arquivos, album = '', legenda = '') {
   }
   if (ids.length) marcarGaleria();
   return ids;
+}
+const fotosEm = (n) => (n === 1 ? '1 foto' : `${n} fotos`);
+// Fotos antigas (de antes das miniaturas): faz a miniatura sem pressa e guarda.
+let fazendoMinis = false;
+function criarMiniaturasQueFaltam(lista) {
+  if (fazendoMinis || !lista.length) return;
+  fazendoMinis = true;
+  const quando = window.requestIdleCallback || ((f) => setTimeout(f, 200));
+  const proxima = () => quando(async () => {
+    const f = lista.shift();
+    if (!f) { fazendoMinis = false; return; }
+    try { f.mini = await reduzirFoto(f.blob, 360); await fotosDB.gravar(f); } catch { /* fica sem miniatura */ }
+    proxima();
+  });
+  proxima();
 }
 // Foto apagada: os itens que usavam ela ficam sem imagem. Devolve a função que desfaz isso.
 function soltarDosItens(ids) {
@@ -308,7 +325,8 @@ function verFotos(lista, inicio) {
     trilho.append(s);
   }
   // Carrega a foto grande só da atual e das vizinhas (dezenas de fotos de 1600 px pesam).
-  const carregar = () => { const a = atual(); for (let k = a - 1; k <= a + 1; k++) { const im = trilho.children[k] && trilho.children[k].firstChild; if (im && !im.src) im.src = urlDe(lista[k]); } };
+  const carregar = () => { const a = atual(); for (let k = a - 1; k <= a + 1; k++) { const im = trilho.children[k] && trilho.children[k].firstChild; if (im && !im.src) im.src = urlDe(lista[k]); }
+    for (let k = 0; k < lista.length; k++) { if (Math.abs(k - a) > 2) { const im = trilho.children[k].firstChild; if (im.hasAttribute('src')) im.removeAttribute('src'); } } };
   const rodape = el('div', 'visor-legenda');
   fundo.append(trilho, topo, rodape);
   document.body.append(fundo);
@@ -316,10 +334,10 @@ function verFotos(lista, inicio) {
   const mostrar = () => {
     const f = lista[atual()];
     contador.textContent = `${atual() + 1} / ${lista.length}`;
-    const item = f && p.equipamentos.find(x => x.foto === f.id);
+    const itens = f ? p.equipamentos.filter(x => x.foto === f.id).map(x => x.nome) : [];
     rodape.replaceChildren();
     if (f && f.legenda) rodape.append(el('b', '', f.legenda));
-    const info = [f && f.album, item && `Item: ${item.nome}`].filter(Boolean).join(' · ');
+    const info = [f && f.album, itens.length && `${itens.length > 1 ? 'Itens' : 'Item'}: ${itens.join(', ')}`].filter(Boolean).join(' · ');
     if (info) rodape.append(el('small', '', info));
     rodape.hidden = !rodape.childElementCount;
   };
@@ -372,15 +390,17 @@ async function editarFoto(f) {
       albumB.textContent = `Álbum: ${album || 'Sem álbum'}`;
     });
     const itemAtual = p.equipamentos.findIndex(x => x.foto === f.id);
+    const varios = p.equipamentos.filter(x => x.foto === f.id).length > 1;
     const item = caixaSelecao('Imagem do item:', [['-1', 'Nenhum'], ...p.equipamentos.map((x, k) => [String(k), x.nome])], String(itemAtual));
     corpo.append(leg, albumB, item);
+    if (varios) corpo.append(el('p', 'dialogo-dica', 'Mais de um item usa esta foto. Trocar aqui deixa só o escolhido.'));
     ctx.ler = () => ({ legenda: leg.input.value.trim(), album, item: Number(item.select.value), itemAtual });
   }, [{ texto: 'Cancelar', valor: null }, { texto: 'Concluído', valor: (ctx) => ctx.ler() }]);
   if (!r) return null;
   const novo = { ...f, legenda: r.legenda, album: r.album };
   await fotosDB.gravar(novo);
   if (r.item !== r.itemAtual) {
-    if (r.itemAtual >= 0) p.equipamentos[r.itemAtual].foto = '';
+    for (const x of p.equipamentos) if (x.foto === f.id) x.foto = '';
     if (r.item >= 0) p.equipamentos[r.item].foto = f.id;
     salvar();
     desenhar();

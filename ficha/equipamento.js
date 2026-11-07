@@ -91,6 +91,7 @@ function cartaoEquipamento(campoTexto) {
 async function editarItem(i) {
   const novo = i === null;
   const it = novo ? limparItem({ nome: '', categoria: abaEquip }) : structuredClone(p.equipamentos[i]);
+  let urlSolta = null;          // prévia da foto nova: liberada se o diálogo fechar sem salvar
   const r = await dialogo(novo ? 'Novo item' : 'Item', (corpo, ctx) => {
     const nome = campoSub('Nome', novo ? '' : it.nome, { tipo: 'text', largo: true });
     nome.input.maxLength = 80;
@@ -168,7 +169,7 @@ async function editarItem(i) {
         if (!arq.files[0]) return;
         esquecerArquivo();
         ctx.arquivo = arq.files[0];
-        ctx.urlArquivo = URL.createObjectURL(ctx.arquivo);
+        ctx.urlArquivo = urlSolta = URL.createObjectURL(ctx.arquivo);
         ctx.foto = '';
         mostrarFoto();
       });
@@ -197,17 +198,19 @@ async function editarItem(i) {
   }, novo
     ? [{ texto: 'Cancelar', valor: null }, { texto: 'Concluído', valor: (ctx) => ctx.ler() }]
     : [{ texto: 'Apagar', valor: 'apagar' }, { texto: 'Concluído', valor: (ctx) => ctx.ler() }]);
+  if (!r || r === 'apagar') { if (urlSolta) URL.revokeObjectURL(urlSolta); }
   if (!r) return;
   if (r === 'apagar') {
     const nomeItem = p.equipamentos[i].nome;
     comDesfazer(`${nomeItem} apagado`, () => { p.equipamentos.splice(i, 1); });
     return;
   }
+  let fotoNova = '';
   if (r.arquivo) {
     if (!p.albuns.some(a => semAcento(a) === 'itens')) p.albuns.push('Itens');
     const [id] = await guardarFotos([r.arquivo], 'Itens', r.item.nome);
     URL.revokeObjectURL(r.urlArquivo);
-    if (id) r.item.foto = id;
+    if (id) r.item.foto = fotoNova = id;
   }
   marcarGaleria();
   comDesfazer(novo ? `${r.item.nome} adicionado` : `${r.item.nome} salvo`, () => {
@@ -216,6 +219,9 @@ async function editarItem(i) {
     gravar(CHAVE_ABA_EQUIP, abaEquip);
     // Arma nova pode ir junto para a página de Ataques (com os números da lista, se veio dela).
     if (r.ataque !== undefined) p.ataques.push(limparAtaque(r.ataque ? armaParaFicha(r.ataque) : { nome: r.item.nome, atributo: 'for', dano: '1d6' }));
+  }, () => {
+    // Desfez o item novo: a foto tirada só para ele sai da Galeria também.
+    if (novo && fotoNova) fotosDB.apagar(fotoNova).then(marcarGaleria).catch(() => {});
   });
 }
 
@@ -234,6 +240,8 @@ async function escolherFotoDaGaleria() {
       const img = el('img'); img.src = urlDe(f, true); img.alt = ''; img.loading = 'lazy';
       b.append(img);
       if (f.legenda) b.append(el('span', 'legenda-foto', f.legenda));
+      const usam = p.equipamentos.filter(x => x.foto === f.id);
+      if (usam.length) b.append(el('span', 'selo-item', usam[0].nome + (usam.length > 1 ? ` +${usam.length - 1}` : '')));
       b.addEventListener('click', () => ctx.fechar(f.id));
       grade.append(b);
     }

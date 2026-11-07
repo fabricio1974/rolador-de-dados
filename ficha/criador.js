@@ -329,6 +329,6 @@ function criarPersonagem(e) {
   atualizarConjuracao();
   trocarPara(p);
   irParaPagina(0);
-  escolherEstiloSeGanhou(p.caracteristicas);   // Guerreiro: escolhe o Estilo de Luta agora
+  escolherEstiloSeGanhou(p.caracteristicas, classe.id);   // Guerreiro: escolhe o Estilo de Luta agora
   avisar(`${p.nome} criado! Escolha magias e armas nas páginas de Magias e Ataques.`);
 }

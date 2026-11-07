@@ -160,7 +160,7 @@ function escolherArma() {
 }
 
 // ---------- Talentos (diálogo, usado ao subir de nível; ou folha, pela ficha) ----------
-function escolherTalento(categoria = 'Geral') {
+function escolherTalento(categoria = 'Geral', opcoes = {}) {
   return dialogo('Escolher Talento', (corpo, ctx) => {
     const cats = [...new Set(D5.talentos.map(t => t.categoria))];
     let cat = cats.includes(categoria) ? categoria : cats[0];
@@ -171,7 +171,19 @@ function escolherTalento(categoria = 'Geral') {
     busca.className = 'busca';
     topo.append(filtros, busca);
     // Talentos que o personagem já tem (pelo nome): marcados; os não repetíveis ficam bloqueados.
-    const tem = new Set(p.caracteristicas.map(c => chaveNome(c.nome)));
+    // Só conta o que veio como talento (o traço "Habilidoso" do Humano não é o talento Habilidoso).
+    const tem = new Set(p.caracteristicas.filter(c => /^Talento|^Antecedente|Versátil|^Estilo de Luta/.test(c.origem)).map(c => chaveNome(c.nome)));
+    // Pré-requisitos simples: nível (Dádiva Épica 19+, "Nível 4+"), Estilo de Luta e estilos de uma classe só.
+    const bloqueio = (t) => {
+      const nivelMin = Number((String(t.prerequisito).match(/N[ií]vel (\d+)/i) || [])[1]) || (t.categoria === 'Dádiva Épica' ? 19 : 0);
+      if (nivelMin && (opcoes.nivel || p.nivel) < nivelMin) return `Pede nível ${nivelMin}`;
+      if (t.categoria === 'Estilo de Luta' && !opcoes.estilo && !p.caracteristicas.some(c => /^Estilo de Luta$/i.test(c.nome))) return 'Pede a característica Estilo de Luta';
+      const so = String(t.prerequisito).match(/do (Paladino|Patrulheiro)/);
+      const idSo = so && semAcento(so[1]);
+      // Pegando o estilo por uma classe (subir de nível), vale a classe que deu o estilo.
+      if (so && (opcoes.classe ? opcoes.classe !== idSo : !p.classes.some(c => c.id === idSo))) return `Só para ${so[1]}`;
+      return '';
+    };
     const filtrar = () => {
       const q = chaveNome(busca.value);
       // Buscando, procura em todas as categorias; sem busca, só na escolhida.
@@ -182,9 +194,11 @@ function escolherTalento(categoria = 'Geral') {
         const s = el('summary');
         s.append(el('b', '', t.nome), t.prerequisito ? el('small', '', ' · ' + t.prerequisito) : '', q ? el('small', '', ' · ' + t.categoria) : '');
         if (ja) s.append(el('span', 'marca-talento', '✓ já tem'));
-        const escolher = el('button', 'botao principal', ja && !t.repetivel ? 'Já tem (não se repete)' : 'Escolher');
+        const motivo = ja && !t.repetivel ? 'Já tem (não se repete)' : bloqueio(t);
+        const escolher = el('button', 'botao principal', motivo || 'Escolher');
         escolher.type = 'button';
-        escolher.disabled = ja && !t.repetivel;
+        escolher.disabled = !!motivo;
+        if (motivo && !ja) d.classList.add('bloqueado');
         escolher.addEventListener('click', () => ctx.fechar(t));
         d.append(s, el('p', '', t.descricao), escolher);
         return d;
@@ -193,12 +207,13 @@ function escolherTalento(categoria = 'Geral') {
     };
     const desenharChips = () => {
       filtros.replaceChildren(...cats.map(c => {
-        const b = el('button', 'chip' + (c === cat ? ' ativo' : ''), c); b.type = 'button';
+        // Buscando, a busca vale para todas as categorias: nenhum chip fica marcado.
+        const b = el('button', 'chip' + (c === cat && !busca.value.trim() ? ' ativo' : ''), c); b.type = 'button';
         b.addEventListener('click', () => { cat = c; busca.value = ''; desenharChips(); filtrar(); });
         return b;
       }));
     };
-    busca.addEventListener('input', filtrar);
+    busca.addEventListener('input', () => { filtrar(); desenharChips(); });
     desenharChips();
     filtrar();
     corpo.append(topo, lista);
@@ -334,6 +349,16 @@ const APELIDOS = {
   'treinamento com armadura leve': 'Armadura Leve (Treinamento)', 'unarmored defense': 'Defesa sem Armadura',
   'spellcasting': 'Conjuração', 'weapon mastery': 'Maestria em Armas', 'fighting style': 'Estilo de Luta',
   'channel divinity': 'Canalizar Divindade', 'expertise': 'Especialização', 'evasion': 'Evasão', 'action surge': 'Surto de Ação',
+  'rajada agonizante': 'Explosão Agonizante', 'eldritch blast agonizing': 'Explosão Agonizante', 'asi': 'Aumento no Valor de Atributo',
+  'aumento de atributo': 'Aumento no Valor de Atributo', 'ability score improvement': 'Aumento no Valor de Atributo', 'duro': 'Robusto',
+  'armadura leve': 'Armadura Leve (Treinamento)', 'armadura media': 'Armadura Média (Treinamento)', 'armadura pesada': 'Armadura Pesada (Treinamento)',
+  'expulsar mortos vivos': 'Canalizar Divindade', 'centelha divina': 'Canalizar Divindade', 'retomada arcana': 'Recuperação Arcana',
+  'foco': 'Foco do Monge', 'pontos de foco': 'Foco do Monge', 'monks focus': 'Foco do Monge', 'ki': 'Foco do Monge',
+  'dadiva da recuperacao de magia': 'Dádiva da Recordação de Magia', 'sutil': 'Magia Sutil', 'mystic arcanum': 'Arcano Místico',
+  'evocacao': 'Evocador', 'escola de evocacao': 'Evocador', 'adivinhacao': 'Adivinho', 'escola de adivinhacao': 'Adivinho',
+  'mao aberta': 'Guerreiro da Mão Aberta', 'caminho da mao aberta': 'Guerreiro da Mão Aberta', 'conhecimento': 'Colégio do Conhecimento',
+  'vida': 'Domínio da Vida', 'terra': 'Círculo da Terra', 'devocao': 'Juramento de Devoção', 'draconica': 'Feitiçaria Dracônica',
+  'linhagem draconica': 'Feitiçaria Dracônica', 'corruptor': 'Patrono Corruptor', 'infero': 'Patrono Corruptor', 'o infero': 'Patrono Corruptor',
   'indomitable': 'Indomável', 'reckless attack': 'Ataque Imprudente', 'ataque descuidado': 'Ataque Imprudente', 'danger sense': 'Sentido de Perigo', 'metamagic': 'Metamagia',
 };
 function montarIndiceDescricoes() {
@@ -344,7 +369,7 @@ function montarIndiceDescricoes() {
     for (const s of (c.subclasses || [c.subclasse])) {
       for (const f of s.caracteristicas) lista.push({ nome: f.nome, descricao: f.descricao, fonte: `${s.nome} ${f.nivel}`, classe: c.nome, nivel: f.nivel });
       // A própria subclasse: o texto é a lista das características dela, por nível.
-      lista.push({ nome: s.nome, en: s.en, fonte: `Subclasse de ${c.nome}`, classe: c.nome,
+      lista.push({ nome: s.nome, en: s.en, fonte: `Subclasse de ${c.nome}`, classe: c.nome, ehSubclasse: true,
         descricao: s.caracteristicas.map(f => `Nível ${f.nivel} — ${f.nome}: ${f.descricao}`).join('\n\n') });
     }
   }
@@ -359,7 +384,13 @@ function montarIndiceDescricoes() {
   for (const x of D5.metamagias || []) lista.push({ nome: x.nome, en: x.en, descricao: x.descricao, fonte: 'Metamagia', classe: 'Feiticeiro' });
   // Genéricas ("Característica de Subclasse", "Aumento no Valor de Atributo") não servem de descrição.
   return lista.filter(x => x.descricao && !/^Você ganha uma característica da sua subclasse/.test(x.descricao))
-    .map(x => ({ ...x, chave: chaveNome(x.nome), chaveEn: chaveNome(x.en) }));
+    .map(x => {
+      const chaves = new Set([chaveNome(x.nome), chaveNome(x.en)]);
+      chaves.add(chaveNome(String(x.nome).replace(/\([^)]*\)/g, ' ')));      // "Armadura Leve (Treinamento)" → "armadura leve"
+      if (x.fonte && x.fonte.startsWith('Subclasse')) { chaves.add(chaveNome(baseSubclasse(x.nome))); chaves.add(chaveNome(baseSubclasse(x.en))); }
+      chaves.delete('');
+      return { ...x, chave: chaveNome(x.nome), chaveEn: chaveNome(x.en), chaves };
+    });
 }
 // Acha a descrição pelo nome. Quando o mesmo nome existe em várias classes ("Conjuração",
 // "Defesa sem Armadura", "Visão no Escuro"), escolhe pela origem guardada ("Monge 1",
@@ -370,19 +401,30 @@ function descricaoConhecida(nome, origem = '') {
   if (!alvo) return null;
   const dentro = (String(nome).match(/\(([^)]+)\)/) || [])[1] || '';
   const semPar = chaveNome(String(nome).replace(/\([^)]*\)/g, ' '));
-  const contexto = chaveNome(`${origem} ${dentro}`);
+  // Palavras da origem; classe/espécie em inglês viram o nome em português ("Monk 1" → monge).
+  const EN = { barbarian: 'barbaro', bard: 'bardo', cleric: 'clerigo', druid: 'druida', fighter: 'guerreiro', monk: 'monge', paladin: 'paladino',
+    ranger: 'patrulheiro', rogue: 'ladino', sorcerer: 'feiticeiro', warlock: 'bruxo', wizard: 'mago', dwarf: 'anao', elf: 'elfo',
+    halfling: 'pequenino', human: 'humano', dragonborn: 'draconato', gnome: 'gnomo', goliath: 'golias', orc: 'orc', tiefling: 'tiferino' };
+  const contexto = ' ' + chaveNome(`${origem} ${dentro}`).split(' ').map(w => EN[w] || w).join(' ') + ' ';
+  const temPalavras = (t) => { const k = chaveNome(t); return !!k && contexto.includes(' ' + k + ' '); };
   const nivelOrigem = Number((String(origem).match(/(\d+)/) || [])[1]) || 0;
   const pontuar = (x) => {
     let n = 0;
-    if (x.classe && contexto.includes(chaveNome(x.classe))) n += 10;
-    if (contexto && chaveNome(x.fonte) && contexto.includes(chaveNome(x.fonte))) n += 5;
+    if (x.classe && temPalavras(x.classe)) n += 10;
+    if (x.fonte && temPalavras(x.fonte)) n += 5;
     if (nivelOrigem && x.nivel) n += x.nivel === nivelOrigem ? 4 : -Math.abs(x.nivel - nivelOrigem) / 20;
     return n;
   };
   const melhor = (cands) => (cands.length ? cands.slice().sort((a, b) => pontuar(b) - pontuar(a))[0] : null);
-  const tentativas = [alvo, chaveNome(APELIDOS[alvo] || ''), chaveNome(APELIDOS[semPar] || ''), alvo.replace(/^estilo de luta /, '')].filter(Boolean);
+  const semEstilo = alvo.replace(/^(estilo de luta|fighting style) /, '');
+  const tentativas = [alvo, chaveNome(APELIDOS[alvo] || ''), chaveNome(APELIDOS[semPar] || ''), semEstilo, chaveNome(APELIDOS[semEstilo] || '')].filter(Boolean);
   for (const t of tentativas) {
     const c = indiceDescricoes.filter(x => x.chave === t || x.chaveEn === t);
+    if (c.length) return melhor(c);
+  }
+  // Chaves extras: nome sem parênteses, nome curto da subclasse ("Berserker", "Evocação").
+  for (const t of tentativas) {
+    const c = indiceDescricoes.filter(x => x.chaves.has(t));
     if (c.length) return melhor(c);
   }
   // Com parênteses: "Estilo de Luta (Arquearia)" → Arquearia; "Iniciado em Magia (Bruxo)" não existe → nada.
@@ -396,7 +438,34 @@ function descricaoConhecida(nome, origem = '') {
   return melhor(c);
 }
 
+// Conserta descrições guardadas erradas por versões antigas: texto de outra característica, ou
+// a característica certa mas de outra classe/espécie (escolhe de novo pela origem).
+function repararDescricoes(x) {
+  if (!indiceDescricoes) indiceDescricoes = montarIndiceDescricoes();
+  const porTexto = new Map(indiceDescricoes.map(e => [e.descricao, e]));
+  let mudou = false;
+  for (const c of x.caracteristicas) {
+    const dono = c.descricao && porTexto.get(c.descricao);
+    if (!dono) continue;                                   // texto próprio (escrito à mão): não mexe
+    const certo = descricaoConhecida(c.nome, c.origem);
+    if (certo && certo.descricao !== c.descricao && (chaveNome(dono.nome) !== chaveNome(c.nome) || dono.classe !== certo.classe || dono.nivel !== certo.nivel)) {
+      c.descricao = certo.descricao;
+      mudou = true;
+    }
+  }
+  return mudou;
+}
+
 function verCaracteristica(i) {
+  // "Característica de <subclasse>" antiga: troca pelas de verdade agora (sem esperar reabrir).
+  if (TEXTO_PROVISORIO.test(p.caracteristicas[i].descricao || '')) {
+    const origem = p.caracteristicas[i].origem;
+    if (repararCaracteristicas(p)) {
+      salvar(); desenhar();
+      const k = p.caracteristicas.findIndex(x => x.origem === origem && !TEXTO_PROVISORIO.test(x.descricao || ''));
+      if (k >= 0) i = k;
+    }
+  }
   const c = p.caracteristicas[i];
   // Sem descrição (escrita à mão, ou de versão antiga): procura na lista pelo nome e guarda na ficha.
   if (!c.descricao || !c.descricao.trim() || /veja a descrição dele\.$|^Característica da sua subclasse/.test(c.descricao)) {

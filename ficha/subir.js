@@ -32,7 +32,9 @@ function dialogo(titulo, montar, botoes) {
     document.body.append(fundo);
     if (montar) montar(corpo, ctx);
     if (corpo.querySelector('.valor-azul, .pv-colunas, .linha-dados-vida')) caixa.classList.add('edicao');
-    fundo.addEventListener('click', (ev) => { if (ev.target === fundo) fechar(null); });
+    // O 2º toque de um toque duplo (ex.: no "+ Álbum") não fecha o diálogo que acabou de abrir.
+    const aberto = performance.now();
+    fundo.addEventListener('click', (ev) => { if (ev.target === fundo && performance.now() - aberto > 350) fechar(null); });
     abrirCamada(() => { fundo.remove(); resolve(resultado); });
   });
 }
@@ -173,7 +175,7 @@ async function subirDeNivel() {
     }
     if (!dados) corpo.append(el('p', 'dialogo-dica', 'Classe fora do SRD: escreva as características novas em Detalhes.'));
   }, [{ texto: 'Concluído', valor: true }]);
-  await escolherEstiloSeGanhou(novas);
+  await escolherEstiloSeGanhou(novas, c.id);
   avisar(`${p.nome} chegou ao nível ${p.nivel}`, 'Desfazer', () => {
     const i = personagens.indexOf(p);
     personagens[i] = antes; p = antes; salvar(); desenhar(true);
@@ -250,7 +252,7 @@ async function dialogoAumento(epico) {
       { texto: 'Concluído', valor: (ctx) => (ctx.valor.length ? { atributos: ctx.valor } : undefined) },
     ]);
     if (r !== 'talento') return r;
-    const t = await escolherTalento(epico ? 'Dádiva Épica' : 'Geral');
+    const t = await escolherTalento(epico ? 'Dádiva Épica' : 'Geral', { nivel: p.nivel + 1 });   // nível que vai ter
     if (!t) continue;                                  // voltou da lista: mostra os atributos de novo
     if (t.aumento && t.aumento.dividir) continue;      // "Aumento no Valor de Atributo" é o próprio diálogo
     const res = { talento: t };
@@ -274,7 +276,8 @@ const subclassesDe = (dados) => (dados && (dados.subclasses || [dados.subclasse]
 // (o nome escrito e o nome da lista), para "Berserker" achar "Caminho do Berserker".
 const baseSubclasse = (t) => semAcento(String(t || ''))
   .replace(/^(escola|colegio|circulo|caminho|juramento|dominio|patrono|patrona)( d[aeo]s?| de)? /, '')
-  .replace(/^(school|college|circle|path|oath|domain|way|warrior) of (the )?/, '').trim();
+  .replace(/^(school|college|circle|path|oath|domain|way|warrior) of (the )?/, '')
+  .replace(/^(o|a|os|as|the) /, '').trim();
 function subclasseConhecida(dados, nome) {
   const n = baseSubclasse(nome);
   if (n.length < 4) return null;
@@ -294,7 +297,9 @@ function repararCaracteristicas(x) {
     const m = TEXTO_PROVISORIO.test(c.descricao || '') && c.nome.match(/^Característica de (.+)$/);
     const nivel = m && Number((c.origem.match(/(\d+)/) || [])[1]);
     const dados = m && classeDoSRD(acharClasse(c.origem));
-    const sub = dados && subclasseConhecida(dados, m[1]);
+    // "Característica de Subclasse" (ganha antes de escolher a subclasse): usa a subclasse que a classe tem agora.
+    const nomeSub = m && (/^subclasse$/i.test(m[1]) ? ((x.classes.find(k => k.id === (dados && dados.id)) || {}).subclasse || '') : m[1]);
+    const sub = dados && subclasseConhecida(dados, nomeSub);
     const reais = sub ? sub.caracteristicas.filter(s => s.nivel === nivel) : [];
     if (reais.length) {
       mudou = true;
@@ -302,6 +307,7 @@ function repararCaracteristicas(x) {
     } else nova.push(c);
   }
   if (mudou) x.caracteristicas = nova;
+  if (typeof repararDescricoes === 'function' && repararDescricoes(x)) mudou = true;
   return mudou;
 }
 
@@ -335,7 +341,8 @@ function caracteristicasDoNivel(dados, nivel, subclasse) {
       continue;
     }
     if (/^Subclasse de/i.test(c.nome) && subclasse) {
-      lista.push({ nome: subclasse, descricao: c.descricao });
+      // Subclasse conhecida: o texto é o resumo dela (não o texto genérico da classe).
+      lista.push({ nome: subclasse, descricao: sub ? sub.caracteristicas.map(f => `Nível ${f.nivel} — ${f.nome}: ${f.descricao}`).join('\n\n') : c.descricao });
       if (sub) lista.push(...sub.caracteristicas.filter(s => s.nivel === nivel));
       continue;
     }
@@ -466,9 +473,9 @@ function acrescentarCaracteristicasDaSubclasse() {
 }
 
 // Ganhou "Estilo de Luta" (Guerreiro 1, Paladino 2, Patrulheiro 2...): escolher qual agora.
-async function escolherEstiloSeGanhou(novas) {
+async function escolherEstiloSeGanhou(novas, classeId = '') {
   if (!novas.some(x => /^Estilo de Luta/i.test(x.nome))) return;
-  const t = await escolherTalento('Estilo de Luta');
+  const t = await escolherTalento('Estilo de Luta', { estilo: true, classe: classeId });
   if (!t) return;
   p.caracteristicas.push({ nome: t.nome, origem: 'Estilo de Luta', descricao: t.descricao });
   salvar();
