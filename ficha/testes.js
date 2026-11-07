@@ -165,6 +165,16 @@ teste('recursos de classe e espaços por tipo', () => {
   assert.deepStrictEqual([R.ataqueMagia(bonus), R.cdMagia(bonus)], [6, 15]);
 });
 
+teste('equipamento por categoria', () => {
+  assert.deepStrictEqual(pandora.equipamentos, []);
+  const x = R.limparPersonagem({ ...pandora, equipamentos: [{ nome: 'Poção de Cura', qtd: 3, categoria: 'consumiveis' }, { nome: 'Anel', categoria: 'magicos', sintonizado: true },
+    { nome: '', qtd: -2, categoria: 'xyz' }, null] });
+  assert.strictEqual(x.equipamentos.length, 4);
+  assert.deepStrictEqual(x.equipamentos[2], { nome: 'Item', qtd: 0, categoria: 'diversos', notas: '', sintonizado: false, equipado: false });
+  assert.strictEqual(R.sintonizados(x), 1);
+  assert.deepStrictEqual(R.limparPersonagem(x).equipamentos, x.equipamentos);
+});
+
 teste('dados do SRD em português: completos e coerentes', () => {
   const D = require('./dados5e.js');
   assert.strictEqual(D.classes.length, 12);

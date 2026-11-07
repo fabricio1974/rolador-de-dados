@@ -531,7 +531,8 @@ function desenharPrincipal() {
   const trio = el('div', 'trio');
   const ini = iniciativa(p);
   trio.append(caixaNumero('caixa-verde', 'Iniciativa', semMais(ini), rolarIniciativa, editarIniciativa));
-  const pv = botao('caixa-pv' + (p.pv <= p.pvMax / 4 ? ' baixo' : ''),
+  // PV em preto; azul só quando há PV temporários (que aparecem embaixo, "+5 temp.").
+  const pv = botao('caixa-pv' + (p.pvTemp ? ' com-temp' : ''),
     [el('span', 'rot', 'PV'), el('span', 'num-grande', String(p.pv))], folhaPV, folhaPV);
   if (p.pvTemp) pv.append(el('span', 'temp', `+${p.pvTemp} temp.`));
   trio.append(pv);
@@ -747,7 +748,11 @@ function desenharDetalhes() {
   carac.id = 'det-caracteristicas';
   pg.append(carac);
   desenharCaracteristicas();
-  for (const t of TEXTOS) pg.append(cartao(t.id === 'caracteristicas' ? 'Outras Características' : t.nome, campoTexto(t.id)));
+  for (const t of TEXTOS) {
+    // Equipamento: inventário em abas (Armas, Mágicos, Consumíveis...) em vez de um texto só.
+    if (t.id === 'equipamento') { pg.append(cartaoEquipamento(campoTexto)); continue; }
+    pg.append(cartao(t.id === 'caracteristicas' ? 'Outras Características' : t.nome, campoTexto(t.id)));
+  }
   const moedas = el('div', 'moedas');
   for (const m of MOEDAS) {
     const i = entrada(p.moedas[m.id], 'number', { inputMode: 'numeric', min: 0 });

@@ -300,6 +300,25 @@ function limparAtaque(a) {
   };
 }
 
+// ---------- Equipamento (inventário por categoria) ----------
+const CATEGORIAS_ITEM = [
+  ['armas', 'Armas'], ['armaduras', 'Armaduras'], ['magicos', 'Mágicos'],
+  ['consumiveis', 'Consumíveis'], ['ferramentas', 'Ferramentas'], ['diversos', 'Diversos'],
+];
+const MAX_SINTONIZADOS = 3;   // regra 2024: até 3 itens mágicos sintonizados
+function limparItem(i) {
+  i = i && typeof i === 'object' ? i : {};
+  return {
+    nome: texto(i.nome, 80) || 'Item',
+    qtd: inteiro(i.qtd, 1, 0, 9999),
+    categoria: CATEGORIAS_ITEM.some(c => c[0] === i.categoria) ? i.categoria : 'diversos',
+    notas: texto(i.notas, 2000),
+    sintonizado: i.sintonizado === true,
+    equipado: i.equipado === true,
+  };
+}
+const sintonizados = (p) => p.equipamentos.filter(i => i.sintonizado).length;
+
 function limparRecurso(r) {
   const max = inteiro(r.max, 1, 0, 99);
   return {
@@ -453,6 +472,7 @@ function limparPersonagem(x) {
     espacos,
     magias: Array.isArray(x.magias) ? x.magias.slice(0, 300).map(limparMagia) : [],
     moedas, textos,
+    equipamentos: Array.isArray(x.equipamentos) ? x.equipamentos.slice(0, 500).map(limparItem) : [],
     // Características ganhas (classe, espécie, antecedente, talentos), cada uma com sua descrição.
     caracteristicas: Array.isArray(x.caracteristicas) ? x.caracteristicas.filter(c => c && typeof c === 'object').slice(0, 300).map(c => ({
       nome: texto(c.nome, 80) || 'Característica', origem: texto(c.origem, 60), descricao: texto(c.descricao, 6000),
@@ -522,7 +542,7 @@ if (typeof module !== 'undefined') {
     modificador, proficiencia, comSinal, modDe, profDe, salvaguarda, pericia, iniciativa, percepcaoPassiva,
     bonusAtaque, exprDano, ataqueMagia, cdMagia, exprMagia, TIPOS_ESPACOS, espacosPorTipo,
     TIPOS_ARMADURA, maxDestreza, classeArmaduraDe, TIPOS_DESLOCAMENTO, deslocamentoDe, metros, lerMetros,
-    restanteRecurso, textoRecurso, descansarRecursos, limparRecurso,
+    restanteRecurso, textoRecurso, descansarRecursos, limparRecurso, CATEGORIAS_ITEM, MAX_SINTONIZADOS, limparItem, sintonizados,
     nivelTotal, textoDadosDeVida, classeENivelDe, acharClasse, ESPACOS_COMPLETO, espacosDasClasses, aplicarEspacos,
     ganhaAumento, aplicarAumento, escalaTruque, escalarDados, sofrerDano, curar, dadosDeVidaRestantes, descansoLongo,
     mediaDadoVida, ganhoDeNivel, novoPersonagem, limparPersonagem, limparAtaque, limparMagia, exemploPandora, lerImportacao,

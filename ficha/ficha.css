@@ -672,3 +672,48 @@ input.sublinhado.grande { width: 56px; font-size: 1.4rem; }
 .linha-criador select, .linha-criador input { padding-top: 3px; padding-bottom: 3px; }
 .encaixar.quebrado { white-space: normal; overflow-wrap: anywhere; line-height: 1.1; }
 .grupo-azul .num-grande, .caixa-amarela .num-grande { margin-block: auto; }
+
+/* ======================================================================
+   Versão 5: PV preto (azul só com PV temporário) e equipamento em abas
+   ====================================================================== */
+.caixa-pv .num-grande, .caixa-pv.baixo .num-grande { color: var(--texto); }
+.caixa-pv.com-temp .num-grande { color: var(--azul-pv); }
+
+.cartao-equip { padding-bottom: 6px; }
+.abas-equip {
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 2px -2px 6px; padding: 0 2px;
+  touch-action: pan-x; overscroll-behavior-x: contain;
+}
+.abas-equip::-webkit-scrollbar { display: none; }
+.aba-equip {
+  flex: none; padding: 3px 10px; border: 2px solid var(--petroleo); border-radius: 999px; background: #f4f4f4;
+  font-size: clamp(.85rem, 3.9vw, 1rem); white-space: nowrap; color: #222;
+}
+.aba-equip.ativa { background: var(--petroleo); color: #fff; }
+.aba-equip small { font-size: .78em; opacity: .75; margin-left: 3px; }
+.lista-equip { display: flex; flex-direction: column; gap: 3px; }
+.item-equip {
+  display: flex; align-items: center; gap: 6px; background: #f4f4f4; border: 2px solid var(--petroleo); border-radius: 8px;
+  padding: 0 4px 0 8px; min-height: 36px;
+}
+.item-equip.esgotado { opacity: .55; }
+.item-equip .abrir-item { flex: 1; min-width: 0; text-align: left; display: flex; flex-direction: column; padding: 3px 0; }
+.item-equip .abrir-item b { font-weight: 500; font-size: clamp(.95rem, 4.4vw, 1.12rem); }
+.item-equip .abrir-item small { color: #555; font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-equip .marcas { font-size: .72rem; color: var(--petroleo); font-weight: 700; margin-left: 4px; }
+.qtd-equip { display: flex; align-items: center; gap: 2px; flex: none; }
+.qtd-equip span { min-width: 2.4em; text-align: center; font-variant-numeric: tabular-nums; font-size: 1.05rem; }
+.qtd-equip button {
+  width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--petroleo); color: var(--petroleo); font-size: 1.1rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center; background: #fff;
+}
+.qtd-equip button:active { background: #d6e3e6; }
+.equip-rodape { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
+.equip-rodape .botao { flex: none; min-width: 0; padding: 7px 14px; background: #d6e3e6; }
+.equip-info { font-size: .8rem; color: #555; }
+.equip-vazio { color: #666; font-size: .92rem; margin: 4px 2px 2px; }
+.notas-equip { margin-top: 8px; }
+.notas-equip span { display: block; font-size: .8rem; color: #555; font-weight: 700; }
+.dialogo textarea.notas-item { width: 100%; min-height: 70px; border: 1px solid #bbb; border-radius: 6px; padding: 6px; font-size: 1rem; resize: vertical; background: #fff; }
+.stepper { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 4px 0; }
+.stepper input { width: 70px; }
